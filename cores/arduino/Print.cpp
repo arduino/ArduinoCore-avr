@@ -41,7 +41,7 @@ size_t Print::write(const uint8_t *buffer, size_t size)
   return n;
 }
 
-size_t Print::print(const __FlashStringHelper *ifsh)
+size_t Print::doPrint(const __FlashStringHelper *ifsh)
 {
   PGM_P p = reinterpret_cast<PGM_P>(ifsh);
   size_t n = 0;
@@ -54,12 +54,12 @@ size_t Print::print(const __FlashStringHelper *ifsh)
   return n;
 }
 
-size_t Print::print(const String &s)
+size_t Print::doPrint(const String &s)
 {
   return write(s.c_str(), s.length());
 }
 
-size_t Print::print(signed long n, int base)
+size_t Print::doPrint(signed long n, int base)
 {
   if (base == 0) {
     return write(n);
@@ -75,13 +75,13 @@ size_t Print::print(signed long n, int base)
   }
 }
 
-size_t Print::print(unsigned long n, int base)
+size_t Print::doPrint(unsigned long n, int base)
 {
   if (base == 0) return write(n);
   else return printNumber(n, base);
 }
 
-size_t Print::print(double n, int digits)
+size_t Print::doPrint(double n, int digits)
 {
   return printFloat(n, digits);
 }

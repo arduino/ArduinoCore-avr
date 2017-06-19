@@ -60,28 +60,41 @@ class Print
       return write((const uint8_t *)buffer, size);
     }
 
+
     // default to zero, meaning "a single write may block"
     // should be overriden by subclasses with buffering
     virtual int availableForWrite() { return 0; }
 
-    size_t print(const __FlashStringHelper *);
-    size_t print(const String &);
-    size_t print(  signed long, int = DEC);
-    size_t print(unsigned long, int = DEC);
-    size_t print(double, int = 2);
+    size_t doPrint(const __FlashStringHelper *);
+    size_t doPrint(const String &);
+    size_t doPrint(  signed long, int = DEC);
+    size_t doPrint(unsigned long, int = DEC);
+    size_t doPrint(double, int = 2);
     
-    _always_inline size_t print(const char str[])   { return write(str); }
-    _always_inline size_t print(const char c)       { return write(c); }
-    _always_inline size_t print(const Printable &x) { return x.printTo(*this); }
+    _always_inline size_t doPrint(const char str[])   { return write(str); }
+    _always_inline size_t doPrint(const char c)       { return write(c); }
+    _always_inline size_t doPrint(const Printable &x) { return x.printTo(*this); }
     
-    _always_inline size_t print(  signed char  n, int f = DEC) { return print((  signed long) n, f); }
-    _always_inline size_t print(  signed short n, int f = DEC) { return print((  signed long) n, f); }
-    _always_inline size_t print(  signed int   n, int f = DEC) { return print((  signed long) n, f); }
-    _always_inline size_t print(unsigned char  n, int f = DEC) { return print((unsigned long) n, f); }
-    _always_inline size_t print(unsigned short n, int f = DEC) { return print((unsigned long) n, f); }
-    _always_inline size_t print(unsigned int   n, int f = DEC) { return print((unsigned long) n, f); }
-    _always_inline size_t print(    float      n, int f = 2  ) { return print((    double   ) n, f); }
-    
+    _always_inline size_t doPrint(  signed char  n, int f = DEC) { return doPrint((  signed long) n, f); }
+    _always_inline size_t doPrint(  signed short n, int f = DEC) { return doPrint((  signed long) n, f); }
+    _always_inline size_t doPrint(  signed int   n, int f = DEC) { return doPrint((  signed long) n, f); }
+    _always_inline size_t doPrint(unsigned char  n, int f = DEC) { return doPrint((unsigned long) n, f); }
+    _always_inline size_t doPrint(unsigned short n, int f = DEC) { return doPrint((unsigned long) n, f); }
+    _always_inline size_t doPrint(unsigned int   n, int f = DEC) { return doPrint((unsigned long) n, f); }
+    _always_inline size_t doPrint(    float      n, int f = 2  ) { return doPrint((    double   ) n, f); }
+
+    template <typename Check, typename T>
+    struct check_type {
+      using type = T;
+    };
+    template <typename Check, typename T> using check_type_t = typename check_type<Check, T>::type;
+
+    template<typename T, typename F>
+    _always_inline auto doPrint(T v, F f )
+    -> check_type_t<decltype(f.printTo(this, v)), size_t> {
+      return f.printTo(this, v);
+    }
+ 
     size_t println(void);
 
     virtual void flush() { /* Empty implementation for backward compatibility */ }
@@ -90,21 +103,26 @@ class Print
     template<typename ...Ts> _always_inline size_t println(const Ts &...args) { size_t t = print(args...); return t + println(); }
 #else
     template<typename T> _always_inline size_t println(const T &arg)      { size_t t = print(arg);  return t + println(); }
-    template<typename T> _always_inline size_t println(const T &n, int f) { size_t t = print(n, f); return t + println(); }
+    template<typename T, typename T2> _always_inline size_t println(const T &arg1, const T2& arg2) { size_t t = print(arg1, arg2); return t + println(); }
 #endif // __cplusplus >= 201103L
 
+    _always_inline size_t print() { return 0; }
 
     /** Variadic methods **/
 #if __cplusplus >= 201103L  // requires C++11
-    // Ensure there are at least two parameters to avoid infinite recursion.
-    // e.g. `StringSumHelper s; print(s)` may be treated as `print(s, ...)` 
-    // with `...` being the empty list, thus calling `print(s)` again.
-    // (This is because print(StringSumHelper) isn't explicitly defined.)
-    template<typename T, typename T2, typename ...Ts>
-    _always_inline size_t print(const T &arg, const T2 &arg2, const Ts &...args) {
-      size_t t = print(arg);
-      return t + print(arg2, args...);
+    template<typename T, typename ...Ts>
+    _always_inline size_t print(const T &arg, const Ts &...args) {
+      size_t t = doPrint(arg);
+      return t + print(args...);
     }
+
+    template<typename T, typename T2, typename ...Ts>
+    _always_inline auto print(const T &arg, const T2 &arg2, const Ts &...args)
+    -> check_type_t<decltype(doPrint(arg, arg2)), size_t> {
+      size_t t = doPrint(arg, arg2);
+      return t + print(args...);
+    }
+/*
     // Some methods take an extra int parameter.  If so, use these templates.
     // In a future, it would be nice to make the base/precision a special type.
     template<typename ...Ts> _always_inline size_t print(  signed char  n, int f, const Ts &...args) { size_t t = print(n, f); return t + print(args...); }
@@ -117,6 +135,10 @@ class Print
     template<typename ...Ts> _always_inline size_t print(unsigned long  n, int f, const Ts &...args) { size_t t = print(n, f); return t + print(args...); }
     template<typename ...Ts> _always_inline size_t print(    float      n, int f, const Ts &...args) { size_t t = print(n, f); return t + print(args...); }
     template<typename ...Ts> _always_inline size_t print(    double     n, int f, const Ts &...args) { size_t t = print(n, f); return t + print(args...); }
+*/
+#else
+    template<typename T> _always_inline size_t print(const T &arg)      { return doPrint(arg); }
+    template<typename T, typename T2> _always_inline size_t print(const T &arg1, const T2& arg2) { return doPrint(arg1, arg2); }
 #endif // __cplusplus >= 201103L
 };
 
