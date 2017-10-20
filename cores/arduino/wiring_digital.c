@@ -28,6 +28,10 @@
 
 void pinMode(uint8_t pin, uint8_t mode)
 {
+	#if defined(VIRTUAL_PINS) && defined(VPINS_TRIGGER)
+	if (pin>=NUM_DIGITAL_PINS) return (*virtual_pinMode_handler)(pin,mode);
+	#endif
+
 	uint8_t bit = digitalPinToBitMask(pin);
 	uint8_t port = digitalPinToPort(pin);
 	volatile uint8_t *reg, *out;
@@ -38,7 +42,7 @@ void pinMode(uint8_t pin, uint8_t mode)
 	reg = portModeRegister(port);
 	out = portOutputRegister(port);
 
-	if (mode == INPUT) { 
+	if (mode == INPUT) {
 		uint8_t oldSREG = SREG;
                 cli();
 		*reg &= ~bit;
@@ -85,15 +89,15 @@ static void turnOffPWM(uint8_t timer)
 		#if defined(TCCR1A) && defined(COM1C1)
 		case TIMER1C:   cbi(TCCR1A, COM1C1);    break;
 		#endif
-		
+
 		#if defined(TCCR2) && defined(COM21)
 		case  TIMER2:   cbi(TCCR2, COM21);      break;
 		#endif
-		
+
 		#if defined(TCCR0A) && defined(COM0A1)
 		case  TIMER0A:  cbi(TCCR0A, COM0A1);    break;
 		#endif
-		
+
 		#if defined(TCCR0A) && defined(COM0B1)
 		case  TIMER0B:  cbi(TCCR0A, COM0B1);    break;
 		#endif
@@ -103,7 +107,7 @@ static void turnOffPWM(uint8_t timer)
 		#if defined(TCCR2A) && defined(COM2B1)
 		case  TIMER2B:  cbi(TCCR2A, COM2B1);    break;
 		#endif
-		
+
 		#if defined(TCCR3A) && defined(COM3A1)
 		case  TIMER3A:  cbi(TCCR3A, COM3A1);    break;
 		#endif
@@ -116,17 +120,17 @@ static void turnOffPWM(uint8_t timer)
 
 		#if defined(TCCR4A) && defined(COM4A1)
 		case  TIMER4A:  cbi(TCCR4A, COM4A1);    break;
-		#endif					
+		#endif
 		#if defined(TCCR4A) && defined(COM4B1)
 		case  TIMER4B:  cbi(TCCR4A, COM4B1);    break;
 		#endif
 		#if defined(TCCR4A) && defined(COM4C1)
 		case  TIMER4C:  cbi(TCCR4A, COM4C1);    break;
-		#endif			
+		#endif
 		#if defined(TCCR4C) && defined(COM4D1)
 		case TIMER4D:	cbi(TCCR4C, COM4D1);	break;
-		#endif			
-			
+		#endif
+
 		#if defined(TCCR5A)
 		case  TIMER5A:  cbi(TCCR5A, COM5A1);    break;
 		case  TIMER5B:  cbi(TCCR5A, COM5B1);    break;
@@ -137,6 +141,9 @@ static void turnOffPWM(uint8_t timer)
 
 void digitalWrite(uint8_t pin, uint8_t val)
 {
+	#if defined(VIRTUAL_PINS) && defined(VPINS_TRIGGER)
+	if (pin>=NUM_DIGITAL_PINS) return (*virtual_digitalWrite_handler)(pin,val);
+	#endif
 	uint8_t timer = digitalPinToTimer(pin);
 	uint8_t bit = digitalPinToBitMask(pin);
 	uint8_t port = digitalPinToPort(pin);
@@ -164,6 +171,9 @@ void digitalWrite(uint8_t pin, uint8_t val)
 
 int digitalRead(uint8_t pin)
 {
+	#if defined(VIRTUAL_PINS) && defined(VPINS_TRIGGER)
+	if (pin>=NUM_DIGITAL_PINS) return (*virtual_digitalRead_handler)(pin);
+	#endif
 	uint8_t timer = digitalPinToTimer(pin);
 	uint8_t bit = digitalPinToBitMask(pin);
 	uint8_t port = digitalPinToPort(pin);
@@ -177,3 +187,11 @@ int digitalRead(uint8_t pin)
 	if (*portInputRegister(port) & bit) return HIGH;
 	return LOW;
 }
+
+	#if defined(VIRTUAL_PINS)
+	void virtual_defaultHandler(uint8_t pin, uint8_t val) {}
+	int virtual_defaultRead_handler(uint8_t pin) {return LOW;}
+	void (*virtual_pinMode_handler)(uint8_t pin, uint8_t mode)=virtual_defaultHandler;
+	void (*virtual_digitalWrite_handler)(uint8_t pin, uint8_t val)=virtual_defaultHandler;
+	int (*virtual_digitalRead_handler)(uint8_t pin)=virtual_defaultRead_handler;
+	#endif
