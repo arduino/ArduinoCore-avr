@@ -9,8 +9,6 @@
 
 // This example code is in the public domain.
 
-// This example code is in the public domain.
-
 
 #include <Wire.h>
 
