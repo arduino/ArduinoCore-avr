@@ -97,6 +97,9 @@
 
 // bMaxPower in Configuration Descriptor
 #define USB_CONFIG_POWER_MA(mA)                ((mA)/2)
+#ifndef USB_CONFIG_POWER
+ #define USB_CONFIG_POWER                      (500)
+#endif
 
 // bEndpointAddress in Endpoint Descriptor
 #define USB_ENDPOINT_DIRECTION_MASK            0x80
@@ -267,7 +270,7 @@ typedef struct
 	{ 18, 1, USB_VERSION, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
 
 #define D_CONFIG(_totalLength,_interfaces) \
-	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_BUS_POWERED | USB_CONFIG_REMOTE_WAKEUP, USB_CONFIG_POWER_MA(500) }
+	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_BUS_POWERED | USB_CONFIG_REMOTE_WAKEUP, USB_CONFIG_POWER_MA(USB_CONFIG_POWER) }
 
 #define D_INTERFACE(_n,_numEndpoints,_class,_subClass,_protocol) \
 	{ 9, 4, _n, 0, _numEndpoints, _class,_subClass, _protocol, 0 }
