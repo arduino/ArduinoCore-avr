@@ -37,7 +37,14 @@
   #define TWI_MTX   2
   #define TWI_SRX   3
   #define TWI_STX   4
-  
+
+  #define TWI_SUCCESS       0
+  #define TWI_DATA_TOO_LONG 1
+  #define TWI_NACK_ON_ADDR  2
+  #define TWI_NOT_SLAVE_TX  2
+  #define TWI_NACK_ON_DATA  3
+  #define TWI_OTHER_ERROR   4
+
   void twi_init(void);
   void twi_disable(void);
   void twi_setAddress(uint8_t);
