@@ -21,6 +21,7 @@
 */
 
 #include "wiring_private.h"
+#include <avr/sleep.h>
 
 // the prescaler is set so that timer0 ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
@@ -107,13 +108,16 @@ void delay(unsigned long ms)
 {
 	uint32_t start = micros();
 
+	sleep_enable();
 	while (ms > 0) {
 		yield();
 		while ( ms > 0 && (micros() - start) >= 1000) {
 			ms--;
 			start += 1000;
 		}
+		if (ms>MILLIS_INC) sleep_cpu();
 	}
+	sleep_disable();
 }
 
 /* Delay for the given number of microseconds.  Assumes a 1, 8, 12, 16, 20 or 24 MHz clock. */
