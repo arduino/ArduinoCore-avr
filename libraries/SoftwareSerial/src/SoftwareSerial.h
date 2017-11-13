@@ -54,6 +54,7 @@ private:
   uint8_t _receivePin;
   uint8_t _receiveBitMask;
   volatile uint8_t *_receivePortRegister;
+  uint8_t _transmitPin;
   uint8_t _transmitBitMask;
   volatile uint8_t *_transmitPortRegister;
   volatile uint8_t *_pcint_maskreg;
@@ -67,6 +68,7 @@ private:
 
   uint16_t _buffer_overflow:1;
   uint16_t _inverse_logic:1;
+  uint16_t _full_duplex:1;
 
   // static data
   static uint8_t _receive_buffer[_SS_MAX_RX_BUFF]; 
@@ -89,7 +91,7 @@ private:
 
 public:
   // public methods
-  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
+  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false, bool full_duplex = true);
   ~SoftwareSerial();
   void begin(long speed);
   bool listen();
