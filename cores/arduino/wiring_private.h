@@ -59,6 +59,8 @@ uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, u
 #define EXTERNAL_NUM_INTERRUPTS 3
 #elif defined(__AVR_ATmega32U4__)
 #define EXTERNAL_NUM_INTERRUPTS 5
+#elif defined(__AVR_ATmega169P__)
+#define EXTERNAL_NUM_INTERRUPTS 1
 #else
 #define EXTERNAL_NUM_INTERRUPTS 2
 #endif
