@@ -1,5 +1,3 @@
-
-
 /* Copyright (c) 2011, Peter Barrett  
 **  
 ** Permission to use, copy, modify, and/or distribute this software for  
@@ -16,25 +14,31 @@
 ** SOFTWARE.  
 */
 
-#include "USBAPI.h"
+#define RINGBUFFER_FORCE_SMALL_SIZE
+
 #include <avr/wdt.h>
 #include <util/atomic.h>
+#include <avr/pgmspace.h>
+#include "CDC.h"
+#include "api/USBAPI.h"
+#include "USBCore.h"
+#include "api/Common.h"
 
 #if defined(USBCON)
 
 typedef struct
 {
-	u32	dwDTERate;
-	u8	bCharFormat;
-	u8 	bParityType;
-	u8 	bDataBits;
-	u8	lineState;
+	uint32_t	dwDTERate;
+	uint8_t		bCharFormat;
+	uint8_t 	bParityType;
+	uint8_t 	bDataBits;
+	uint8_t		lineState;
 } LineInfo;
 
 static volatile LineInfo _usbLineInfo = { 57600, 0x00, 0x00, 0x00, 0x00 };
 static volatile int32_t breakValue = -1;
 
-static u8 wdtcsr_save;
+static uint8_t wdtcsr_save;
 
 #define WEAK __attribute__ ((weak))
 
@@ -62,7 +66,7 @@ bool isLUFAbootloader()
 	return pgm_read_word(FLASHEND - 1) == NEW_LUFA_SIGNATURE;
 }
 
-int CDC_GetInterface(u8* interfaceNum)
+int CDC_GetInterface(uint8_t* interfaceNum)
 {
 	interfaceNum[0] += 2;	// uses 2
 	return USB_SendControl(TRANSFER_PGM,&_cdcInterface,sizeof(_cdcInterface));
@@ -70,8 +74,8 @@ int CDC_GetInterface(u8* interfaceNum)
 
 bool CDC_Setup(USBSetup& setup)
 {
-	u8 r = setup.bRequest;
-	u8 requestType = setup.bmRequestType;
+	uint8_t r = setup.bRequest;
+	uint8_t requestType = setup.bmRequestType;
 
 	if (REQUEST_DEVICETOHOST_CLASS_INTERFACE == requestType)
 	{

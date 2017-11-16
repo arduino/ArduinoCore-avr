@@ -21,7 +21,7 @@
 
 #include <stdint.h>
 #include <Arduino.h>
-#include "PluggableUSB.h"
+#include "api/PluggableUSB.h"
 
 #if defined(USBCON)
 
@@ -104,7 +104,7 @@ protected:
   uint8_t getShortName(char* name);
 
 private:
-  uint8_t epType[1];
+  unsigned int epType[1];
 
   HIDSubDescriptor* rootNode;
   uint16_t descriptorSize;
@@ -119,6 +119,10 @@ private:
 HID_& HID();
 
 #define D_HIDREPORT(length) { 9, 0x21, 0x01, 0x01, 0, 1, 0x22, lowByte(length), highByte(length) }
+
+#else
+
+#error "No Native USB support available on this board"
 
 #endif // USBCON
 

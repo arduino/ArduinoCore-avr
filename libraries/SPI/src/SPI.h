@@ -303,13 +303,14 @@ public:
     SPCR = (SPCR & ~SPI_CLOCK_MASK) | (clockDiv & SPI_CLOCK_MASK);
     SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | ((clockDiv >> 2) & SPI_2XCLOCK_MASK);
   }
+
+private:
   // These undocumented functions should not be used.  SPI.transfer()
   // polls the hardware flag which is automatically cleared as the
   // AVR responds to SPI's interrupt
   inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
   inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
 
-private:
   static uint8_t initialized;
   static uint8_t interruptMode; // 0=none, 1=mask, 2=global
   static uint8_t interruptMask; // which interrupts to mask

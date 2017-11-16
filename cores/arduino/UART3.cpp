@@ -1,5 +1,5 @@
 /*
-  HardwareSerial2.cpp - Hardware serial library for Wiring
+  UartClass3.cpp - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -23,35 +23,35 @@
 */
 
 #include "Arduino.h"
-#include "HardwareSerial.h"
-#include "HardwareSerial_private.h"
+#include "UART.h"
+#include "UART_private.h"
 
-// Each HardwareSerial is defined in its own file, sine the linker pulls
+// Each UartClass is defined in its own file, sine the linker pulls
 // in the entire file when any element inside is used. --gc-sections can
 // additionally cause unused symbols to be dropped, but ISRs have the
 // "used" attribute so are never dropped and they keep the
-// HardwareSerial instance in as well. Putting each instance in its own
+// UartClass instance in as well. Putting each instance in its own
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
-#if defined(HAVE_HWSERIAL2)
+#if defined(HAVE_HWSERIAL3)
 
-ISR(USART2_RX_vect)
+ISR(USART3_RX_vect)
 {
-  Serial2._rx_complete_irq();
+  Serial3._rx_complete_irq();
 }
 
-ISR(USART2_UDRE_vect)
+ISR(USART3_UDRE_vect)
 {
-  Serial2._tx_udr_empty_irq();
+  Serial3._tx_udr_empty_irq();
 }
 
-HardwareSerial Serial2(&UBRR2H, &UBRR2L, &UCSR2A, &UCSR2B, &UCSR2C, &UDR2);
+UartClass Serial3(&UBRR3H, &UBRR3L, &UCSR3A, &UCSR3B, &UCSR3C, &UDR3);
 
 // Function that can be weakly referenced by serialEventRun to prevent
 // pulling in this file if it's not otherwise used.
-bool Serial2_available() {
-  return Serial2.available();
+bool Serial3_available() {
+  return Serial3.available();
 }
 
-#endif // HAVE_HWSERIAL2
+#endif // HAVE_HWSERIAL3

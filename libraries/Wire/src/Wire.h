@@ -22,15 +22,14 @@
 #ifndef TwoWire_h
 #define TwoWire_h
 
-#include <inttypes.h>
-#include "Stream.h"
+#include <Arduino.h>
 
 #define BUFFER_LENGTH 32
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
-class TwoWire : public Stream
+class TwoWire : public HardwareI2C
 {
   private:
     static uint8_t rxBuffer[];
@@ -57,10 +56,10 @@ class TwoWire : public Stream
     void beginTransmission(uint8_t);
     void beginTransmission(int);
     uint8_t endTransmission(void);
-    uint8_t endTransmission(uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
-	uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
+    uint8_t endTransmission(bool);
+    uint8_t requestFrom(uint8_t, size_t);
+    uint8_t requestFrom(uint8_t, size_t, bool);
+    uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
     uint8_t requestFrom(int, int);
     uint8_t requestFrom(int, int, int);
     virtual size_t write(uint8_t);
