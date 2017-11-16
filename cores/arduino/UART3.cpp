@@ -1,5 +1,5 @@
 /*
-  HardwareSerial1.cpp - Hardware serial library for Wiring
+  UartClass3.cpp - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -23,47 +23,35 @@
 */
 
 #include "Arduino.h"
-#include "HardwareSerial.h"
-#include "HardwareSerial_private.h"
+#include "UART.h"
+#include "UART_private.h"
 
-// Each HardwareSerial is defined in its own file, since the linker pulls
+// Each UartClass is defined in its own file, sine the linker pulls
 // in the entire file when any element inside is used. --gc-sections can
 // additionally cause unused symbols to be dropped, but ISRs have the
 // "used" attribute so are never dropped and they keep the
-// HardwareSerial instance in as well. Putting each instance in its own
+// UartClass instance in as well. Putting each instance in its own
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
-#if defined(HAVE_HWSERIAL1)
+#if defined(HAVE_HWSERIAL3)
 
-#if defined(UART1_RX_vect)
-ISR(UART1_RX_vect)
-#elif defined(USART1_RX_vect)
-ISR(USART1_RX_vect)
-#else
-#error "Don't know what the Data Register Empty vector is called for Serial1"
-#endif
+ISR(USART3_RX_vect)
 {
-  Serial1._rx_complete_irq();
+  Serial3._rx_complete_irq();
 }
 
-#if defined(UART1_UDRE_vect)
-ISR(UART1_UDRE_vect)
-#elif defined(USART1_UDRE_vect)
-ISR(USART1_UDRE_vect)
-#else
-#error "Don't know what the Data Register Empty vector is called for Serial1"
-#endif
+ISR(USART3_UDRE_vect)
 {
-  Serial1._tx_udr_empty_irq();
+  Serial3._tx_udr_empty_irq();
 }
 
-HardwareSerial Serial1(&UBRR1H, &UBRR1L, &UCSR1A, &UCSR1B, &UCSR1C, &UDR1);
+UartClass Serial3(&UBRR3H, &UBRR3L, &UCSR3A, &UCSR3B, &UCSR3C, &UDR3);
 
 // Function that can be weakly referenced by serialEventRun to prevent
 // pulling in this file if it's not otherwise used.
-bool Serial1_available() {
-  return Serial1.available();
+bool Serial3_available() {
+  return Serial3.available();
 }
 
-#endif // HAVE_HWSERIAL1
+#endif // HAVE_HWSERIAL3

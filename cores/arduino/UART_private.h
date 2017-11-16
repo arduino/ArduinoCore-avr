@@ -84,7 +84,7 @@
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-HardwareSerial::HardwareSerial(
+UartClass::UartClass(
   volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
   volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
   volatile uint8_t *ucsrc, volatile uint8_t *udr) :
@@ -98,7 +98,7 @@ HardwareSerial::HardwareSerial(
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-void HardwareSerial::_rx_complete_irq(void)
+void UartClass::_rx_complete_irq(void)
 {
   if (bit_is_clear(*_ucsra, UPE0)) {
     // No Parity error, read byte and store it in the buffer if there is
