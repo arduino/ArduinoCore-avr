@@ -100,7 +100,11 @@ void HardwareSerial::_tx_udr_empty_irq(void)
   // actually got written. Other r/w bits are preserved, and zeroes
   // written to the rest.
 
+#ifdef MPCM0
   *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0);
+#else
+  *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << TXC0)));
+#endif
 
   if (_tx_buffer_head == _tx_buffer_tail) {
     // Buffer empty, so disable interrupts
@@ -236,7 +240,11 @@ size_t HardwareSerial::write(uint8_t c)
     // be cleared when no bytes are left, causing flush() to hang
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       *_udr = c;
+#ifdef MPCM0
       *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0);
+#else
+      *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << TXC0)));
+#endif
     }
     return 1;
   }
