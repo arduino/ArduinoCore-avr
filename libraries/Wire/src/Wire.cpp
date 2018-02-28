@@ -86,6 +86,11 @@ void TwoWire::setClock(uint32_t clock)
   twi_setFrequency(clock);
 }
 
+void TwoWire::setTimeoutInMillis(uint8_t timeout)
+{
+  twi_setTimeoutInMillis(timeout);
+}
+
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop)
 {
   if (isize > 0) {

@@ -42,6 +42,7 @@ static volatile uint8_t twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
+static volatile uint8_t twi_timeout_ms = 0;
 
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
@@ -394,6 +395,11 @@ void twi_releaseBus(void)
 
   // update twi state
   twi_state = TWI_READY;
+}
+
+void twi_setTimeoutInMillis(uint8_t timeout)
+{
+   twi_timeout_ms = timeout;
 }
 
 ISR(TWI_vect)
