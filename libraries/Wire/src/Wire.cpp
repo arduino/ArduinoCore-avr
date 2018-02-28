@@ -18,6 +18,7 @@
  
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
   Modified 2017 by Chuck Todd (ctodd@cableone.net) to correct Unconfigured Slave Mode reboot
+  Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
 extern "C" {
@@ -84,6 +85,33 @@ void TwoWire::end(void)
 void TwoWire::setClock(uint32_t clock)
 {
   twi_setFrequency(clock);
+}
+
+/***
+ * Sets the TWI timeout.
+ *
+ * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
+ * @param reset_with_timeout if true then TWI interface will be automatically reset on timeout
+ *                           if false then TWI interface will not be reset on timeout
+ */
+void TwoWire::setWireTimeoutUs(uint32_t timeout, bool reset_with_timeout){
+  twi_setTimeoutInMicros(timeout, reset_with_timeout);
+}
+
+/***
+ * Returns the TWI timeout flag.
+ *
+ * @return true if timeout has occured
+ */
+bool TwoWire::getWireTimeoutFlag(void){
+  return(twi_manageTimeoutFlag(false));
+}
+
+/***
+ * Clears the TWI timeout flag.
+ */
+void TwoWire::clearWireTimeoutFlag(void){
+  twi_manageTimeoutFlag(true);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop)
