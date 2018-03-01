@@ -25,7 +25,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <compat/twi.h>
-#include "Arduino.h" // for digitalWrite
+#include "Arduino.h" // for digitalWrite and millis
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -155,7 +155,14 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   }
 
   // wait until twi is ready, become master receiver
+  uint32_t startMillis = millis();
   while(TWI_READY != twi_state){
+    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+      //timeout
+      twi_init();
+
+      return 0;
+    }
     continue;
   }
   twi_state = TWI_MRX;
@@ -194,7 +201,14 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
     TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
 
   // wait for read operation to complete
+  startMillis = millis();
   while(TWI_MRX == twi_state){
+    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+      //timeout
+      twi_init();
+
+      return 0;
+    }
     continue;
   }
 
@@ -234,7 +248,14 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   }
 
   // wait until twi is ready, become master transmitter
+  uint32_t startMillis = millis();
   while(TWI_READY != twi_state){
+    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+      //timeout
+      twi_init();
+
+      return 4;
+    }
     continue;
   }
   twi_state = TWI_MTX;
@@ -276,7 +297,14 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE) | _BV(TWSTA);	// enable INTs
 
   // wait for write operation to complete
+  startMillis = millis();
   while(wait && (TWI_MTX == twi_state)){
+    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+      //timeout
+      twi_init();
+
+      return 4;
+    }
     continue;
   }
   
