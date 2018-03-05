@@ -159,6 +159,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   while(TWI_READY != twi_state){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
       //timeout
+      twi_disable();
       twi_init();
 
       return 0;
@@ -205,6 +206,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   while(TWI_MRX == twi_state){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
       //timeout
+      twi_disable();
       twi_init();
 
       return 0;
@@ -252,6 +254,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   while(TWI_READY != twi_state){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
       //timeout
+      twi_disable();
       twi_init();
 
       return 4;
@@ -301,6 +304,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   while(wait && (TWI_MTX == twi_state)){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
       //timeout
+      twi_disable();
       twi_init();
 
       return 4;
@@ -407,6 +411,7 @@ void twi_stop(void)
     counter++;
     if((twi_timeout_ms > 0) && (counter >= 25000)) {
       // timeout
+      twi_disable();
       twi_init();
 
       return;
