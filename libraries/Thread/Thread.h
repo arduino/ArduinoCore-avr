@@ -32,10 +32,10 @@ void yield(void);	// immediately switchng to next thread
 
 bool grab(void ** barrier, unsigned long timeout);
 // returns true if the barrier is blocked or false if the 
-// timeout has expired with count
+// timeout has expired
 
 bool loose(void ** barrier);
-// returns true if barrier unblocked with countdown
+// returns true if barrier unblocked
 
 #ifdef __cplusplus
 	}
