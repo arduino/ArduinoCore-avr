@@ -99,7 +99,7 @@
 #else
 #define __PUSH_RAMPD__
 #define __POP_RAMPD__
-#endif  Serial.println("\nbegin\n");
+#endif
   
 __attribute__ ((signal, naked, used, externally_visible))
 void QUANTUM_VECTOR (void)
