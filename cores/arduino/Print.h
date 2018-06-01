@@ -42,6 +42,17 @@ struct enable_if_valid {
 };
 template <typename Check, typename T> using enable_if_valid_t = typename enable_if_valid<Check, T>::type;
 
+/* Forward declarations */
+namespace Formatters {
+  template<typename THead, typename TTail = void>
+  class OptionList;
+
+  class DefaultFormatter;
+}
+
+template<typename T>
+Formatters::DefaultFormatter DefaultFormatterFor(T);
+
 class Print
 {
   private:
@@ -107,32 +118,10 @@ class Print
     }
     */
 
-#if __cplusplus >= 201103L
-    template<typename ...Ts> _always_inline size_t print(const Ts &...args);
+    template<typename ...Ts> _always_inline size_t print(const Ts &...args) { return printMultiple(args...); }
     template<typename ...Ts> _always_inline size_t println(const Ts &...args) { size_t t = print(args...); return t + println(); }
-#else
-    template<typename T> _always_inline size_t println(const T &arg)      { size_t t = print(arg);  return t + println(); }
-    template<typename T, typename T2> _always_inline size_t println(const T &arg1, const T2& arg2) { size_t t = print(arg1, arg2); return t + println(); }
-#endif // __cplusplus >= 201103L
 
     //_always_inline size_t print() { return 0; }
-
-    /** Variadic methods **/
-#if __cplusplus >= 201103L  // requires C++11
-/*
-    template<typename T, typename ...Ts>
-    _always_inline size_t print(const T &arg, const Ts &...args) {
-      size_t t = doPrint(arg);
-      return t + print(args...);
-    }
-
-    template<typename T, typename T2, typename ...Ts>
-    _always_inline auto print(const T &arg, const T2 &arg2, const Ts &...args)
-    -> enable_if_valid_t<decltype(doPrint(arg, arg2)), size_t> {
-      size_t t = doPrint(arg, arg2);
-      return t + print(args...);
-    }
-*/
 
     // Compatibility versions of print that take a second base or
     // precision argument that is an integer.
@@ -146,11 +135,83 @@ class Print
     _always_inline size_t print(unsigned long , int);
     _always_inline size_t print(    float     , int);
     _always_inline size_t print(    double    , int);
-#else
-    template<typename T> _always_inline size_t print(const T &arg)      { return doPrint(arg); }
-    template<typename T, typename T2> _always_inline size_t print(const T &arg1, const T2& arg2) { return doPrint(arg1, arg2); }
-#endif // __cplusplus >= 201103L
+
+  private:
+    // Base case for the argument recursion - no more things to print
+    _always_inline size_t printMultiple() { return 0; }
+
+    // Simplest case: Just a value, no formatters or options (used when
+    // none of the below overloads match): Look up the default formatter
+    // for this value, and add it to the argument list.
+    template<typename T, typename ...Ts>
+    _always_inline size_t printMultiple(const T &arg, const Ts &...args) {
+      // This might lead to infinite template instantion
+      //return print(arg, DefaultFormatter<>(), args...);
+      return printMultiple(arg, DefaultFormatterFor(arg), args...);
+    }
+
+    // A value and a formatter is specified without any options (or the
+    // below overloads have applied the options): Let the formatter
+    // print the value.
+    template<typename T, typename TFormatter, typename ...Ts>
+    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const Ts &...args)
+    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
+    //-> enable_if_valid_t<decltype(formatter.printTo(p, arg)), size_t> {
+      size_t n = formatter.printTo(this, arg);
+      return n + printMultiple(args...);
+    }
+
+
+    // A value, a formatter and an option is specified: Apply the option
+    // to the formatter.
+    template<typename T, typename TFormatter, typename TOption, typename ...Ts>
+    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const TOption &option, const Ts &...args)
+    //-> enable_if_valid_t<decltype(formatter + option), size_t> {
+    -> enable_if_valid_t<decltype(accepts_formatter(&formatter), accepts_option(&option)), size_t> {
+      return printMultiple(arg, formatter + option, args...);
+    }
+
+
+    // A value and an option is specified: Look up the default formatter
+    // for this value and option and add it to the argument list.
+    template<typename T, typename TOption, typename ...Ts>
+    _always_inline auto printMultiple(const T &arg, const TOption &option, const Ts &...args)
+    //-> enable_if_valid_t<decltype(DefaultFormatterFor(arg, option)), size_t> {
+    -> enable_if_valid_t<decltype(accepts_option(&option)), size_t> {
+      auto formatter = DefaultFormatterFor(arg, option);
+      return printMultiple(arg, formatter, option, args...);
+    }
+
+    // The next two overloads unpack an OptionList when it is
+    // supplied. These are not strictly needed (OptionList implements
+    // operator+ to apply each of its arguments to the formatter in
+    // turn), but without these the error messages are less clear if
+    // incompatible options are mixed (with the below overloads the
+    // error shows the formatter and the incompatible option, while
+    // without them only the formatter and the entire option list are
+    // shown.
+    //
+    // If we keep these, OptionList::addToFormatter and the related
+    // operator+ overload can be removed.
+    //
+    // If we add one more overload for (Value, OptionList, ...), we can
+    // also remove the DefaultFormatterForm definition for OptionList.
+    template<typename T, typename TFormatter, typename THead, typename TTail, typename ...Ts>
+    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, TTail> &list, const Ts &...args)
+    //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
+    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
+      return printMultiple(arg, formatter, list.head, list.tail, args...);
+    }
+
+    // Base case for the end of the OptionList
+    template<typename T, typename TFormatter, typename THead, typename ...Ts>
+    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, void> &list, const Ts &...args)
+    //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
+    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
+      return printMultiple(arg, formatter, list.head, args...);
+    }
 };
+
 
 void accepts_formatter(const Print::Formatter*);
 void accepts_option(const Print::FormatterOption*);
@@ -271,7 +332,7 @@ class DefaultFormatter : public Print::Formatter {
     _always_inline size_t printTo(Print* p, const char      c    ) const { return p->write(c); }
     _always_inline size_t printTo(Print* p, const Printable &x   ) const { return x.printTo(*p); }
 
-    /* Integer printing, upcast to (unsigned) long and then printed usign
+    /* Integer printing, upcast to (unsigned) long and then printed using
      * a shared print(Signed)Number function. */
     _always_inline size_t printTo(Print* p,   signed char  n) const { return printSignedNumber(p, n); }
     _always_inline size_t printTo(Print* p,   signed short n) const { return printSignedNumber(p, n); }
@@ -300,8 +361,8 @@ class DefaultFormatter : public Print::Formatter {
 /******************************************************************
  * OptionList                                                     */
 
-template<typename THead, typename TTail = void>
-class OptionList;
+//template<typename THead, typename TTail = void>
+//class OptionList;
 
 template<typename THead, typename TTail>
 class OptionList : public Print::FormatterOption {
@@ -413,7 +474,9 @@ inline constexpr Formatters::DefaultFormatter::FormatOptionPrecision FORMAT_PREC
 constexpr Formatters::DefaultFormatter::FormatOptionBase HEX = FORMAT_BASE(16);
 //constexpr auto FORMAT_PRECISION = Formatters::DefaultFormatter::FORMAT_PRECISION;
 
-// Compatibility with previous versions, where base and precision were just numbers
+// Compatibility versions of print that take a second base or
+// precision argument that is an integer. Defined here, since they need
+// to refer to DefaultFormatter options.
 inline size_t Print::print(  signed char  n, int base) { return print(n, FORMAT_BASE(base)); }
 inline size_t Print::print(  signed short n, int base) { return print(n, FORMAT_BASE(base)); }
 inline size_t Print::print(  signed int   n, int base) { return print(n, FORMAT_BASE(base)); }
@@ -424,95 +487,6 @@ inline size_t Print::print(unsigned int   n, int base) { return print(n, FORMAT_
 inline size_t Print::print(unsigned long  n, int base) { return print(n, FORMAT_BASE(base)); }
 inline size_t Print::print(    float      n, int prec) { return print(n, FORMAT_PRECISION(prec)); }
 inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_PRECISION(prec)); }
-
-// TODO: Should we really need PrintHelper? It was now added allow
-// referencing DefaultFormatter above. These methods could just be
-// out-of-line definitions of methods in Print, but then the complicated
-// method signature must be duplicated. Alternatively, a single method
-// that generates a DefaultFormatter object could possibly be out of
-// line (though, thinking on it, both of these options might not work,
-// since they need DefaultFormatter as a return type in a
-// declaration...).
-class PrintHelper {
-  public:
-    // Base case for the argument recursion - no more things to print
-    static _always_inline size_t printTo(Print *) { return 0; }
-
-    // Simplest case: Just a value, no formatters or options (used when
-    // none of the below overloads match): Look up the default formatter
-    // for this value, and add it to the argument list.
-    template<typename T, typename ...Ts>
-    static _always_inline size_t printTo(Print * p, const T &arg, const Ts &...args) {
-      // This might lead to infinite template instantion
-      //return print(arg, DefaultFormatter<>(), args...);
-      return printTo(p, arg, DefaultFormatterFor(arg), args...);
-    }
-
-    // A value and a formatter is specified without any options (or the
-    // below overloads have applied the options): Let the formatter
-    // print the value.
-    template<typename T, typename TFormatter, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const Ts &...args)
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
-    //-> enable_if_valid_t<decltype(formatter.printTo(p, arg)), size_t> {
-      size_t n = formatter.printTo(p, arg);
-      return n + printTo(p, args...);
-    }
-
-
-    // A value, a formatter and an option is specified: Apply the option
-    // to the formatter.
-    template<typename T, typename TFormatter, typename TOption, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const TOption &option, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter + option), size_t> {
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter), accepts_option(&option)), size_t> {
-      return printTo(p, arg, formatter + option, args...);
-    }
-
-
-    // A value and an option is specified: Look up the default formatter
-    // for this value and option and add it to the argument list.
-    template<typename T, typename TOption, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const TOption &option, const Ts &...args)
-    //-> enable_if_valid_t<decltype(DefaultFormatterFor(arg, option)), size_t> {
-    -> enable_if_valid_t<decltype(accepts_option(&option)), size_t> {
-      auto formatter = DefaultFormatterFor(arg, option);
-      return printTo(p, arg, formatter, option, args...);
-    }
-
-    // The next two overloads unpack an OptionList when it is
-    // supplied. These are not strictly needed (OptionList implements
-    // operator+ to apply each of its arguments to the formatter in
-    // turn), but without these the error messages are less clear if
-    // incompatible options are mixed (with the below overloads the
-    // error shows the formatter and the incompatible option, while
-    // without them only the formatter and the entire option list are
-    // shown.
-    //
-    // If we keep these, OptionList::addToFormatter and the related
-    // operator+ overload can be removed.
-    //
-    // If we add one more overload for (Value, OptionList, ...), we can
-    // also remove the DefaultFormatterForm definition for OptionList.
-    template<typename T, typename TFormatter, typename THead, typename TTail, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, TTail> &list, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
-      return printTo(p, arg, formatter, list.head, list.tail, args...);
-    }
-
-    // Base case for the end of the OptionList
-    template<typename T, typename TFormatter, typename THead, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, void> &list, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
-      return printTo(p, arg, formatter, list.head, args...);
-    }
-
-};
-
-template<typename ...Ts>
-inline _always_inline size_t Print::print(const Ts &...args) { return PrintHelper::printTo(this, args...); }
 
 #undef _always_inline
 
@@ -530,17 +504,35 @@ inline _always_inline size_t Print::print(const Ts &...args) { return PrintHelpe
 // template arguments. This can be solved by doing just the checks and
 // forwarding *all* printTo calls to another class (including a
 // catch-all template), so that when you try printing any unsupported
-// types you still get the proper "no such method to call, candiates
+// types you still get the proper "no such method to call, candidates
 // are..." error message.
 //
 // Idea: Instead of using a Formatter and FormatterOption superclass,
 // create them as wrapper classes, so you can match them directly. Then
-// unpack and repack the values inside whenever you work with them.
+// unpack and repack the values inside whenever you work with them. This
+// avoids the need for these somewhat clunky checks using
+// enable_if_valid_t and accepts_formatter. Note that we cannot just
+// declare the parameters to be of the superclass type, since we need to
+// know the actual formatter/option class too.
 //
 // Idea: Expose accepts_option and accepts_formatter to debug problems
 // when formatters are not accepted (which typically leads to errors
 // that only say printTo(..., formatter/option) is not defined. A typical
 // error is no (or private) Formatter/FormatterOption base class.
+//
+// Idea: Because DefaultFormatter::printTo accesses options through
+// this, the compiler seems to force the options onto the stack and
+// passes a pointer. It would probably be more efficient to just load
+// the options directly into registers instead. To do this,
+// all DefaultFormatter::printTo could be changed to static methods and
+// accept the DefaultFormatter instance by-value, and a generic
+// non-static printTo could be added that forwards all calls to the
+// static versions. Doing this in DefaultFormatter instead of coding
+// this in Print/PrintHelper, leaves control over by-value/by-ref at the
+// formatter author and probably gives the cleanest Formatter interface
+// (an alternative would to just have PrintHelper call a static printTo,
+// in which case the formatter could still decide to accept the
+// formatter instance by reference or by value).
 //
 // Mail
 //
@@ -562,3 +554,5 @@ inline _always_inline size_t Print::print(const Ts &...args) { return PrintHelpe
 // than modify themselves rather than return a new formatter (though I
 // can't really come up with a usecase for this - maybe a formatter that
 // counts characters written for alignment?).
+//
+// Compatibility with C++ <= 11
