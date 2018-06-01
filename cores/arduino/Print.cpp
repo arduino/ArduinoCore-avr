@@ -41,66 +41,55 @@ size_t Print::write(const uint8_t *buffer, size_t size)
   return n;
 }
 
-size_t Print::doPrint(const __FlashStringHelper *ifsh)
-{
-  PGM_P p = reinterpret_cast<PGM_P>(ifsh);
-  size_t n = 0;
-  while (1) {
-    unsigned char c = pgm_read_byte(p++);
-    if (c == 0) break;
-    if (write(c)) n++;
-    else break;
-  }
-  return n;
-}
-
-size_t Print::doPrint(const String &s)
-{
-  return write(s.c_str(), s.length());
-}
-
-size_t Print::doPrint(signed long n, int base)
-{
-  if (base == 0) {
-    return write(n);
-  } else if (base == 10) {
-    if (n < 0) {
-      int t = print('-');
-      n = -n;
-      return printNumber(n, 10) + t;
-    }
-    return printNumber(n, 10);
-  } else {
-    return printNumber(n, base);
-  }
-}
-
-size_t Print::doPrint(unsigned long n, int base)
-{
-  if (base == 0) return write(n);
-  else return printNumber(n, base);
-}
-
-size_t Print::doPrint(double n, int digits)
-{
-  return printFloat(n, digits);
-}
-
 size_t Print::println(void)
 {
   return write("\r\n");
 }
 
+
+size_t Formatters::DefaultFormatter::printTo(Print *p, const __FlashStringHelper *ifsh) const
+{
+  PGM_P ptr = reinterpret_cast<PGM_P>(ifsh);
+  size_t n = 0;
+  while (1) {
+    unsigned char c = pgm_read_byte(ptr++);
+    if (c == 0) break;
+    if (p->write(c)) n++;
+    else break;
+  }
+  return n;
+}
+
+size_t Formatters::DefaultFormatter::printTo(Print *p, const String &s) const
+{
+  return p->write(s.c_str(), s.length());
+}
+
+size_t Formatters::DefaultFormatter::printSignedNumber(Print *p, signed long n) const
+{
+  if (this->base == 10) {
+    if (n < 0) {
+      size_t t = p->write('-');
+      n = -n;
+      return printNumber(p, n) + t;
+    }
+    return printNumber(p, n);
+  } else {
+    return printNumber(p, n);
+  }
+}
+
 // Private Methods /////////////////////////////////////////////////////////////
 
-size_t Print::printNumber(unsigned long n, uint8_t base)
+size_t Formatters::DefaultFormatter::printNumber(Print *p , unsigned long n) const
 {
   char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
   char *str = &buf[sizeof(buf) - 1];
+  uint8_t base = this->base;
 
   *str = '\0';
 
-  // prevent crash if called with base == 1
+  // prevent crash if called with base 0 or 1
   if (base < 2) base = 10;
 
   do {
@@ -110,22 +99,24 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
     *--str = c < 10 ? c + '0' : c + 'A' - 10;
   } while(n);
 
-  return write(str);
+  return p->write(str);
 }
 
-size_t Print::printFloat(double number, uint8_t digits) 
+size_t Formatters::DefaultFormatter::printFloat(Print *p, double number) const
 { 
   size_t n = 0;
+  uint8_t digits = this->precision;
+  auto int_formatter = DefaultFormatter();
   
-  if (isnan(number)) return print("nan");
-  if (isinf(number)) return print("inf");
-  if (number > 4294967040.0) return print ("ovf");  // constant determined empirically
-  if (number <-4294967040.0) return print ("ovf");  // constant determined empirically
+  if (isnan(number)) return p->write("nan");
+  if (isinf(number)) return p->write("inf");
+  if (number > 4294967040.0) return p->write ("ovf");  // constant determined empirically
+  if (number <-4294967040.0) return p->write ("ovf");  // constant determined empirically
   
   // Handle negative numbers
   if (number < 0.0)
   {
-     n += print('-');
+     n += p->write('-');
      number = -number;
   }
 
@@ -139,11 +130,11 @@ size_t Print::printFloat(double number, uint8_t digits)
   // Extract the integer part of the number and print it
   unsigned long int_part = (unsigned long)number;
   double remainder = number - (double)int_part;
-  n += print(int_part);
+  n += int_formatter.printTo(p, int_part);
 
   // Print the decimal point, but only if there are digits beyond
   if (digits > 0) {
-    n += print('.'); 
+    n += p->write('.');
   }
 
   // Extract digits from the remainder one at a time
@@ -151,7 +142,7 @@ size_t Print::printFloat(double number, uint8_t digits)
   {
     remainder *= 10.0;
     unsigned int toPrint = (unsigned int)(remainder);
-    n += print(toPrint);
+    n += int_formatter.printTo(p, toPrint);
     remainder -= toPrint; 
   } 
   
