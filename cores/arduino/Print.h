@@ -245,7 +245,7 @@ class DefaultFormatter : public Print::Formatter {
       uint8_t value;
     };
     constexpr DefaultFormatter operator+(FormatOptionPrecision o) {
-      return {this->base, o.value, this->precision};
+      return {this->base, this->min_width, o.value};
     }
 
     struct FormatOptionMinWidth : FormatterOption {
@@ -253,7 +253,7 @@ class DefaultFormatter : public Print::Formatter {
       uint8_t value;
     };
     constexpr DefaultFormatter operator+(FormatOptionMinWidth o) {
-      return {this->base, this->min_width, o.value};
+      return {this->base, o.value, this->precision};
     }
 
     constexpr DefaultFormatter(uint8_t base = 10, uint8_t min_width = 0, uint8_t precision = 2)
@@ -394,44 +394,26 @@ auto DefaultFormatterFor(TValue value, OptionList<THead, TTail> list)
 /* End of OptionList stuff                                        *
  ******************************************************************/
 
-#if 0
-inline DefaultFormatter DefaultFormatterFor(Any /* value */, FormatOptionMinWidth) {
-  return {};
-}
-
-inline DefaultFormatter DefaultFormatterFor(Any /* value */, FormatOptionBase) {
-  return {};
-}
-#endif
-template<typename T>
-inline DefaultFormatter DefaultFormatterFor(T, DefaultFormatter::FormatterOption) {
-  return {};
-}
-
-/*
-template<typename T>
-T declval();
-
-template<typename TValue,
-         typename TOption,
-         typename Test1 = decltype(declval<DefaultFormatter>().addOption(declval<TOption>())),
-         typename Test2 = decltype(declval<DefaultFormatter>().printTo(declval<Print*>(), declval<TValue>()))
->
-inline DefaultFormatter DefaultFormatterFor(TValue, TOption) {
-  return {};
-}
-*/
-
 } // namespace Formatters
+
+template<typename T>
+inline Formatters::DefaultFormatter DefaultFormatterFor(T, Formatters::DefaultFormatter::FormatterOption) {
+  return {};
+}
+
+template<typename T>
+inline Formatters::DefaultFormatter DefaultFormatterFor(T) {
+  return {};
+}
 
 #undef HEX
 inline constexpr Formatters::DefaultFormatter::FormatOptionMinWidth FORMAT_MIN_WIDTH(uint8_t min_width) { return {min_width}; }
 inline constexpr Formatters::DefaultFormatter::FormatOptionBase FORMAT_BASE(uint8_t base) { return {base}; }
 inline constexpr Formatters::DefaultFormatter::FormatOptionPrecision FORMAT_PRECISION(uint8_t prec) { return {prec}; }
 constexpr Formatters::DefaultFormatter::FormatOptionBase HEX = FORMAT_BASE(16);
-
 //constexpr auto FORMAT_PRECISION = Formatters::DefaultFormatter::FORMAT_PRECISION;
 
+// Compatibility with previous versions, where base and precision were just numbers
 inline size_t Print::print(  signed char  n, int base) { return print(n, FORMAT_BASE(base)); }
 inline size_t Print::print(  signed short n, int base) { return print(n, FORMAT_BASE(base)); }
 inline size_t Print::print(  signed int   n, int base) { return print(n, FORMAT_BASE(base)); }
@@ -453,24 +435,24 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // declaration...).
 class PrintHelper {
   public:
+    // Base case for the argument recursion - no more things to print
+    static _always_inline size_t printTo(Print *) { return 0; }
+
+    // Simplest case: Just a value, no formatters or options (used when
+    // none of the below overloads match): Look up the default formatter
+    // for this value, and add it to the argument list.
     template<typename T, typename ...Ts>
     static _always_inline size_t printTo(Print * p, const T &arg, const Ts &...args) {
       // This might lead to infinite template instantion
       //return print(arg, DefaultFormatter<>(), args...);
-      size_t n = Formatters::DefaultFormatter().printTo(p, arg);
-      return n + printTo(p, args...);
+      return printTo(p, arg, DefaultFormatterFor(arg), args...);
     }
-/*
-    template<typename T, typename T2, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const T2 &arg2, const Ts &...args)
-    -> enable_if_valid_t<decltype(arg2.printTo(p, arg)), size_t> {
-      size_t n = arg2.printTo(p, arg);
-      return n + printTo(p, args...);
-    }
-*/
 
-    template<typename T, typename T2, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const T2 &formatter, const Ts &...args)
+    // A value and a formatter is specified without any options (or the
+    // below overloads have applied the options): Let the formatter
+    // print the value.
+    template<typename T, typename TFormatter, typename ...Ts>
+    static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const Ts &...args)
     -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
     //-> enable_if_valid_t<decltype(formatter.printTo(p, arg)), size_t> {
       size_t n = formatter.printTo(p, arg);
@@ -478,21 +460,23 @@ class PrintHelper {
     }
 
 
+    // A value, a formatter and an option is specified: Apply the option
+    // to the formatter.
     template<typename T, typename TFormatter, typename TOption, typename ...Ts>
     static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const TOption &option, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter.addOption(option)), size_t> {
+    //-> enable_if_valid_t<decltype(formatter + option), size_t> {
     -> enable_if_valid_t<decltype(accepts_formatter(&formatter), accepts_option(&option)), size_t> {
-      //return printTo(p, arg, formatter.addOption(option), args...);
       return printTo(p, arg, formatter + option, args...);
     }
 
 
-    template<typename T, typename T2, typename ...Ts>
-    static _always_inline auto printTo(Print * p, const T &arg, const T2 &option, const Ts &...args)
-    //-> enable_if_valid_t<decltype(typename T2::Formatter().addOption(option)), size_t> {
+    // A value and an option is specified: Look up the default formatter
+    // for this value and option and add it to the argument list.
+    template<typename T, typename TOption, typename ...Ts>
+    static _always_inline auto printTo(Print * p, const T &arg, const TOption &option, const Ts &...args)
+    //-> enable_if_valid_t<decltype(DefaultFormatterFor(arg, option)), size_t> {
     -> enable_if_valid_t<decltype(accepts_option(&option)), size_t> {
       auto formatter = DefaultFormatterFor(arg, option);
-      //return printTo(p, arg, formatter + option, args...);
       return printTo(p, arg, formatter, option, args...);
     }
 
@@ -507,6 +491,9 @@ class PrintHelper {
     //
     // If we keep these, OptionList::addToFormatter and the related
     // operator+ overload can be removed.
+    //
+    // If we add one more overload for (Value, OptionList, ...), we can
+    // also remove the DefaultFormatterForm definition for OptionList.
     template<typename T, typename TFormatter, typename THead, typename TTail, typename ...Ts>
     static _always_inline auto printTo(Print * p, const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, TTail> &list, const Ts &...args)
     //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
@@ -522,8 +509,6 @@ class PrintHelper {
       return printTo(p, arg, formatter, list.head, args...);
     }
 
-    // Base case for the argument recursion - no more things to print
-    static _always_inline size_t printTo(Print *) { return 0; }
 };
 
 template<typename ...Ts>
