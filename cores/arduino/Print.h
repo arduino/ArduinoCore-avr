@@ -161,7 +161,7 @@ class Print
       detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
     >
     _always_inline size_t printMultiple(const T &arg, const TFormatter &formatter, const TOption &option, const Ts &...args) {
-      return printMultiple(arg, formatter + option, args...);
+      return printMultiple(arg, applyOption(formatter, option), args...);
     }
 
     // A value and an option is specified: Look up the default formatter
@@ -218,6 +218,16 @@ class Print
 
 void accepts_formatter(const Print::Formatter*);
 void accepts_option(const Print::FormatterOption*);
+
+// Global function to apply an option on a given formatter. This version
+// just calls the applyOption method on the formatter, if it exists. By
+// going through this global function, it is possible to add overloads
+// to add options for an existing formatter.
+template <typename TFormatter, typename TOption>
+_always_inline inline auto applyOption(const TFormatter& formatter, const TOption& option)
+-> decltype(formatter.applyOption(option)) {
+  return formatter.applyOption(option);
+}
 
 // Namespace for more advanced custom formatter stuff, to prevent
 // cluttering the global namespace. Could be removed if needed.
@@ -280,7 +290,7 @@ class DefaultFormatter : public Print::Formatter {
       constexpr FormatOptionBase(uint8_t value) : value(value) { }
       uint8_t value;
     };
-    constexpr DefaultFormatter operator+(FormatOptionBase o) {
+    constexpr DefaultFormatter applyOption(FormatOptionBase o) {
       return {o.value, this->min_width, this->precision};
     }
 
@@ -288,7 +298,7 @@ class DefaultFormatter : public Print::Formatter {
       constexpr FormatOptionPrecision(uint8_t value) : value(value) { }
       uint8_t value;
     };
-    constexpr DefaultFormatter operator+(FormatOptionPrecision o) {
+    constexpr DefaultFormatter applyOption(FormatOptionPrecision o) {
       return {this->base, this->min_width, o.value};
     }
 
@@ -296,7 +306,7 @@ class DefaultFormatter : public Print::Formatter {
       constexpr FormatOptionMinWidth(uint8_t value) : value(value) { }
       uint8_t value;
     };
-    constexpr DefaultFormatter operator+(FormatOptionMinWidth o) {
+    constexpr DefaultFormatter applyOption(FormatOptionMinWidth o) {
       return {this->base, o.value, this->precision};
     }
 
@@ -372,7 +382,7 @@ class OptionList : public Print::FormatterOption {
       typename TOption,
       detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
     >
-    constexpr auto operator +(const TOption& option) const
+    constexpr auto operator+(const TOption& option) const
     -> OptionList<TOption, decltype(this->tail + option)>
     {
       return {this->head, this->tail + option};
@@ -406,7 +416,7 @@ struct OptionList<THead, void> : public Print::FormatterOption {
       typename TOption,
       detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
     >
-    constexpr auto operator +(const TOption& option) const
+    constexpr auto operator+(const TOption& option) const
     -> OptionList<THead, OptionList<TOption, void>>
     {
       return {this->head, option};
@@ -417,7 +427,7 @@ struct OptionList<THead, void> : public Print::FormatterOption {
 // Apply an option list by adding it to a formatter (e.g. by passing it
 // to print())
 template<typename TFormatter, typename THead, typename TTail>
-constexpr auto operator +(const TFormatter& formatter, const OptionList<THead, TTail>& list)
+constexpr auto applyOption(const TFormatter& formatter, const OptionList<THead, TTail>& list)
 -> decltype(list.addToFormatter(formatter))
 {
   return list.addToFormatter(formatter);
@@ -580,7 +590,12 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // existing formatter, without having to modify the formatter. If we
 // prefer a normal method/function, the same could probably be obtained
 // using a global overloaded addOption function (with a template version
-// that defers to an addOption method if it exists).
+// that defers to an addOption method if it exists). After writing this,
+// I realized that a method/function name is probably gives more
+// readable errors (e.g. "no such function applyOption(DefaultFormatter,
+// SomeOption)", rather than "no such operator
+// operator+(DefaultFormatter, SomeOption)"), so we should probably do
+// that.
 //
 // Formatters and options are currently passed around as const
 // references, meaning that their printTo methods and addition operators
@@ -596,15 +611,9 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 //
 // ADL needed for DefaultFormatterFor - no primitive types
 //
-// TODO: Suggest workaround for ADL/primitive types using wrapper type
-// (not in mail). Probably requires priority tagging to try wrapped type
-// before unwrapped type, or some kind of primitive/nonprimitive
-// detection for SFINAE. Or add Dummy argument, to force (meaningless)
-// ADL.
-//
-// TODO: See if accepts_formatter can be called in default template
-// argument as well (these are filled in after deduction, right? We only
-// depend on the type, not the argument value)?
+// Compare with Printable
 //
 // TODO: Use NoOption dummy argument to DefaultFormatterFor to force
 // ADL?
+//
+// TODO: Convert operator+ to applyOption?
