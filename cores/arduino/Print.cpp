@@ -99,6 +99,9 @@ size_t Formatters::DefaultFormatter::printNumber(Print *p , unsigned long n) con
     *--str = c < 10 ? c + '0' : c + 'A' - 10;
   } while(n);
 
+  while (str > buf && buf + sizeof(buf) - 1 - str < this->min_width)
+    *--str = '0';
+
   return p->write(str);
 }
 
