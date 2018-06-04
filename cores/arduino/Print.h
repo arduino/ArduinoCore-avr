@@ -36,13 +36,6 @@
 
 #define _always_inline __attribute__ ((__always_inline__)) // undefined at end
 
-template <typename Check, typename T>
-struct enable_if_valid {
-  using type = T;
-};
-template <typename Check, typename T> using enable_if_valid_t = typename enable_if_valid<Check, T>::type;
-
-
 namespace detail {
   // Returns a value of the given type. No implementation, so this is
   // meant for use in decltype only. Identical to std::declval.
