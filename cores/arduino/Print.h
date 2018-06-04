@@ -220,26 +220,6 @@ void accepts_option(const Print::FormatterOption*);
 // cluttering the global namespace. Could be removed if needed.
 namespace Formatters {
 
-  
-// TODO: Do we really need a FormatterOption base class? Without it,
-// options can be POD, not needing a constructor. With it, we can
-// prevent accidentally treating things as options which are not, but if
-// we already check a Formatter base class, we can also require that
-// Formatters do not define nonsensical addOption methods (even more,
-// without an explicit FormatterOption, Formatters can even use
-// non-class types as options if they want).
-// TODO: Where to define the "default formatter" for an option? Now, it
-// is our superclass, but it might just as well be defined with a using
-// directive directly here. Or perhaps it should be a method (this
-// might be problematic, since the DefaultFormatter type is incomplete
-// at this point). One completely different approach would be a
-// DefaultFormatterFor template, which gets specialized, but this
-// probably has the problem that once it is instantiated, you can no
-// longer add to it. Using specializations does allow defining a default
-// formatter for a type/option combination (allowing reuse of e.g. HEX
-// for custom types) or for just a type (allowing default formatting of
-// custom types).
-
 class DefaultFormatter : public Print::Formatter {
   public:
     // Common base class for our options
@@ -528,11 +508,60 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // accept the DefaultFormatter instance by-value, and a generic
 // non-static printTo could be added that forwards all calls to the
 // static versions. Doing this in DefaultFormatter instead of coding
-// this in Print/PrintHelper, leaves control over by-value/by-ref at the
+// this in Print, leaves control over by-value/by-ref at the
 // formatter author and probably gives the cleanest Formatter interface
-// (an alternative would to just have PrintHelper call a static printTo,
+// (an alternative would to just have Print call a static printTo,
 // in which case the formatter could still decide to accept the
 // formatter instance by reference or by value).
+//
+// Limitation: Default formatters for a value type and/or option type
+// are specified using overloads of the DefaultFormatterFor function.
+// You can use templates to get wildcard overloads (e.g. specify a
+// default formatter for all options passed to a specific type, or a
+// default formatter for any type combined with a specific formatter).
+//
+// If both overloads exist, this might cause ambiguity. e.g. when you
+// have a (FooT value, *) overload and a (*, BarOption) overload, doing
+// print(FooT(), BarOption()) is ambiguous. Usually, this will also be
+// invalid (the formatter belonging to BarOption will likely not know
+// how to print a FooT anyway). There might be cases where it is not,
+// but it is not clear which of the two to favor in this case. If
+// needed, some kind of priority tag argument could later be added, with
+// a fallback to the regular tag-less version). Also, even in the
+// invalid case, the "ambiguous" error message is not so nice.
+//
+// Note that the current approach of using a formatter-specific
+// superclass (e.g. DefaultFormatter::FormatterOption) between the
+// actual option class and Print::FormatterOption already makes
+// overloads that use it (and thus need parent class conversion) less
+// specific than templated overloads (which match their arguments
+// exactly). This resolves the ambiguity, but I'm not sure if this is
+// the right resolution.
+
+// Limitation: DefaultFormatterFor relies on argument-dependent-lookup
+// (ADL) to work properly. Normally, when a function is called, only
+// overloads defined up to where the function call is defined are
+// considered (e.g. the call the DefaultFormatterFor in Print.h). In
+// this case, we want to allow defining more overloads later. We can
+// make this work because DefaultFormatterFor is only called from
+// template functions, and for those ADL happens at template
+// *instantiation time*, rather than *definition time*.
+//
+// ADL happens for all types in a namespace (including the root
+// namespace). Notably, this means ADL happens for class types (options
+// and custom value types), but not for native types (e.g.  int does not
+// live in a namespace). In practice, this means that replacing the
+// default formatter for a native type (without any options) is not
+// possible, since the reference to e.g. DefaultFormatterFor(int) is
+// looked up at template definition time, not instantiation time.
+//
+// Two possible workarounds for this would be to add a wrapper class
+// around values before passing them to DefaultFormatterFor, or adding
+// an unused dummy argument that forces ADL. The latter is probably
+// easiest, and if the dummy argument is called NoOption and is the
+// second argument, that might actually be fairly easy to work with as
+// well.
+//
 //
 // Mail
 //
@@ -556,3 +585,18 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // counts characters written for alignment?).
 //
 // Compatibility with C++ <= 11
+//
+// ADL needed for DefaultFormatterFor - no primitive types
+//
+// TODO: Suggest workaround for ADL/primitive types using wrapper type
+// (not in mail). Probably requires priority tagging to try wrapped type
+// before unwrapped type, or some kind of primitive/nonprimitive
+// detection for SFINAE. Or add Dummy argument, to force (meaningless)
+// ADL.
+//
+// TODO: See if accepts_formatter can be called in default template
+// argument as well (these are filled in after deduction, right? We only
+// depend on the type, not the argument value)?
+//
+// TODO: Use NoOption dummy argument to DefaultFormatterFor to force
+// ADL?
