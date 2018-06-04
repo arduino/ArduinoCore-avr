@@ -42,6 +42,27 @@ struct enable_if_valid {
 };
 template <typename Check, typename T> using enable_if_valid_t = typename enable_if_valid<Check, T>::type;
 
+
+namespace detail {
+  // Returns a value of the given type. No implementation, so this is
+  // meant for use in decltype only. Identical to std::declval.
+  template <typename T> T declval();
+
+  // Function that accept a pointer of the given type. Can be used to
+  // detect if another type is convertible to T.
+  template<typename T>
+  void accepts_pointer_of_type(const T*);
+
+  // Simplified and integrated version of std::enable_if_t and
+  // std::is_base_of (which are not available on AVR). Integrating them
+  // makes things more specific and thus simpler.
+  // TODO: This check does not detect private base classes. To do so, a
+  // more complicated check is needed, something like
+  // https://stackoverflow.com/questions/2910979/how-does-is-base-of-work
+  template<typename Base, typename Derived>
+  using enable_if_base_of = decltype(accepts_pointer_of_type<Base>(declval<Derived*>()));
+}
+
 /* Forward declarations */
 namespace Formatters {
   template<typename THead, typename TTail = void>
@@ -89,34 +110,6 @@ class Print
     size_t println(void);
 
     virtual void flush() { /* Empty implementation for backward compatibility */ }
-    /*
-    template<typename T, typename ...Ts>
-    _always_inline size_t print(const T &arg, const Ts &...args) {
-      // This might lead to infinite template instantion
-      //return print(arg, DefaultFormatter<>(), args...);
-      size_t n = DefaultFormatter<>().printTo(this, arg);
-      return n + print(args...);
-    }
-
-    template<typename T, typename T2, typename ...Ts>
-    _always_inline auto print(const T &arg, const T2 &arg2, const Ts &...args)
-    -> enable_if_valid_t<decltype(arg2.printTo(this, arg)), size_t> {
-      size_t n = arg2.printTo(this, arg);
-      return n + print(args...);
-    }
-
-    template<typename T, typename T2, typename T3, typename ...Ts>
-    _always_inline auto print(const T &arg, const T2 &arg2, const T3 &arg3, const Ts &...args)
-    -> enable_if_valid_t<decltype(arg2.addOption(arg3)), size_t> {
-      return print(arg, arg2.addOption(arg3), args...);
-    }
-
-    template<typename T, typename T2, typename ...Ts>
-    _always_inline auto print(const T &arg, const T2 &arg2, const Ts &...args)
-    -> enable_if_valid_t<decltype(DefaultFormatter<>().addOption(arg2)), size_t> {
-      return print(arg, DefaultFormatter<>().addOption(arg2), args...);
-    }
-    */
 
     template<typename ...Ts> _always_inline size_t print(const Ts &...args) { return printMultiple(args...); }
     template<typename ...Ts> _always_inline size_t println(const Ts &...args) { size_t t = print(args...); return t + println(); }
@@ -153,31 +146,40 @@ class Print
     // A value and a formatter is specified without any options (or the
     // below overloads have applied the options): Let the formatter
     // print the value.
-    template<typename T, typename TFormatter, typename ...Ts>
-    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const Ts &...args)
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
-    //-> enable_if_valid_t<decltype(formatter.printTo(p, arg)), size_t> {
+    template<
+      typename T,
+      typename TFormatter,
+      typename ...Ts,
+      detail::enable_if_base_of<Print::Formatter, TFormatter>* = nullptr
+    >
+    _always_inline size_t printMultiple(const T &arg, const TFormatter &formatter, const Ts &...args) {
       size_t n = formatter.printTo(this, arg);
       return n + printMultiple(args...);
     }
 
-
     // A value, a formatter and an option is specified: Apply the option
     // to the formatter.
-    template<typename T, typename TFormatter, typename TOption, typename ...Ts>
-    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const TOption &option, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter + option), size_t> {
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter), accepts_option(&option)), size_t> {
+    template<
+      typename T,
+      typename TFormatter,
+      typename TOption,
+      typename ...Ts,
+      detail::enable_if_base_of<Print::Formatter, TFormatter>* = nullptr,
+      detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
+    >
+    _always_inline size_t printMultiple(const T &arg, const TFormatter &formatter, const TOption &option, const Ts &...args) {
       return printMultiple(arg, formatter + option, args...);
     }
 
-
     // A value and an option is specified: Look up the default formatter
     // for this value and option and add it to the argument list.
-    template<typename T, typename TOption, typename ...Ts>
-    _always_inline auto printMultiple(const T &arg, const TOption &option, const Ts &...args)
-    //-> enable_if_valid_t<decltype(DefaultFormatterFor(arg, option)), size_t> {
-    -> enable_if_valid_t<decltype(accepts_option(&option)), size_t> {
+    template<
+      typename T,
+      typename TOption,
+      typename ...Ts,
+      detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
+    >
+    _always_inline size_t printMultiple(const T &arg, const TOption &option, const Ts &...args) {
       auto formatter = DefaultFormatterFor(arg, option);
       return printMultiple(arg, formatter, option, args...);
     }
@@ -187,8 +189,7 @@ class Print
     // operator+ to apply each of its arguments to the formatter in
     // turn), but without these the error messages are less clear if
     // incompatible options are mixed (with the below overloads the
-    // error shows the formatter and the incompatible option, while
-    // without them only the formatter and the entire option list are
+    // error shows the formatter and the incompatible option, while // without them only the formatter and the entire option list are
     // shown.
     //
     // If we keep these, OptionList::addToFormatter and the related
@@ -196,18 +197,27 @@ class Print
     //
     // If we add one more overload for (Value, OptionList, ...), we can
     // also remove the DefaultFormatterForm definition for OptionList.
-    template<typename T, typename TFormatter, typename THead, typename TTail, typename ...Ts>
-    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, TTail> &list, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
+    template<
+      typename T,
+      typename TFormatter,
+      typename THead,
+      typename TTail,
+      typename ...Ts,
+      detail::enable_if_base_of<Print::Formatter, TFormatter>* = nullptr
+    >
+    _always_inline size_t printMultiple(const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, TTail> &list, const Ts &...args) {
       return printMultiple(arg, formatter, list.head, list.tail, args...);
     }
 
     // Base case for the end of the OptionList
-    template<typename T, typename TFormatter, typename THead, typename ...Ts>
-    _always_inline auto printMultiple(const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, void> &list, const Ts &...args)
-    //-> enable_if_valid_t<decltype(formatter.addOption(list.head)), size_t> {
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)), size_t> {
+    template<
+      typename T,
+      typename TFormatter,
+      typename THead,
+      typename ...Ts,
+      detail::enable_if_base_of<Print::Formatter, TFormatter>* = nullptr
+    >
+    _always_inline size_t printMultiple(const T &arg, const TFormatter &formatter, const Formatters::OptionList<THead, void> &list, const Ts &...args) {
       return printMultiple(arg, formatter, list.head, args...);
     }
 };
@@ -341,9 +351,6 @@ class DefaultFormatter : public Print::Formatter {
 /******************************************************************
  * OptionList                                                     */
 
-//template<typename THead, typename TTail = void>
-//class OptionList;
-
 template<typename THead, typename TTail>
 class OptionList : public Print::FormatterOption {
   public:
@@ -353,10 +360,12 @@ class OptionList : public Print::FormatterOption {
     constexpr OptionList(const THead& head, const TTail& tail) : head(head), tail(tail) { }
 
     // Apply our contained options to a formatter
-    template<typename TFormatter>
+    template<
+      typename TFormatter,
+      detail::enable_if_base_of<Print::Formatter, TFormatter>* = nullptr
+    >
     auto addToFormatter(const TFormatter& formatter) const
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)),
-                         decltype(formatter + this->head + this->tail)>
+    -> decltype(formatter + this->head + this->tail)
     {
       return formatter + this->head + this->tail;
     }
@@ -366,10 +375,12 @@ class OptionList : public Print::FormatterOption {
 
   public:
     // Append another option
-    template<typename TOption>
+    template<
+      typename TOption,
+      detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
+    >
     constexpr auto operator +(const TOption& option) const
-    -> enable_if_valid_t<decltype(accepts_option(&option)),
-                         OptionList<TOption, decltype(this->tail + option)>>
+    -> OptionList<TOption, decltype(this->tail + option)>
     {
       return {this->head, this->tail + option};
     }
@@ -383,10 +394,12 @@ struct OptionList<THead, void> : public Print::FormatterOption {
     constexpr OptionList(const THead& head) : head(head) { }
 
     // Apply our contained options to a formatter
-    template<typename TFormatter>
+    template<
+      typename TFormatter,
+      detail::enable_if_base_of<Print::Formatter, TFormatter>* = nullptr
+    >
     constexpr auto addToFormatter(const TFormatter& formatter) const
-    -> enable_if_valid_t<decltype(accepts_formatter(&formatter)),
-                         decltype(formatter + this->head)>
+    -> decltype(formatter + this->head)
     {
       return formatter + this->head;
     }
@@ -396,10 +409,12 @@ struct OptionList<THead, void> : public Print::FormatterOption {
 
   public:
     // Append another option
-    template<typename TOption>
+    template<
+      typename TOption,
+      detail::enable_if_base_of<Print::FormatterOption, TOption>* = nullptr
+    >
     constexpr auto operator +(const TOption& option) const
-    -> enable_if_valid_t<decltype(accepts_option(&option)),
-                         OptionList<THead, OptionList<TOption, void>>>
+    -> OptionList<THead, OptionList<TOption, void>>
     {
       return {this->head, option};
     }
@@ -416,10 +431,14 @@ constexpr auto operator +(const TFormatter& formatter, const OptionList<THead, T
 }
 
 // Start an OptionList by adding two options
-template<typename TOption1, typename TOption2>
+template<
+  typename TOption1,
+  typename TOption2,
+  detail::enable_if_base_of<Print::FormatterOption, TOption1>* = nullptr
+  detail::enable_if_base_of<Print::FormatterOption, TOption2>* = nullptr
+>
 constexpr auto operator+(const TOption1& first, const TOption2& second)
--> enable_if_valid_t<decltype(accepts_option(&first), accepts_option(&second)),
-                     OptionList<TOption1, OptionList<TOption2, void>>>
+-> OptionList<TOption1, OptionList<TOption2, void>>
 {
   return {first, second};
 }
@@ -491,14 +510,10 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // create them as wrapper classes, so you can match them directly. Then
 // unpack and repack the values inside whenever you work with them. This
 // avoids the need for these somewhat clunky checks using
-// enable_if_valid_t and accepts_formatter. Note that we cannot just
-// declare the parameters to be of the superclass type, since we need to
-// know the actual formatter/option class too.
-//
-// Idea: Expose accepts_option and accepts_formatter to debug problems
-// when formatters are not accepted (which typically leads to errors
-// that only say printTo(..., formatter/option) is not defined. A typical
-// error is no (or private) Formatter/FormatterOption base class.
+// enable_if_base_of. Declaring an option would then be a bit more
+// involved and less intuitive, though. Note that we cannot just declare
+// the parameters to be of the superclass type, since we need to know
+// the actual formatter/option class too.
 //
 // Idea: Because DefaultFormatter::printTo accesses options through
 // this, the compiler seems to force the options onto the stack and
