@@ -427,7 +427,7 @@ constexpr auto operator +(const TFormatter& formatter, const OptionList<THead, T
 template<
   typename TOption1,
   typename TOption2,
-  detail::enable_if_base_of<Print::FormatterOption, TOption1>* = nullptr
+  detail::enable_if_base_of<Print::FormatterOption, TOption1>* = nullptr,
   detail::enable_if_base_of<Print::FormatterOption, TOption2>* = nullptr
 >
 constexpr auto operator+(const TOption1& first, const TOption2& second)
