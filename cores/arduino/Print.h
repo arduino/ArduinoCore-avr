@@ -613,7 +613,19 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 //
 // Compare with Printable
 //
+// Customization: Custom formatter (with or without options),
+// optionlist, custom option for existing formatter using applyOption
+// overload.
+//
+// Error messages (a bit fuzzy due to "when instantiating" clauses, but
+// the actual error is usually ok. A lot of gunk follows, though).
+//
 // TODO: Use NoOption dummy argument to DefaultFormatterFor to force
 // ADL?
 //
 // TODO: Convert operator+ to applyOption?
+//
+// TODO: Naming of option classes (shows up in error message)
+//
+// TODO: Getters and setters for DefaultFormatter options? Helps with
+// extending.
