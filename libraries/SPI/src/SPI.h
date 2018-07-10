@@ -260,19 +260,19 @@ public:
     uint8_t *p = (uint8_t *)bufOut;
     SPDR = *p;
     while (--count > 0) {
-      uint8_t out = *(p + 1);
+      uint8_t out = *(p++ + 1);
       while (!(SPSR & _BV(SPIF))) ;
       // uint8_t in = SPDR;
       SPDR = out;
       // *p++ = in;
     }
     while (!(SPSR & _BV(SPIF))) ;
-    *p = SPDR;
+    // *p = SPDR;
   }
   inline static void transferIn(void *bufIn, size_t count, uint8_t junk) {
     if (count == 0) return;
     uint8_t *p = (uint8_t *)bufIn;
-    SPDR = *p;
+    SPDR = junk;
     while (--count > 0) {
       // uint8_t out = *(p + 1);
       while (!(SPSR & _BV(SPIF))) ;
