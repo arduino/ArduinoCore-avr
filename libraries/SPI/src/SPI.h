@@ -262,9 +262,7 @@ public:
     while (--count > 0) {
       uint8_t out = *(p++ + 1);
       while (!(SPSR & _BV(SPIF))) ;
-      // uint8_t in = SPDR;
       SPDR = out;
-      // *p++ = in;
     }
     while (!(SPSR & _BV(SPIF))) ;
     // *p = SPDR;
@@ -274,7 +272,6 @@ public:
     uint8_t *p = (uint8_t *)bufIn;
     SPDR = junk;
     while (--count > 0) {
-      // uint8_t out = *(p + 1);
       while (!(SPSR & _BV(SPIF))) ;
       uint8_t in = SPDR;
       SPDR = junk;
