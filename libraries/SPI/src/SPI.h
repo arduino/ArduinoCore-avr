@@ -265,7 +265,6 @@ public:
       SPDR = out;
     }
     while (!(SPSR & _BV(SPIF))) ;
-    // *p = SPDR;
   }
   inline static void transferIn(void *bufIn, size_t count, uint8_t junk) {
     if (count == 0) return;
