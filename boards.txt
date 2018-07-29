@@ -142,12 +142,12 @@ nano.build.variant=eightanaloginputs
 ## --------------------------
 nano.menu.cpu.atmega328=ATmega328P
 
-nano.menu.cpu.atmega328.upload.maximum_size=30720
+nano.menu.cpu.atmega328.upload.maximum_size=32256
 nano.menu.cpu.atmega328.upload.maximum_data_size=2048
 nano.menu.cpu.atmega328.upload.speed=115200
 
 nano.menu.cpu.atmega328.bootloader.low_fuses=0xFF
-nano.menu.cpu.atmega328.bootloader.high_fuses=0xDA
+nano.menu.cpu.atmega328.bootloader.high_fuses=0xDE
 nano.menu.cpu.atmega328.bootloader.extended_fuses=0xFD
 nano.menu.cpu.atmega328.bootloader.file=optiboot/optiboot_atmega328.hex
 
