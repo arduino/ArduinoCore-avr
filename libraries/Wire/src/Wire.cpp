@@ -18,6 +18,7 @@
  
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
   Modified 2017 by Chuck Todd (ctodd@cableone.net) to correct Unconfigured Slave Mode reboot
+  Modified 2018 by Frank Paynter (paynterf@gmail.com) to prevent while() loop deadlocks
 */
 
 extern "C" {
@@ -51,6 +52,16 @@ TwoWire::TwoWire()
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
+
+//08/09/18 gfp: added for lockup monitoring
+void TwoWire::clearRecoveryCount()
+{
+	twi_clearRecoveryCount();
+}
+uint16_t TwoWire::getRecoveryCount()
+{
+	return twi_getRecoveryCount();
+}
 
 void TwoWire::begin(void)
 {
