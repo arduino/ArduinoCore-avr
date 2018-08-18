@@ -27,6 +27,7 @@ void *operator new[](size_t size) {
 }
 
 void * operator new(size_t size, void * ptr) {
+  (void)size;
   return ptr;
 }
 
