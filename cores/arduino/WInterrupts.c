@@ -68,7 +68,7 @@ static volatile voidFuncPtr intFunc[EXTERNAL_NUM_INTERRUPTS] = {
 // volatile static voidFuncPtr twiIntFunc;
 
 void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
-  if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
+  if((interruptNum < EXTERNAL_NUM_INTERRUPTS) && (interruptNum != NOT_AN_INTERRUPT)) {
     intFunc[interruptNum] = userFunc;
     
     // Configure the interrupt mode (trigger on low input, any change, rising
@@ -185,7 +185,7 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
 }
 
 void detachInterrupt(uint8_t interruptNum) {
-  if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
+  if((interruptNum < EXTERNAL_NUM_INTERRUPTS) && (interruptNum != NOT_AN_INTERRUPT)) {
     // Disable the interrupt.  (We can't assume that interruptNum is equal
     // to the number of the EIMSK bit to clear, as this isn't true on the 
     // ATmega8.  There, INT0 is 6 and INT1 is 7.)
