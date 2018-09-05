@@ -73,6 +73,7 @@ class Print
     size_t print(unsigned long, int = DEC);
     size_t print(double, int = 2);
     size_t print(const Printable&);
+    template <typename Arg, typename... Args> size_t print(Arg arg0, Arg arg1, Args... args){ return print(arg0) + print(arg1) + print(args...); }
 
     size_t println(const __FlashStringHelper *);
     size_t println(const String &s);
@@ -86,6 +87,7 @@ class Print
     size_t println(double, int = 2);
     size_t println(const Printable&);
     size_t println(void);
+    template <typename... Args> size_t println(Args... args) { return print(args...) + println(); }
 
     virtual void flush() { /* Empty implementation for backward compatibility */ }
 };
