@@ -73,7 +73,7 @@ class Print
     size_t print(unsigned long, int = DEC);
     size_t print(double, int = 2);
     size_t print(const Printable&);
-    template <typename Arg, typename... Args> size_t print(Arg arg, Args... args){ return print(arg) + print(args...); }
+    template <typename Arg, typename... Args> size_t print(Arg arg0, Arg arg1, Args... args){ return print(arg0) + print(arg1) + print(args...); }
 
     size_t println(const __FlashStringHelper *);
     size_t println(const String &s);
