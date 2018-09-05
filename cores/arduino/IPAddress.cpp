@@ -83,6 +83,19 @@ bool IPAddress::fromString(const char *address)
     return true;
 }
 
+String IPAddress::toString()
+{
+    String addressString = "";
+    for (int i =0; i < 3; i++)
+    {
+        addressString += String(_address.bytes[i], DEC);
+        addressString += String('.');
+    }
+    addressString += String(_address.bytes[3], DEC);
+    return addressString;
+}
+
+
 IPAddress& IPAddress::operator=(const uint8_t *address)
 {
     memcpy(_address.bytes, address, sizeof(_address.bytes));
