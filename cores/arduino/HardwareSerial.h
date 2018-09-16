@@ -134,6 +134,10 @@ class HardwareSerial : public Stream
     using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool() { return true; }
 
+    void (*user_onReceive)(void);
+    void onReceive( void (*)(void) );
+    void onReceiveService();
+
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);

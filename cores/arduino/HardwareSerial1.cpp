@@ -45,6 +45,7 @@ ISR(USART1_RX_vect)
 #endif
 {
   Serial1._rx_complete_irq();
+  Serial1.onReceiveService();
 }
 
 #if defined(UART1_UDRE_vect)
