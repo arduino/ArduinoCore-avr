@@ -36,19 +36,25 @@
 
 #define _always_inline __attribute__ ((__always_inline__)) // undefined at end
 
+
+// Namespace to hide implementation details into. Its contents should
+// not be used outside of this file.
 namespace detail {
   // Returns a value of the given type. No implementation, so this is
   // meant for use in decltype only. Identical to std::declval.
   template <typename T> T declval();
 
-  // Function that accept a pointer of the given type. Can be used to
-  // detect if another type is convertible to T.
+  // Function that accepts a pointer of the given type. Can be used to
+  // detect if another type is convertible to T. No implementation, so
+  // intended to be used in declval only.
   template<typename T>
   void accepts_pointer_of_type(const T*);
 
   // Simplified and integrated version of std::enable_if_t and
   // std::is_base_of (which are not available on AVR). Integrating them
   // makes things more specific and thus simpler.
+  // This type alias resolves to `void` when `Base` is a base class of
+  // `Derived`, or fails to resolve otherwise.
   // TODO: This check does not detect private base classes. To do so, a
   // more complicated check is needed, something like
   // https://stackoverflow.com/questions/2910979/how-does-is-base-of-work
@@ -64,6 +70,7 @@ namespace Formatters {
   class DefaultFormatter;
 }
 
+// Forward declaration
 template<typename T>
 Formatters::DefaultFormatter DefaultFormatterFor(T);
 
@@ -182,14 +189,15 @@ class Print
     // operator+ to apply each of its arguments to the formatter in
     // turn), but without these the error messages are less clear if
     // incompatible options are mixed (with the below overloads the
-    // error shows the formatter and the incompatible option, while // without them only the formatter and the entire option list are
+    // error shows the formatter and the incompatible option, while
+    // without them only the formatter and the entire option list are
     // shown.
     //
     // If we keep these, OptionList::addToFormatter and the related
     // operator+ overload can be removed.
     //
     // If we add one more overload for (Value, OptionList, ...), we can
-    // also remove the DefaultFormatterForm definition for OptionList.
+    // also remove the DefaultFormatterFor definition for OptionList.
     template<
       typename T,
       typename TFormatter,
@@ -459,17 +467,31 @@ auto DefaultFormatterFor(TValue value, OptionList<THead, TTail> list)
 
 } // namespace Formatters
 
-template<typename T>
-inline Formatters::DefaultFormatter DefaultFormatterFor(T, Formatters::DefaultFormatter::FormatterOption) {
-  return {};
-}
-
+// The DefaultFormatterFor function is used to define what formatter to
+// use for a value when no formatter is explicitly specified. This is
+// primarily intended to pick a formatter based on the value type (first
+// argument), but it is also possible to look at the value itself when
+// building the formatter. Note that it is not possible to return a
+// different *type* of formatter based on the value, it is possible to
+// set options in the formatter based on the value.
+// TODO: Document ADL stuff?
 template<typename T>
 inline Formatters::DefaultFormatter DefaultFormatterFor(T) {
   return {};
 }
 
+// Overload that decides on a formatter to use based on the value to
+// print as well as the (first) formatter option passed. See
+// `DefaultFormatterFor(T)` overload for more details.
+template<typename T>
+inline Formatters::DefaultFormatter DefaultFormatterFor(T, Formatters::DefaultFormatter::FormatterOption) {
+  return {};
+}
+
+// TODO: Fix this in Arduino.h
 #undef HEX
+
+// TODO: Finalize options
 inline constexpr Formatters::DefaultFormatter::FormatOptionMinWidth FORMAT_MIN_WIDTH(uint8_t min_width) { return {min_width}; }
 inline constexpr Formatters::DefaultFormatter::FormatOptionBase FORMAT_BASE(uint8_t base) { return {base}; }
 inline constexpr Formatters::DefaultFormatter::FormatOptionPrecision FORMAT_PRECISION(uint8_t prec) { return {prec}; }
@@ -571,7 +593,8 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // live in a namespace). In practice, this means that replacing the
 // default formatter for a native type (without any options) is not
 // possible, since the reference to e.g. DefaultFormatterFor(int) is
-// looked up at template definition time, not instantiation time.
+// looked up in the set of overloads that were defined at template
+// definition time, not at instantiation time.
 //
 // Two possible workarounds for this would be to add a wrapper class
 // around values before passing them to DefaultFormatterFor, or adding
@@ -596,6 +619,7 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 // SomeOption)", rather than "no such operator
 // operator+(DefaultFormatter, SomeOption)"), so we should probably do
 // that.
+// TODO: This was changed to applyOption, reword
 //
 // Formatters and options are currently passed around as const
 // references, meaning that their printTo methods and addition operators
@@ -622,8 +646,6 @@ inline size_t Print::print(    double     n, int prec) { return print(n, FORMAT_
 //
 // TODO: Use NoOption dummy argument to DefaultFormatterFor to force
 // ADL?
-//
-// TODO: Convert operator+ to applyOption?
 //
 // TODO: Naming of option classes (shows up in error message)
 //
