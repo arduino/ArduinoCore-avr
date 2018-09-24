@@ -113,6 +113,9 @@ class HardwareSerial : public Stream
     unsigned char _rx_buffer[SERIAL_RX_BUFFER_SIZE];
     unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
 
+    // User Interrupts handler
+    void (*user_onReceive)(void);
+
   public:
     inline HardwareSerial(
       volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
@@ -134,7 +137,7 @@ class HardwareSerial : public Stream
     using Print::write; // pull in write(str) and write(buf, size) from Print
     operator bool() { return true; }
 
-    void (*user_onReceive)(void);
+    // User Interrupt functions
     void onReceive( void (*)(void) );
     void onReceiveService();
 
