@@ -475,6 +475,12 @@ auto DefaultFormatterFor(TValue value, OptionList<THead, TTail> list)
 // different *type* of formatter based on the value, it is possible to
 // set options in the formatter based on the value.
 // TODO: Document ADL stuff?
+// TODO: Should this use a reference argument? Using a value argument
+// requires a copy constructor (even when a value *can* be printed
+// through an implicit conversion to another printable type). Can we
+// somehow apply this implicit conversion for DefaultFormatterFor too?
+// Otherwise you'd get the formatter for the original type, whereas
+// there might be a different formatter for the converted type?
 template<typename T>
 inline Formatters::DefaultFormatter DefaultFormatterFor(T) {
   return {};
