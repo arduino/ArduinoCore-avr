@@ -104,3 +104,10 @@ atmel_ice.protocol=atmelice_isp
 atmel_ice.program.protocol=atmelice_isp
 atmel_ice.program.tool=avrdude
 atmel_ice.program.extra_params=-Pusb
+
+diamexavr.name=DIAMEX-AVR
+diamexavr.communication=serial
+diamexavr.protocol=stk500v2
+diamexavr.program.protocol=stk500v2
+diamexavr.program.tool=avrdude
+diamexavr.program.extra_params=-P{serial.port}
