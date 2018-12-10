@@ -855,4 +855,10 @@ bool USBDevice_::wakeupHost()
 	return false;
 }
 
+bool USBDevice_::isSuspended()
+{
+	return (_usbSuspendState & (1 << SUSPI));
+}
+
+
 #endif /* if defined(USBCON) */
