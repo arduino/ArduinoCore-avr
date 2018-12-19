@@ -50,6 +50,15 @@ arduinoasisp.program.speed=19200
 arduinoasisp.program.tool=avrdude
 arduinoasisp.program.extra_params=-P{serial.port} -b{program.speed}
 
+arduinoasispatmega32u4.name=Arduino as ISP (ATmega32U4)
+arduinoasispatmega32u4.communication=serial
+arduinoasispatmega32u4.protocol=arduino
+arduinoasispatmega32u4.speed=19200
+arduinoasispatmega32u4.program.protocol=arduino
+arduinoasispatmega32u4.program.speed=19200
+arduinoasispatmega32u4.program.tool=avrdude
+arduinoasispatmega32u4.program.extra_params=-P{serial.port} -b{program.speed}
+
 usbGemma.name=Arduino Gemma
 usbGemma.protocol=arduinogemma
 usbGemma.program.tool=avrdude
