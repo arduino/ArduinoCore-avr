@@ -21,8 +21,10 @@
   Modified 3 December 2013 by Matthijs Kooijman
 */
 
-#pragma once
+#ifndef _UART_H_
+#define _UART_H_
 
+#include "Arduino.h"
 #include <inttypes.h>
 #include "api/HardwareSerial.h"
 
@@ -179,3 +181,4 @@ class UartClass : public HardwareSerial
   #define HAVE_HWSERIAL3
 #endif
 
+#endif

@@ -1,6 +1,7 @@
 #ifndef __CDC_H__
 #define __CDC_H__
 
+#include "Arduino.h"
 #include "api/Stream.h"
 #include "api/USBAPI.h"
 
