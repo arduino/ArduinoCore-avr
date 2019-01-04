@@ -63,8 +63,6 @@ uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, u
 #define EXTERNAL_NUM_INTERRUPTS 2
 #endif
 
-typedef void (*voidFuncPtr)(void);
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

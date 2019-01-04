@@ -32,10 +32,12 @@
 
 #include "wiring_private.h"
 
-static void nothing(void) {
+typedef void (*voidFuncPtrParam)(void*);
+
+static void nothing(void* arg) {
 }
 
-static volatile voidFuncPtr intFunc[EXTERNAL_NUM_INTERRUPTS] = {
+static volatile voidFuncPtrParam intFunc[EXTERNAL_NUM_INTERRUPTS] = {
 #if EXTERNAL_NUM_INTERRUPTS > 8
     #warning There are more than 8 external interrupts. Some callbacks may not be initialized.
     nothing,
@@ -65,10 +67,20 @@ static volatile voidFuncPtr intFunc[EXTERNAL_NUM_INTERRUPTS] = {
     nothing,
 #endif
 };
+static volatile void* intFuncParam[EXTERNAL_NUM_INTERRUPTS];
 
 void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
+  // To support callbacks with and without parameters with minimum overhead,
+  // this relies on that fact that in C calling conventions extra argument on a
+  // function call are safely ignored without side-effects.
+
+  attachInterruptParam(interruptNum, (voidFuncPtrParam)userFunc, mode, NULL);
+}
+
+ void attachInterruptParam(uint8_t interruptNum, voidFuncPtrParam userFunc, int mode, void* param) {
   if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
     intFunc[interruptNum] = userFunc;
+    intFuncParam[interruptNum] = param;
     
     // Configure the interrupt mode (trigger on low input, any change, rising
     // edge, or falling edge).  The mode constants were chosen to correspond
@@ -270,13 +282,14 @@ void detachInterrupt(uint8_t interruptNum) {
     }
       
     intFunc[interruptNum] = nothing;
+    intFuncParam[interruptNum] = NULL;
   }
 }
 
 
 #define IMPLEMENT_ISR(vect, interrupt) \
   ISR(vect) { \
-    intFunc[interrupt](); \
+    intFunc[interrupt]((void*)intFuncParam[interrupt]); \
   }
 
 #if defined(__AVR_ATmega32U4__)
