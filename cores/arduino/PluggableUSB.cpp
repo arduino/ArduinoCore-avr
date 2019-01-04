@@ -20,7 +20,7 @@
 #include "USBAPI.h"
 #include "PluggableUSB.h"
 
-#if defined(USBCON)	
+#if defined(USBCON)
 #ifdef PLUGGABLE_USB_ENABLED
 
 extern uint8_t _initEndpoints[];
