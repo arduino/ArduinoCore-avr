@@ -65,7 +65,6 @@ static volatile voidFuncPtr intFunc[EXTERNAL_NUM_INTERRUPTS] = {
     nothing,
 #endif
 };
-// volatile static voidFuncPtr twiIntFunc;
 
 void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
   if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
@@ -274,11 +273,6 @@ void detachInterrupt(uint8_t interruptNum) {
   }
 }
 
-/*
-void attachInterruptTwi(void (*userFunc)(void) ) {
-  twiIntFunc = userFunc;
-}
-*/
 
 #define IMPLEMENT_ISR(vect, interrupt) \
   ISR(vect) { \
@@ -314,11 +308,3 @@ IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
 #endif
 
 #endif
-
-/*
-ISR(TWI_vect) {
-  if(twiIntFunc)
-    twiIntFunc();
-}
-*/
-
