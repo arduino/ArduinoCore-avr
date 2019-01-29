@@ -102,7 +102,7 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
         EICRB = (EICRB & ~((1<<ISC60) | (1<<ISC61))) | (mode << ISC60);
         EIMSK |= (1<<INT6);
         break;
-#elif defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__)
+#elif defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__) || defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__)
     case 0:
       EICRA = (EICRA & ~((1 << ISC00) | (1 << ISC01))) | (mode << ISC00);
       EIMSK |= (1 << INT0);
@@ -238,7 +238,7 @@ void detachInterrupt(uint8_t interruptNum) {
     case 4:
         EIMSK &= ~(1<<INT6);
         break;
-#elif defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__)
+#elif defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__) || defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__)
     case 0:
       EIMSK &= ~(1 << INT0);
       break;
@@ -345,7 +345,7 @@ IMPLEMENT_ISR(INT2_vect, EXTERNAL_INT_2)
 IMPLEMENT_ISR(INT3_vect, EXTERNAL_INT_3)
 IMPLEMENT_ISR(INT6_vect, EXTERNAL_INT_4)
 
-#elif defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__)
+#elif defined(__AVR_AT90USB82__) || defined(__AVR_AT90USB162__) || defined(__AVR_ATmega32U2__) || defined(__AVR_ATmega16U2__) || defined(__AVR_ATmega8U2__)
 
 IMPLEMENT_ISR(INT0_vect, EXTERNAL_INT_0)
 IMPLEMENT_ISR(INT1_vect, EXTERNAL_INT_1)
