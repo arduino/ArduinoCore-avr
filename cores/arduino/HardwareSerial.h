@@ -19,6 +19,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 02 February 2019 by Frank Sautter (RS485)
 */
 
 #ifndef HardwareSerial_h
@@ -101,6 +102,8 @@ class HardwareSerial : public Stream
     volatile uint8_t * const _udr;
     // Has any byte been written to the UART since begin()
     bool _written;
+    // pin number of RS485 transmit enable; 0xFF = not used
+    uint8_t _rs485TEpin = 0xFF;
 
     volatile rx_buffer_index_t _rx_buffer_head;
     volatile rx_buffer_index_t _rx_buffer_tail;
@@ -118,8 +121,9 @@ class HardwareSerial : public Stream
       volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
       volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
       volatile uint8_t *ucsrc, volatile uint8_t *udr);
-    void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
-    void begin(unsigned long, uint8_t);
+    void begin(unsigned long baud) { begin(baud, SERIAL_8N1, 0xFF); };
+    void begin(unsigned long baud, uint8_t config) { begin(baud, config, 0xFF); };
+    void begin(unsigned long baud, uint8_t config, uint8_t rs485TEpin);
     void end();
     virtual int available(void);
     virtual int peek(void);
@@ -137,6 +141,7 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+    inline void _tx_complete_irq(void);
 };
 
 #if defined(UBRRH) || defined(UBRR0H)
@@ -158,4 +163,4 @@ class HardwareSerial : public Stream
 
 extern void serialEventRun(void) __attribute__((weak));
 
-#endif
+#endif  // HardwareSerial_h

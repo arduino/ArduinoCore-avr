@@ -20,6 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 02 February 2019 by Frank Sautter (RS485)
 */
 
 #include <stdlib.h>
@@ -114,8 +115,10 @@ void HardwareSerial::_tx_udr_empty_irq(void)
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-void HardwareSerial::begin(unsigned long baud, byte config)
+void HardwareSerial::begin(unsigned long baud, byte config, uint8_t rs485TEpin)
 {
+  _rs485TEpin = rs485TEpin;
+
   // Try u2x mode first
   uint16_t baud_setting = (F_CPU / 4 / baud - 1) / 2;
   *_ucsra = 1 << U2X0;
@@ -147,6 +150,12 @@ void HardwareSerial::begin(unsigned long baud, byte config)
   sbi(*_ucsrb, TXEN0);
   sbi(*_ucsrb, RXCIE0);
   cbi(*_ucsrb, UDRIE0);
+
+  if (_rs485TEpin != 0xFF) {
+    pinMode(_rs485TEpin, OUTPUT);
+    digitalWrite(_rs485TEpin, LOW);  // disable transmitter
+    sbi(*_ucsrb, TXCIE0);            // enable USART TX complete interrupt
+  }
 }
 
 void HardwareSerial::end()
@@ -158,7 +167,8 @@ void HardwareSerial::end()
   cbi(*_ucsrb, TXEN0);
   cbi(*_ucsrb, RXCIE0);
   cbi(*_ucsrb, UDRIE0);
-  
+  cbi(*_ucsrb, TXCIE0);
+
   // clear any received data
   _rx_buffer_head = _rx_buffer_tail;
 }
@@ -225,6 +235,10 @@ void HardwareSerial::flush()
 size_t HardwareSerial::write(uint8_t c)
 {
   _written = true;
+  if (_rs485TEpin != 0xFF) {
+    digitalWrite(_rs485TEpin, HIGH); // RS485 transceiver's transmit enable
+  }
+
   // If the buffer and the data register is empty, just write the byte
   // to the data register and be done. This shortcut helps
   // significantly improve the effective datarate at high (>
@@ -249,8 +263,8 @@ size_t HardwareSerial::write(uint8_t c)
     return 1;
   }
   tx_buffer_index_t i = (_tx_buffer_head + 1) % SERIAL_TX_BUFFER_SIZE;
-	
-  // If the output buffer is full, there's nothing for it other than to 
+
+  // If the output buffer is full, there's nothing for it other than to
   // wait for the interrupt handler to empty it a bit
   while (i == _tx_buffer_tail) {
     if (bit_is_clear(SREG, SREG_I)) {

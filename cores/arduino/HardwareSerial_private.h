@@ -19,11 +19,12 @@
   Modified 23 November 2006 by David A. Mellis
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
+	Modified 02 February 2019 by Frank Sautter (RS485)
 */
 
 #include "wiring_private.h"
 
-// this next line disables the entire HardwareSerial.cpp, 
+// this next line disables the entire HardwareSerial.cpp,
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3)
 
@@ -118,6 +119,16 @@ void HardwareSerial::_rx_complete_irq(void)
     // Parity error, read byte but discard it
     *_udr;
   };
+}
+
+
+void HardwareSerial::_tx_complete_irq(void)
+{
+  // interrupt on end of serial transmission when the last stop bit was sent
+  if (_rs485TEpin != 0xFF) {
+    // disable RS485 transmitter if pin defined
+    digitalWrite(_rs485TEpin, LOW);
+  }
 }
 
 #endif // whole file

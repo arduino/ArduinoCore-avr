@@ -20,6 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 02 February 2019 by Frank Sautter (RS485)
 */
 
 #include "Arduino.h"
@@ -62,6 +63,21 @@ ISR(USART_UDRE_vect)
 #endif
 {
   Serial._tx_udr_empty_irq();
+}
+
+#if defined(UART0_TX_vect)
+ISR(UART0_TX_vect)
+#elif defined(UART_TX_vect)
+ISR(UART_TX_vect)
+#elif defined(USART0_TX_vect)
+ISR(USART0_TX_vect)
+#elif defined(USART_TX_vect)
+ISR(USART_TX_vect)
+#else
+  #error "Don't know what the Transmit Complete vector is called for Serial0"
+#endif
+{
+  Serial._tx_complete_irq();
 }
 
 #if defined(UBRRH) && defined(UBRRL)

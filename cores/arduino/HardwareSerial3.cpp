@@ -20,6 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 02 February 2019 by Frank Sautter (RS485)
 */
 
 #include "Arduino.h"
@@ -44,6 +45,11 @@ ISR(USART3_RX_vect)
 ISR(USART3_UDRE_vect)
 {
   Serial3._tx_udr_empty_irq();
+}
+
+ISR(USART3_TX_vect)
+{
+  Serial3._tx_complete_irq();
 }
 
 HardwareSerial Serial3(&UBRR3H, &UBRR3L, &UCSR3A, &UCSR3B, &UCSR3C, &UDR3);
