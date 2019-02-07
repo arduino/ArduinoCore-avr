@@ -136,6 +136,7 @@ int digitalRead(uint8_t);
 int analogRead(uint8_t);
 void analogReference(uint8_t mode);
 void analogWrite(uint8_t, int);
+float batteryVoltageRead(void);
 
 unsigned long millis(void);
 unsigned long micros(void);
