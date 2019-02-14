@@ -35,6 +35,12 @@
 #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
+#if defined(__GNUC__) && __GNUC__ >= 7
+#define FALL_THROUGH __attribute__((fallthrough))
+#else
+#define FALL_THROUGH
+#endif /* __GNUC__ >= 7 */
+
 #include "pins_arduino.h"
 #include "twi.h"
 
@@ -445,6 +451,7 @@ ISR(TWI_vect)
     case TW_MR_DATA_ACK: // data received, ack sent
       // put byte into buffer
       twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
+      FALL_THROUGH; /*@fallthrough@*/
     case TW_MR_SLA_ACK:  // address sent, ack received
       // ack if more bytes are expected, otherwise nack
       if(twi_masterBufferIndex < twi_masterBufferLength){
@@ -530,6 +537,7 @@ ISR(TWI_vect)
         twi_txBufferLength = 1;
         twi_txBuffer[0] = 0x00;
       }
+      FALL_THROUGH; /*@fallthrough@*/
       // transmit first byte from buffer, fall
     case TW_ST_DATA_ACK: // byte sent, ack returned
       // copy data to output register
