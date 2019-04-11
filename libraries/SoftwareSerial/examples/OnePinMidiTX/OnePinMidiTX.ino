@@ -3,7 +3,7 @@
 
  Demonstrates using only one pin (TX), if bidirectional communication isn't needed.
 
- Based on https://www.arduino.cc/en/tutorial/midi and https://github.com/arduino/ArduinoCore-avr/blob/5755ddea49fa69d6c505c772ebee5af5078e2ebf/libraries/SoftwareSerial/examples/SoftwareSerialExample/SoftwareSerialExample.ino
+ Based on https://www.arduino.cc/en/tutorial/midi and https://www.arduino.cc/en/Tutorial/SoftwareSerialExample
 
  This example code is in the public domain.
 
