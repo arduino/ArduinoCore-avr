@@ -1,5 +1,5 @@
 /*
- Send MIDI notes via Software serial.
+ Send MIDI notes via software serial.
 
  Demonstrates using only one pin (TX), if bidirectional communication isn't needed.
 
