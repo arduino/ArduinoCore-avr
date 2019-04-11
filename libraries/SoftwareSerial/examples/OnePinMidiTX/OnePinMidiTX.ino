@@ -16,11 +16,14 @@ SoftwareSerial midiOutSerial = SoftwareSerial();
 
 void setup() {
   midiOutSerial.setTX(MIDI_OUT_TX_PIN);
-  // set the MIDI data rate for the SoftwareSerial port
+  // Set the MIDI data rate for the SoftwareSerial port.
   midiOutSerial.begin(31250);
 }
 
-// Sends a Bb 3 MIDI every other second.
+// 0x90: note on
+// 0x3A: Bb 3 note
+// 0x45: medium velocity
+// 0x00: zero velocity (silence)
 void loop() {
   noteOn(0x90, 0x3A, 0x45);
   delay(1000);
