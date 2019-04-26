@@ -46,7 +46,7 @@ void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val)
 			digitalWrite(dataPin, val & 1);
 			val >>= 1;
 		} else {	
-			digitalWrite(dataPin, val & 128);
+			digitalWrite(dataPin, (val & 128) != 0);
 			val <<= 1;
 		}
 			
