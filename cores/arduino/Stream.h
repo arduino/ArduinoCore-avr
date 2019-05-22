@@ -107,6 +107,12 @@ class Stream : public Print
   String readString();
   String readStringUntil(char terminator);
 
+
+  // for compatibility with derived classes
+  virtual bool listen(){return true;}
+  virtual bool isListening(){return true;}
+  
+
   protected:
   long parseInt(char ignore) { return parseInt(SKIP_ALL, ignore); }
   float parseFloat(char ignore) { return parseFloat(SKIP_ALL, ignore); }
