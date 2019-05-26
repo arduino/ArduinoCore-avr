@@ -36,6 +36,7 @@ class TwoWire : public Stream
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
+    static uint8_t rxAddress;
 
     static uint8_t txAddress;
     static uint8_t txBuffer[];
@@ -46,7 +47,7 @@ class TwoWire : public Stream
     static void (*user_onRequest)(void);
     static void (*user_onReceive)(int);
     static void onRequestService(void);
-    static void onReceiveService(uint8_t*, int);
+    static void onReceiveService(uint8_t, uint8_t*, int);
   public:
     TwoWire();
     void begin();
@@ -69,6 +70,7 @@ class TwoWire : public Stream
     virtual int read(void);
     virtual int peek(void);
     virtual void flush(void);
+    uint8_t getLastAddress();
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
 

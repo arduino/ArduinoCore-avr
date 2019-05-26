@@ -44,7 +44,7 @@ static volatile uint8_t twi_sendStop;			// should the transaction end with a sto
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
 
 static void (*twi_onSlaveTransmit)(void);
-static void (*twi_onSlaveReceive)(uint8_t*, int);
+static void (*twi_onSlaveReceive)(uint8_t, uint8_t*, int);
 
 static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_masterBufferIndex;
@@ -329,7 +329,7 @@ uint8_t twi_transmit(const uint8_t* data, uint8_t length)
  * Input    function: callback function to use
  * Output   none
  */
-void twi_attachSlaveRxEvent( void (*function)(uint8_t*, int) )
+void twi_attachSlaveRxEvent( void (*function)(uint8_t, uint8_t*, int) )
 {
   twi_onSlaveReceive = function;
 }
@@ -480,6 +480,7 @@ ISR(TWI_vect)
     case TW_SR_ARB_LOST_GCALL_ACK: // lost arbitration, returned ack
       // enter slave receiver mode
       twi_state = TWI_SRX;
+      twi_slarw = TWDR;
       // indicate that rx buffer can be overwritten and ack
       twi_rxBufferIndex = 0;
       twi_reply(1);
@@ -504,7 +505,7 @@ ISR(TWI_vect)
         twi_rxBuffer[twi_rxBufferIndex] = '\0';
       }
       // callback to user defined callback
-      twi_onSlaveReceive(twi_rxBuffer, twi_rxBufferIndex);
+      twi_onSlaveReceive(twi_slarw >> 1,  twi_rxBuffer, twi_rxBufferIndex);
       // since we submit rx buffer to "wire" library, we can reset it
       twi_rxBufferIndex = 0;
       break;
