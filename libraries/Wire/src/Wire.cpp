@@ -65,15 +65,15 @@ void TwoWire::begin(void)
   twi_attachSlaveRxEvent(onReceiveService); // default callback must exist
 }
 
-void TwoWire::begin(uint8_t address)
+void TwoWire::begin(uint8_t address, uint8_t mask)
 {
   begin();
-  twi_setAddress(address);
+  twi_setAddress(address, mask);
 }
 
-void TwoWire::begin(int address)
+void TwoWire::begin(int address, int mask)
 {
-  begin((uint8_t)address);
+  begin((uint8_t)address, (uint8_t)mask);
 }
 
 void TwoWire::end(void)

@@ -50,8 +50,8 @@ class TwoWire : public Stream
   public:
     TwoWire();
     void begin();
-    void begin(uint8_t);
-    void begin(int);
+    void begin(uint8_t addr, uint8_t mask = 0xFF);
+    void begin(int, int);
     void end();
     void setClock(uint32_t);
     void beginTransmission(uint8_t);

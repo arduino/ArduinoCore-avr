@@ -112,10 +112,11 @@ void twi_disable(void)
  * Input    none
  * Output   none
  */
-void twi_setAddress(uint8_t address)
+void twi_setAddress(uint8_t address, uint8_t mask)
 {
   // set twi slave address (skip over TWGCE bit)
   TWAR = address << 1;
+  TWAMR = mask << 1;
 }
 
 /* 
