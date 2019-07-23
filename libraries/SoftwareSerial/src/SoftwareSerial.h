@@ -49,7 +49,7 @@ http://arduiniana.org.
 
 class SoftwareSerial : public Stream
 {
-private:
+protected:
   // per object data
   uint8_t _receivePin;
   uint8_t _receiveBitMask;
@@ -74,7 +74,7 @@ private:
   static volatile uint8_t _receive_buffer_head;
   static SoftwareSerial *active_object;
 
-  // private methods
+  // protected methods
   inline void recv() __attribute__((__always_inline__));
   uint8_t rx_pin_read();
   void setTX(uint8_t transmitPin);
@@ -84,7 +84,7 @@ private:
   // Return num - sub, or 1 if the result would be < 1
   static uint16_t subtract_cap(uint16_t num, uint16_t sub);
 
-  // private static method for timing
+  // protected static method for timing
   static inline void tunedDelay(uint16_t delay);
 
 public:
