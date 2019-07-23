@@ -74,7 +74,7 @@ inline void DebugPulse(uint8_t, uint8_t) {}
 #endif
 
 //
-// Private methods
+// Protected methods
 //
 
 /* static */ 
