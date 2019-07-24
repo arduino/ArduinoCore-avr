@@ -279,10 +279,11 @@ unsigned char String::concat(const char *cstr)
 
 unsigned char String::concat(char c)
 {
-	char buf[2];
-	buf[0] = c;
-	buf[1] = 0;
-	return concat(buf, 1);
+	unsigned int newlen = len + 1;
+	if (!reserve(newlen)) return 0;
+	buffer[len] = c;
+	len = newlen;
+	return 1;
 }
 
 unsigned char String::concat(unsigned char num)
