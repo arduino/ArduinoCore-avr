@@ -282,6 +282,7 @@ unsigned char String::concat(char c)
 	unsigned int newlen = len + 1;
 	if (!reserve(newlen)) return 0;
 	buffer[len] = c;
+	buffer[newlen] = '\0';
 	len = newlen;
 	return 1;
 }
