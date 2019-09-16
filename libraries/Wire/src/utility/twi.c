@@ -443,8 +443,19 @@ void twi_setTimeoutInMicros(uint16_t timeout)
  */
 void twi_handleTimeout(void)
 {
+  // remember the bitrate register value
+  uint8_t previous_TWBR = TWBR;
+
+  // remember the address register value
+  uint8_t previous_TWAR = TWBR;
+
+  // reset the interface
   twi_disable();
   twi_init();
+
+  // reapply the previous register values
+  TWAR = previous_TWAR;
+  TWBR = previous_TWAR;
 }
 
 ISR(TWI_vect)
