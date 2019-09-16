@@ -496,14 +496,13 @@ bool SendConfiguration(int maxlen)
 static
 bool SendDescriptor(USBSetup& setup)
 {
-	int ret;
 	u8 t = setup.wValueH;
 	if (USB_CONFIGURATION_DESCRIPTOR_TYPE == t)
 		return SendConfiguration(setup.wLength);
 
 	InitControl(setup.wLength);
 #ifdef PLUGGABLE_USB_ENABLED
-	ret = PluggableUSB().getDescriptor(setup);
+	int ret = PluggableUSB().getDescriptor(setup);
 	if (ret != 0) {
 		return (ret > 0 ? true : false);
 	}
