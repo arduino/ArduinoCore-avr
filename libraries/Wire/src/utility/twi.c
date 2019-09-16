@@ -158,10 +158,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   uint32_t startMillis = millis();
   while(TWI_READY != twi_state){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
-      //timeout
-      twi_disable();
-      twi_init();
-
+      twi_handleTimeout();
       return 0;
     }
     continue;
@@ -205,10 +202,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   startMillis = millis();
   while(TWI_MRX == twi_state){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
-      //timeout
-      twi_disable();
-      twi_init();
-
+      twi_handleTimeout();
       return 0;
     }
     continue;
@@ -253,10 +247,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   uint32_t startMillis = millis();
   while(TWI_READY != twi_state){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
-      //timeout
-      twi_disable();
-      twi_init();
-
+      twi_handleTimeout();
       return 4;
     }
     continue;
@@ -303,10 +294,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   startMillis = millis();
   while(wait && (TWI_MTX == twi_state)){
     if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
-      //timeout
-      twi_disable();
-      twi_init();
-
+      twi_handleTimeout();
       return 4;
     }
     continue;
@@ -410,10 +398,7 @@ void twi_stop(void)
   while(TWCR & _BV(TWSTO)){
     counter++;
     if((twi_timeout_ms > 0) && (counter >= 25000)) {
-      // timeout
-      twi_disable();
-      twi_init();
-
+      twi_handleTimeout();
       return;
     }
 
@@ -439,9 +424,27 @@ void twi_releaseBus(void)
   twi_state = TWI_READY;
 }
 
+/* 
+ * Function twi_setTimeoutInMillis
+ * Desc     set a global timeout for while loops that we might get stuck in
+ * Input    timeout value in milliseconds
+ * Output   none
+ */
 void twi_setTimeoutInMillis(uint8_t timeout)
 {
-   twi_timeout_ms = timeout;
+  twi_timeout_ms = timeout;
+}
+
+/* 
+ * Function twi_handleTimeout
+ * Desc     do this stuff when a while loop here has run for longer than twi_timeout_ms milliseconds
+ * Input    none
+ * Output   none
+ */
+void twi_handleTimeout(void)
+{
+  twi_disable();
+  twi_init();
 }
 
 ISR(TWI_vect)

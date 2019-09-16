@@ -51,6 +51,7 @@
   void twi_stop(void);
   void twi_releaseBus(void);
   void twi_setTimeoutInMillis(uint8_t);
+  void twi_handleTimeout(void);
 
 #endif
 
