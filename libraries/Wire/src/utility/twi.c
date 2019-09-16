@@ -25,7 +25,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <compat/twi.h>
-#include "Arduino.h" // for digitalWrite and millis
+#include "Arduino.h" // for digitalWrite and micros
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
@@ -42,7 +42,7 @@ static volatile uint8_t twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
-static volatile uint8_t twi_timeout_ms = 0;
+static volatile uint16_t twi_timeout_us = 0;
 
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
@@ -155,9 +155,9 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   }
 
   // wait until twi is ready, become master receiver
-  uint32_t startMillis = millis();
+  uint32_t startMicros = micros();
   while(TWI_READY != twi_state){
-    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 0;
     }
@@ -199,9 +199,9 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
     TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
 
   // wait for read operation to complete
-  startMillis = millis();
+  startMicros = micros();
   while(TWI_MRX == twi_state){
-    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 0;
     }
@@ -244,9 +244,9 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   }
 
   // wait until twi is ready, become master transmitter
-  uint32_t startMillis = millis();
+  uint32_t startMicros = micros();
   while(TWI_READY != twi_state){
-    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 4;
     }
@@ -291,9 +291,9 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE) | _BV(TWSTA);	// enable INTs
 
   // wait for write operation to complete
-  startMillis = millis();
+  startMicros = micros();
   while(wait && (TWI_MTX == twi_state)){
-    if((twi_timeout_ms > 0) && (millis() - startMillis > twi_timeout_ms)) {
+    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 4;
     }
@@ -397,7 +397,7 @@ void twi_stop(void)
   uint32_t counter = 0;
   while(TWCR & _BV(TWSTO)){
     counter++;
-    if((twi_timeout_ms > 0) && (counter >= 25000)) {
+    if((twi_timeout_us > 0) && (counter >= 25000)) {
       twi_handleTimeout();
       return;
     }
@@ -425,19 +425,19 @@ void twi_releaseBus(void)
 }
 
 /* 
- * Function twi_setTimeoutInMillis
+ * Function twi_setTimeoutInMicros
  * Desc     set a global timeout for while loops that we might get stuck in
- * Input    timeout value in milliseconds
+ * Input    timeout value in microseconds
  * Output   none
  */
-void twi_setTimeoutInMillis(uint8_t timeout)
+void twi_setTimeoutInMicros(uint16_t timeout)
 {
-  twi_timeout_ms = timeout;
+  twi_timeout_us = timeout;
 }
 
 /* 
  * Function twi_handleTimeout
- * Desc     do this stuff when a while loop here has run for longer than twi_timeout_ms milliseconds
+ * Desc     do this stuff when a while loop here has run for longer than twi_timeout_us microseconds
  * Input    none
  * Output   none
  */
