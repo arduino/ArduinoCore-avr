@@ -49,18 +49,18 @@ class TwoWire : public Stream
     static void onReceiveService(uint8_t*, int);
   public:
     TwoWire();
-    void begin();
+    virtual void begin();
     void begin(uint8_t);
     void begin(int);
-    void end();
-    void setClock(uint32_t);
-    void beginTransmission(uint8_t);
+    virtual void end();
+    virtual void setClock(uint32_t);
+    virtual void beginTransmission(uint8_t);
     void beginTransmission(int);
-    uint8_t endTransmission(void);
+    virtual uint8_t endTransmission(void);
     uint8_t endTransmission(uint8_t);
     uint8_t requestFrom(uint8_t, uint8_t);
     uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
-	uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
+	virtual uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
     uint8_t requestFrom(int, int);
     uint8_t requestFrom(int, int, int);
     virtual size_t write(uint8_t);
