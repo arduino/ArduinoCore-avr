@@ -105,14 +105,12 @@ unsigned long micros() {
 
 void delay(unsigned long ms)
 {
-	uint32_t start = micros();
+	uint32_t start_time = micros();
 
 	while (ms > 0) {
-		yield();
-		while ( ms > 0 && (micros() - start) >= 1000) {
-			ms--;
-			start += 1000;
-		}
+		while (micros() - start_time < 1000) yield();
+		--ms;
+		start_time += 1000;
 	}
 }
 
