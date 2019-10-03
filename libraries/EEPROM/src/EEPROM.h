@@ -56,8 +56,8 @@ struct EERef{
     EERef &operator <<=( uint8_t in )    { return *this = **this << in; }
     EERef &operator >>=( uint8_t in )    { return *this = **this >> in; }
     
-    EERef &update( uint8_t in )          { return  in != *this ? write( in ) : *this; }
-    EERef &write( uint8_t in )           { return eeprom_write_byte( (uint8_t*) index, in ), *this; }
+    EERef &update( uint8_t in )          { return  in != *this ? write( in ) : in; }
+    EERef &write( uint8_t in )           { return eeprom_write_byte( (uint8_t*) index, in ), in; }
     
     /** Prefix increment/decrement **/
     EERef& operator++()                  { return *this += 1; }
