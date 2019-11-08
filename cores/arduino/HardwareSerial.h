@@ -19,6 +19,8 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 2 November 2015 by SlashDev
+  Modified 7 November 2019 by Georg Icking-Konert
 */
 
 #ifndef HardwareSerial_h
@@ -137,6 +139,15 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+
+    typedef void (* isr_t)( uint8_t d=0x00, uint8_t s=0x00 );
+    void attachInterrupt( isr_t fn );
+    void detachInterrupt() { attachInterrupt( (isr_t) NULL ); };
+  private:
+    isr_t  _isr;
+
+    HardwareSerial( const HardwareSerial & );
+    HardwareSerial & operator =( const HardwareSerial &);
 };
 
 #if defined(UBRRH) || defined(UBRR0H)
