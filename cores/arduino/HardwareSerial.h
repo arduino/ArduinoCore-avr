@@ -140,7 +140,7 @@ class HardwareSerial : public Stream
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
 
-    typedef void (* isr_t)( uint8_t d=0x00, uint8_t s=0x00 );
+    typedef void (* isr_t)( uint8_t d, uint8_t s );
     void attachInterrupt( isr_t fn );
     void detachInterrupt() { attachInterrupt( (isr_t) NULL ); };
   private:
