@@ -114,6 +114,14 @@ void HardwareSerial::_tx_udr_empty_irq(void)
   }
 }
 
+void HardwareSerial::_tx_complete_irq(void)
+{
+  // user send function was attached -> call it
+  if (_isrTx) {
+    _isrTx();
+  }
+}
+
 // Public Methods //////////////////////////////////////////////////////////////
 
 void HardwareSerial::begin(unsigned long baud, byte config)
@@ -160,6 +168,7 @@ void HardwareSerial::end()
   cbi(*_ucsrb, TXEN0);
   cbi(*_ucsrb, RXCIE0);
   cbi(*_ucsrb, UDRIE0);
+  cbi(*_ucsrb, TXCIE0);
   
   // clear any received data
   _rx_buffer_head = _rx_buffer_tail;
@@ -280,11 +289,29 @@ size_t HardwareSerial::write(uint8_t c)
   return 1;
 }
 
-void HardwareSerial::attachInterrupt( isr_t fn )
+void HardwareSerial::attachInterrupt_Receive( isrRx_t fn )
 {
   uint8_t oldSREG = SREG;
   cli();
-  _isr = fn;
+  _isrRx = fn;
+  SREG = oldSREG;
+}
+
+void HardwareSerial::attachInterrupt_Send( isrTx_t fn )
+{
+  uint8_t oldSREG = SREG;
+  cli();
+  _isrTx = fn;
+  sbi(*_ucsrb, TXCIE0);
+  SREG = oldSREG;
+}
+
+void HardwareSerial::detachInterrupt_Send()
+{
+  uint8_t oldSREG = SREG;
+  cli();
+  _isrTx = NULL;
+  cbi(*_ucsrb, TXCIE0);
   SREG = oldSREG;
 }
 

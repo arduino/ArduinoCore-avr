@@ -139,12 +139,17 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+    void _tx_complete_irq(void);
 
-    typedef void (* isr_t)( uint8_t d, uint8_t s );
-    void attachInterrupt( isr_t fn );
-    void detachInterrupt() { attachInterrupt( (isr_t) NULL ); };
+    typedef void (* isrRx_t)( uint8_t d, uint8_t s );
+    void attachInterrupt_Receive( isrRx_t fn );
+    void detachInterrupt_Receive() { attachInterrupt_Receive( (isrRx_t) NULL ); };
+    typedef void (* isrTx_t)( void );
+    void attachInterrupt_Send( isrTx_t fn );
+    void detachInterrupt_Send( void );
   private:
-    isr_t  _isr;
+    isrRx_t  _isrRx;
+    isrTx_t  _isrTx;
 
     HardwareSerial( const HardwareSerial & );
     HardwareSerial & operator =( const HardwareSerial &);

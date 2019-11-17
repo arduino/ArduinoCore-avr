@@ -20,7 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 2 November 2015 by SlashDev
-  Modified 7 November 2019 by Georg Icking-Konert
+  Modified 17 November 2019 by Georg Icking-Konert
 */
 
 #include "wiring_private.h"
@@ -95,7 +95,7 @@ HardwareSerial::HardwareSerial(
     _udr(udr),
     _rx_buffer_head(0), _rx_buffer_tail(0),
     _tx_buffer_head(0), _tx_buffer_tail(0),
-    _isr(0)
+    _isrRx(0), _isrTx(0)
 {
 }
 
@@ -103,11 +103,11 @@ HardwareSerial::HardwareSerial(
 
 void HardwareSerial::_rx_complete_irq(void)
 {
-  // user function was attached -> call it with data and status byte 
-  if (_isr) {
+  // user receive function was attached -> call it with data and status byte 
+  if (_isrRx) {
     unsigned char status = *_ucsra;
     unsigned char data = *_udr;
-    _isr( data, status );
+    _isrRx( data, status );
   }
 
   // default: save data in ring buffer

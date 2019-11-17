@@ -20,8 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
-  Modified 2 November 2015 by SlashDev
-  Modified 7 November 2019 by Georg Icking-Konert
+  Modified 17 November 2019 by Georg Icking-Konert
 */
 
 #include "Arduino.h"
@@ -38,6 +37,9 @@
 
 #if defined(HAVE_HWSERIAL2)
 
+// xxx
+extern int count;
+
 ISR(USART2_RX_vect)
 {
   Serial2._rx_complete_irq();
@@ -45,7 +47,18 @@ ISR(USART2_RX_vect)
 
 ISR(USART2_UDRE_vect)
 {
+  // xxx
+  Serial.println(++count);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delayMicroseconds(50);
+  digitalWrite(LED_BUILTIN, LOW);
+
   Serial2._tx_udr_empty_irq();
+}
+
+ISR(USART2_TX_vect)
+{
+  Serial2._tx_complete_irq();
 }
 
 HardwareSerial Serial2(&UBRR2H, &UBRR2L, &UCSR2A, &UCSR2B, &UCSR2C, &UDR2);
