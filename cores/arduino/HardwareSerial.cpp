@@ -120,6 +120,7 @@ void HardwareSerial::_tx_complete_irq(void)
   if (_isrTx) {
     _isrTx();
   }
+
 }
 
 // Public Methods //////////////////////////////////////////////////////////////

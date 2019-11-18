@@ -37,9 +37,6 @@
 
 #if defined(HAVE_HWSERIAL2)
 
-// xxx
-extern int count;
-
 ISR(USART2_RX_vect)
 {
   Serial2._rx_complete_irq();
@@ -47,12 +44,6 @@ ISR(USART2_RX_vect)
 
 ISR(USART2_UDRE_vect)
 {
-  // xxx
-  Serial.println(++count);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delayMicroseconds(50);
-  digitalWrite(LED_BUILTIN, LOW);
-
   Serial2._tx_udr_empty_irq();
 }
 
