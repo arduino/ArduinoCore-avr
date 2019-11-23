@@ -84,9 +84,6 @@
 #error "Not all bit positions for UART3 are the same as for UART0"
 #endif
 
-// dummy custom function attached and TXC interrupt. Is faster than if(NULL) check 
-void dummyFct(void);
-
 // Constructors ////////////////////////////////////////////////////////////////
 
 HardwareSerial::HardwareSerial(
@@ -98,7 +95,7 @@ HardwareSerial::HardwareSerial(
     _udr(udr),
     _rx_buffer_head(0), _rx_buffer_tail(0),
     _tx_buffer_head(0), _tx_buffer_tail(0),
-    _isrRx(dummyFct), _isrTx(dummyFct)
+    _isrRx(NULL), _isrTx(dummyTxFct)
 {
 }
 

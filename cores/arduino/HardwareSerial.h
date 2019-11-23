@@ -92,6 +92,9 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
+// dummy custom function for TxC interrupt. Is faster than check if(fct==NULL) 
+void dummyTxFct(void);
+
 class HardwareSerial : public Stream
 {
   protected:
@@ -149,7 +152,7 @@ class HardwareSerial : public Stream
 
     // attach custom handlers for RX and TXC interrupts 
     void attachInterrupt_Receive( isrRx_t fn );
-    void detachInterrupt_Receive() { attachInterrupt_Receive( (isrRx_t) NULL ); };
+    void detachInterrupt_Receive( void ) { attachInterrupt_Receive( (isrRx_t) NULL ); };
     void attachInterrupt_Send( isrTx_t fn );
     void detachInterrupt_Send( void );
 

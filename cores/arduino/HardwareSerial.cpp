@@ -79,15 +79,15 @@ void serialEventRun(void)
 #endif
 }
 
-// dummy function attached to TxC interrupt. Is faster than if(NULL) check 
-void dummyFct(void) { /* dummy */}
-
 // macro to guard critical sections when needed for large TX buffer sizes
 #if (SERIAL_TX_BUFFER_SIZE>256)
 #define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #else
 #define TX_BUFFER_ATOMIC
 #endif
+
+// dummy custom function for TxC interrupt. Is faster than check if(fct==NULL) 
+void dummyTxFct(void) { /* dummy */}
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
@@ -296,7 +296,7 @@ void HardwareSerial::attachInterrupt_Receive( isrRx_t fn )
 void HardwareSerial::attachInterrupt_Send( isrTx_t fn )
 {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    _isrTx = fn;
+    _isrTx = fn;             // set custom function
     sbi(*_ucsra, TXC0);      // clear TXC status
     sbi(*_ucsrb, TXCIE0);    // activate TXC interrupt
   }
@@ -305,7 +305,7 @@ void HardwareSerial::attachInterrupt_Send( isrTx_t fn )
 void HardwareSerial::detachInterrupt_Send()
 {
   ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-    _isrTx = NULL;
+    _isrTx = dummyTxFct;     // restore dummy function
     cbi(*_ucsrb, TXCIE0);    // deactivate TXC interrupt
   }
 }
