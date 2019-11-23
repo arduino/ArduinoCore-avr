@@ -20,7 +20,7 @@
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
   Modified 2 November 2015 by SlashDev
-  Modified 7 November 2019 by Georg Icking-Konert
+  Modified 23 November 2019 by Georg Icking-Konert
 */
 
 #ifndef HardwareSerial_h

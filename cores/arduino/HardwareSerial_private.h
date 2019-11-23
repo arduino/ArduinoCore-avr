@@ -20,7 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 2 November 2015 by SlashDev
-  Modified 17 November 2019 by Georg Icking-Konert
+  Modified 23 November 2019 by Georg Icking-Konert
 */
 
 #include "wiring_private.h"
