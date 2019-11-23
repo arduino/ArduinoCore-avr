@@ -79,6 +79,9 @@ void serialEventRun(void)
 #endif
 }
 
+// dummy function attached to TxC interrupt. Is faster than if(NULL) check 
+void dummyFct(void) { /* dummy */}
+
 // macro to guard critical sections when needed for large TX buffer sizes
 #if (SERIAL_TX_BUFFER_SIZE>256)
 #define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -112,15 +115,6 @@ void HardwareSerial::_tx_udr_empty_irq(void)
     // Buffer empty, so disable interrupts
     cbi(*_ucsrb, UDRIE0);
   }
-}
-
-void HardwareSerial::_tx_complete_irq(void)
-{
-  // user send function was attached -> call it
-  if (_isrTx) {
-    _isrTx();
-  }
-
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -158,6 +152,7 @@ void HardwareSerial::begin(unsigned long baud, byte config)
   sbi(*_ucsrb, TXEN0);
   sbi(*_ucsrb, RXCIE0);
   cbi(*_ucsrb, UDRIE0);
+  //cbi(*_ucsrb, TXCIE0);
 }
 
 void HardwareSerial::end()
@@ -300,20 +295,19 @@ void HardwareSerial::attachInterrupt_Receive( isrRx_t fn )
 
 void HardwareSerial::attachInterrupt_Send( isrTx_t fn )
 {
-  uint8_t oldSREG = SREG;
-  cli();
-  _isrTx = fn;
-  sbi(*_ucsrb, TXCIE0);
-  SREG = oldSREG;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    _isrTx = fn;
+    sbi(*_ucsra, TXC0);      // clear TXC status
+    sbi(*_ucsrb, TXCIE0);    // activate TXC interrupt
+  }
 }
 
 void HardwareSerial::detachInterrupt_Send()
 {
-  uint8_t oldSREG = SREG;
-  cli();
-  _isrTx = NULL;
-  cbi(*_ucsrb, TXCIE0);
-  SREG = oldSREG;
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    _isrTx = NULL;
+    cbi(*_ucsrb, TXCIE0);    // deactivate TXC interrupt
+  }
 }
 
 #endif // whole file

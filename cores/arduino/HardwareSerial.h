@@ -114,6 +114,12 @@ class HardwareSerial : public Stream
     // instruction.
     unsigned char _rx_buffer[SERIAL_RX_BUFFER_SIZE];
     unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
+    
+    // custom handlers for RX and TXC interrupts 
+    typedef void (* isrRx_t)( uint8_t d, uint8_t s );
+    typedef void (* isrTx_t)( void );
+    isrRx_t  _isrRx;
+    isrTx_t  _isrTx;
 
   public:
     inline HardwareSerial(
@@ -139,17 +145,15 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
-    void _tx_complete_irq(void);
+    inline void _tx_complete_irq(void);
 
-    typedef void (* isrRx_t)( uint8_t d, uint8_t s );
+    // attach custom handlers for RX and TXC interrupts 
     void attachInterrupt_Receive( isrRx_t fn );
     void detachInterrupt_Receive() { attachInterrupt_Receive( (isrRx_t) NULL ); };
-    typedef void (* isrTx_t)( void );
     void attachInterrupt_Send( isrTx_t fn );
     void detachInterrupt_Send( void );
+
   private:
-    isrRx_t  _isrRx;
-    isrTx_t  _isrTx;
 
     HardwareSerial( const HardwareSerial & );
     HardwareSerial & operator =( const HardwareSerial &);
