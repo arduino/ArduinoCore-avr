@@ -2,13 +2,13 @@ This directory contains the Optiboot small bootloader for AVR
 microcontrollers, somewhat modified specifically for the Arduino
 environment.
 
-Optiboot is more fully described here: http://code.google.com/p/optiboot/
+Optiboot is more fully described here: https://github.com/Optiboot/optiboot
 and is the work of Peter Knight (aka Cathedrow), building on work of Jason P
 Kyle, Spiff, and Ladyada.  Arduino-specific modification are by Bill
 Westfield (aka WestfW)
 
 Arduino-specific issues are tracked as part of the Arduino project
-at http://code.google.com/p/arduino
+at https://github.com/arduino/ArduinoCore-avr
 
 
 ------------------------------------------------------------
@@ -29,7 +29,7 @@ the Arduino IDE.)
 
 Building Optiboot in the Arduino IDE Install.
 
-Work in the .../hardware/arduino/bootloaders/optiboot/ and use the
+Work in the .../hardware/arduino/avr/bootloaders/optiboot/ and use the
 "omake <targets>" command, which just generates a command that uses
 the arduino-included "make" utility with a command like:
     make OS=windows ENV=arduino <targets>
@@ -39,9 +39,14 @@ you're using a cygwin or mingw shell, or have one of those in your
 path, the build will probably break due to slash vs backslash issues.
 On a Mac, if you have the developer tools installed, you can use the
 Apple-supplied version of make.
-The makefile uses relative paths ("../../../tools/" and such) to find
+The makefile uses relative paths ("../../../../tools/" and such) to find
 the programs it needs, so you need to work in the existing optiboot
 directory (or something created at the same "level") for it to work.
+
+As of new Arduino versions the make executable is no longer included in
+the ../../../../tools/bin/ directory.
+For the 1.8.10 version it is located at:
+%userprofile%\AppData\Local\Arduino15\packages\arduino\tools\avr-gcc\avr-gcc-9.1.0-x64-mingw\bin\make
 
 
 Building Optiboot in the Arduino Source Development Install.
