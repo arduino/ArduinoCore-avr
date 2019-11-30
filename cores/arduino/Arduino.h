@@ -169,24 +169,51 @@ extern const uint8_t PROGMEM digital_pin_to_port_PGM[];
 // extern const uint8_t PROGMEM digital_pin_to_bit_PGM[];
 extern const uint8_t PROGMEM digital_pin_to_bit_mask_PGM[];
 extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
-
-// Get the bit location within the hardware port of the given virtual pin.
-// This comes from the pins_*.c file for the active board configuration.
-// 
-// These perform slightly better as macros compared to inline functions
-//
-#define digitalPinToPort(P) ( pgm_read_byte( digital_pin_to_port_PGM + (P) ) )
-#define digitalPinToBitMask(P) ( pgm_read_byte( digital_pin_to_bit_mask_PGM + (P) ) )
-#define digitalPinToTimer(P) ( pgm_read_byte( digital_pin_to_timer_PGM + (P) ) )
-#define analogInPinToBit(P) (P)
-#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
-#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
-#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
+extern const uint8_t digital_pin_count;
 
 #define NOT_A_PIN 0
 #define NOT_A_PORT 0
 
 #define NOT_AN_INTERRUPT -1
+
+// Get the bit location within the hardware port of the given virtual pin.
+// This comes from the pins_*.c file for the active board configuration.
+// 
+// These perform slightly better as macros compared to inline functions
+// 
+#define analogInPinToBit(P) (P)
+#define portOutputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_output_PGM + (P))) )
+#define portInputRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_input_PGM + (P))) )
+#define portModeRegister(P) ( (volatile uint8_t *)( pgm_read_word( port_to_mode_PGM + (P))) )
+//
+// bounds checking on these functions because they return a pointer to an address that will be modified.
+// An out of bounds write can result in stack corruption and fun to track-down errors.
+//
+static inline const uint8_t digitalPinToPort(const uint8_t P) {
+  if (P > digital_pin_count) {
+    return NOT_A_PIN;
+  } else {
+    return pgm_read_byte( digital_pin_to_port_PGM + P );
+  }
+}
+static inline const uint8_t digitalPinToBitMask(const uint8_t P) {
+  if (P > digital_pin_count) {
+    return NOT_A_PIN;
+  } else {
+    return pgm_read_byte( digital_pin_to_bit_mask_PGM + P );
+  }
+}
+static inline const uint8_t digitalPinToTimer(const uint8_t P) {
+  if (P > digital_pin_count) {
+    return NOT_A_PIN;
+  } else {
+    return pgm_read_byte( digital_pin_to_timer_PGM + P );
+  }
+}
+// these defines are to maintain backwards compatibility with #ifdef
+#define digitalPinToPort digitalPinToPort
+#define digitalPinToBitMask digitalPinToBitMask
+#define digitalPinToTimer digitalPinToTimer
 
 #ifdef ARDUINO_MAIN
 #define PA 1
