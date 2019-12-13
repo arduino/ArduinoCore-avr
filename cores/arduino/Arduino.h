@@ -189,22 +189,22 @@ extern const uint8_t digital_pin_count;
 // bounds checking on these functions because they return a pointer to an address that will be modified.
 // An out of bounds write can result in stack corruption and fun to track-down errors.
 //
-static inline const uint8_t digitalPinToPort(const uint8_t P) {
-  if (P > digital_pin_count) {
+static inline uint8_t digitalPinToPort(const uint8_t P) {
+  if (P >= digital_pin_count) {
     return NOT_A_PIN;
   } else {
     return pgm_read_byte( digital_pin_to_port_PGM + P );
   }
 }
-static inline const uint8_t digitalPinToBitMask(const uint8_t P) {
-  if (P > digital_pin_count) {
+static inline uint8_t digitalPinToBitMask(const uint8_t P) {
+  if (P >= digital_pin_count) {
     return NOT_A_PIN;
   } else {
     return pgm_read_byte( digital_pin_to_bit_mask_PGM + P );
   }
 }
-static inline const uint8_t digitalPinToTimer(const uint8_t P) {
-  if (P > digital_pin_count) {
+static inline uint8_t digitalPinToTimer(const uint8_t P) {
+  if (P >= digital_pin_count) {
     return NOT_A_PIN;
   } else {
     return pgm_read_byte( digital_pin_to_timer_PGM + P );
