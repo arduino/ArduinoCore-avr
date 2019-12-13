@@ -341,8 +341,6 @@ const uint8_t PROGMEM analog_pin_to_channel_PGM[] = {
 	9	// A11		D12		PD6					ADC9
 };
 
-extern const uint8_t digital_pin_count;
-
 #endif /* ARDUINO_MAIN */
 
 // These serial port names are intended to allow libraries and architecture-neutral
