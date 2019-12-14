@@ -47,6 +47,33 @@ http://arduiniana.org.
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
+/************************************* For ATmega644P **********************/
+
+#define digitalPinToPCMSK(p)    (((p) <= 7) ? (&PCMSK2) : (((p) <= 13) ? (&PCMSK0) : (((p) <= 21) ? (&PCMSK1) : ((uint8_t *)0))))
+#define digitalPinToPCMSKbit(p) (((p) <= 7) ? (p) : (((p) <= 13) ? ((p) - 8) : ((p) - 14)))
+ 
+#if defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__)	|| defined(__AVR_ATmega644PA)
+
+#define digitalPinToPCICR(p)    (((p) >= 0 && (p) <= 31) ? (&PCICR) : ((uint8_t *)0))
+#define digitalPinToPCICRbit(p) (((p) <= 7) ? 1 : (((p) <= 15) ? 3 : (((p) <= 23) ? 2 : (((p) <= 31) ? 3 : 0))))
+#define digitalPinToPCMSK(p)    ( \
+								(	((p) <=  7) ? (&PCMSK1) : \
+								(	((p) <= 15) ? (&PCMSK3) : \
+								(	((p) <= 23) ? (&PCMSK2) : \
+								(	((p) <= 31) ? (&PCMSK0) : \
+									((uint8_t *)0) \
+								)))))
+#define digitalPinToPCMSKbit(p) ( \
+								(	((p) <=  7) ? (p) : \
+								(	((p) <= 15) ? ((p) - 8) : \
+								(	((p) <= 23) ? ((p) - 16) : \
+								(	((p) <= 31) ? ((p) - 24) : \
+								0 )))))		
+
+#endif							
+
+/************************************** For ATmega644P ***********************/
+
 class SoftwareSerial : public Stream
 {
 private:
