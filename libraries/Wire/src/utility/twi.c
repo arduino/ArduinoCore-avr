@@ -42,7 +42,7 @@ static volatile uint8_t twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
-static volatile uint16_t twi_timeout_us = 0;
+static volatile uint32_t twi_timeout_us = 0ul;
 
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
@@ -157,7 +157,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   // wait until twi is ready, become master receiver
   uint32_t startMicros = micros();
   while(TWI_READY != twi_state){
-    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
+    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 0;
     }
@@ -201,7 +201,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   // wait for read operation to complete
   startMicros = micros();
   while(TWI_MRX == twi_state){
-    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
+    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 0;
     }
@@ -246,7 +246,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   // wait until twi is ready, become master transmitter
   uint32_t startMicros = micros();
   while(TWI_READY != twi_state){
-    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
+    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 4;
     }
@@ -293,7 +293,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   // wait for write operation to complete
   startMicros = micros();
   while(wait && (TWI_MTX == twi_state)){
-    if((twi_timeout_us > 0) && (micros() - startMicros > twi_timeout_us)) {
+    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return 4;
     }
@@ -397,7 +397,7 @@ void twi_stop(void)
   uint32_t counter = 0;
   while(TWCR & _BV(TWSTO)){
     counter++;
-    if((twi_timeout_us > 0) && (counter >= 25000)) {
+    if((twi_timeout_us > 0ul) && (counter >= 25000)) {
       twi_handleTimeout();
       return;
     }
@@ -430,7 +430,7 @@ void twi_releaseBus(void)
  * Input    timeout value in microseconds
  * Output   none
  */
-void twi_setTimeoutInMicros(uint16_t timeout)
+void twi_setTimeoutInMicros(uint32_t timeout)
 {
   twi_timeout_us = timeout;
 }

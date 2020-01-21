@@ -50,7 +50,7 @@
   void twi_reply(uint8_t);
   void twi_stop(void);
   void twi_releaseBus(void);
-  void twi_setTimeoutInMicros(uint16_t);
+  void twi_setTimeoutInMicros(uint32_t);
   void twi_handleTimeout(void);
 
 #endif
