@@ -226,7 +226,7 @@ size_t Print::println(const Printable& x)
 
 size_t Print::printNumber(unsigned long n, uint8_t base)
 {
-  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char buf[8 * sizeof(n) + 1]; // Assumes 8-bit chars plus zero byte.
   char *str = &buf[sizeof(buf) - 1];
 
   *str = '\0';
@@ -246,7 +246,7 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
 
 size_t Print::printNumber(unsigned long long n, uint8_t base)
 {
-  char buf[8 * sizeof(long long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char buf[8 * sizeof(n) + 1]; // Assumes 8-bit chars plus zero byte.
   char* str = &buf[sizeof(buf) - 1];
 
   *str = '\0';
@@ -255,7 +255,7 @@ size_t Print::printNumber(unsigned long long n, uint8_t base)
   if (base < 2) base = 10;
 
   do {
-    unsigned long m = n;
+    auto m = n;
     n /= base;
     char c = m - base * n;
 
