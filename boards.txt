@@ -46,7 +46,7 @@ yun.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-uno.name=Arduino/Genuino Uno
+uno.name=Arduino Uno
 
 uno.vid.0=0x2341
 uno.pid.0=0x0043
@@ -185,7 +185,7 @@ nano.menu.cpu.atmega168.build.mcu=atmega168
 
 ##############################################################
 
-mega.name=Arduino/Genuino Mega or Mega 2560
+mega.name=Arduino Mega or Mega 2560
 
 mega.vid.0=0x2341
 mega.pid.0=0x0010
@@ -214,7 +214,7 @@ mega.build.variant=mega
 # default board may be overridden by the cpu menu
 mega.build.board=AVR_MEGA2560
 
-## Arduino/Genuino Mega w/ ATmega2560
+## Arduino Mega w/ ATmega2560
 ## -------------------------
 mega.menu.cpu.atmega2560=ATmega2560 (Mega 2560)
 
@@ -353,7 +353,7 @@ leonardoeth.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-micro.name=Arduino/Genuino Micro
+micro.name=Arduino Micro
 
 micro.vid.0=0x2341
 micro.pid.0=0x0037
@@ -363,24 +363,10 @@ micro.vid.2=0x2A03
 micro.pid.2=0x0037
 micro.vid.3=0x2A03
 micro.pid.3=0x8037
-
 micro.vid.4=0x2341
 micro.pid.4=0x0237
-# If the board is a 2341:0237 use 2341:8237 for build and set
-# other parameters as well
-micro.vid.4.build.vid=0x2341
-micro.vid.4.build.pid=0x8237
-micro.vid.4.build.usb_product="Genuino Micro"
-micro.vid.4.bootloader.file=caterina/Caterina-Genuino-Micro.hex
-
 micro.vid.5=0x2341
 micro.pid.5=0x8237
-# If the board is a 2341:8237 use 2341:8237 for build and set
-# other paramters as well
-micro.vid.5.build.vid=0x2341
-micro.vid.5.build.pid=0x8237
-micro.vid.5.build.usb_product="Genuino Micro"
-micro.vid.5.bootloader.file=caterina/Caterina-Genuino-Micro.hex
 
 micro.upload.tool=avrdude
 micro.upload.protocol=avr109
@@ -946,7 +932,7 @@ yunmini.bootloader.tool=avrdude
 yunmini.bootloader.low_fuses=0xff
 yunmini.bootloader.high_fuses=0xd8
 yunmini.bootloader.extended_fuses=0xfb
-yunmini.bootloader.file=caterina/Caterina-Yunmini.hex
+yunmini.bootloader.file=caterina/Caterina-YunMini.hex
 yunmini.bootloader.unlock_bits=0x3F
 yunmini.bootloader.lock_bits=0x2F
 
