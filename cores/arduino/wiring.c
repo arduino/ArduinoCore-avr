@@ -105,15 +105,23 @@ unsigned long micros() {
 
 void delay(unsigned long ms)
 {
-	uint32_t start = micros();
+	unsigned long new_tick;
+	unsigned long old_tick = millis();
 
-	while (ms > 0) {
+// atomic guaranteed by hardware
+	while (ms)
+	{
+// execute other threads
 		yield();
-		while ( ms > 0 && (micros() - start) >= 1000) {
-			ms--;
-			start += 1000;
-		}
-	}
+
+// provides convergence
+		new_tick = millis();
+
+		if (old_tick - new_tick > ms) ms = 0;
+		else
+			ms -= old_tick - new_tick;
+
+		old_tick = new_tick;
 }
 
 /* Delay for the given number of microseconds.  Assumes a 1, 8, 12, 16, 20 or 24 MHz clock. */
