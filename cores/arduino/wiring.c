@@ -122,6 +122,7 @@ void delay(unsigned long ms)
 			ms -= old_tick - new_tick;
 
 		old_tick = new_tick;
+	}
 }
 
 /* Delay for the given number of microseconds.  Assumes a 1, 8, 12, 16, 20 or 24 MHz clock. */
