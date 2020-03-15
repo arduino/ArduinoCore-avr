@@ -108,7 +108,6 @@ void delay(unsigned long ms)
 	unsigned long new_tick;
 	unsigned long old_tick = millis();
 
-// atomic guaranteed by hardware
 	while (ms)
 	{
 // execute other threads
