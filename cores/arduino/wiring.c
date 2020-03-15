@@ -116,9 +116,9 @@ void delay(unsigned long ms)
 // provides convergence
 		new_tick = millis();
 
-		if (old_tick - new_tick > ms) ms = 0;
+		if (new_tick - old_tick > ms) ms = 0;
 		else
-			ms -= old_tick - new_tick;
+			ms -= new_tick - old_tick;
 
 		old_tick = new_tick;
 	}
