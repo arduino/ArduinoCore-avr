@@ -1,0 +1,49 @@
+name: test
+
+on:
+  pull_request:
+
+jobs:
+  test-matrix:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      GITHUB_WORKSPACE: ~/.arduino15/packages/arduino/hardware/avr/1.8.1
+
+    steps:
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1.0.0
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install tool dependencies
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install arduino:avr
+          rm -r ~/.arduino15/packages/arduino/hardware/avr/*
+
+      - name: Move repo in the proper folder
+        run: |
+          mkdir -p ~/.arduino15/packages/arduino/hardware/avr/1.8.2
+          mv * ~/.arduino15/packages/arduino/hardware/avr/1.8.2/
+
+      - name: Clone examples
+        run: |
+          git clone --depth 1 https://github.com/arduino/Arduino.git
+          mv Arduino/build/shared/examples .
+          rm -rf Arduino
+
+      - name: Compile every example
+        run: |
+          for d in examples/*; do
+            for f in $d/*; do
+              echo "Compile $f"
+              arduino-cli compile --fqbn "arduino:avr:uno" $f
+            done
+          done
