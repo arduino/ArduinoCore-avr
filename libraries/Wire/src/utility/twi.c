@@ -453,7 +453,7 @@ void twi_handleTimeout(void)
 
   // reapply the previous register values
   TWAR = previous_TWAR;
-  TWBR = previous_TWAR;
+  TWBR = previous_TWBR;
 }
 
 ISR(TWI_vect)
