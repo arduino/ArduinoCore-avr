@@ -394,10 +394,9 @@ void twi_stop(void)
 
   // wait for stop condition to be exectued on bus
   // TWINT is not set after a stop condition!
-  uint32_t counter = 0;
+  unit32_t startMicros = micros();
   while(TWCR & _BV(TWSTO)){
-    counter++;
-    if((twi_timeout_us > 0ul) && (counter >= 25000)) {
+    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
       twi_handleTimeout();
       return;
     }
