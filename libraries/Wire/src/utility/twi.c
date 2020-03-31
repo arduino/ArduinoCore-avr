@@ -404,7 +404,7 @@ void twi_stop(void)
 
   // wait for stop condition to be exectued on bus
   // TWINT is not set after a stop condition!
-  uint32_t counter = 0;
+  volatile uint32_t counter = 0;
   while(TWCR & _BV(TWSTO)){
     counter++;
     if((twi_timeout_us > 0ul) && (counter >= 25000)) {
