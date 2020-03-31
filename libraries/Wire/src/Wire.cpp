@@ -86,7 +86,7 @@ void TwoWire::setClock(uint32_t clock)
   twi_setFrequency(clock);
 }
 
-void TwoWire::setTimeoutInMicros(uint32_t timeout)
+void TwoWire::setWireTimeoutUs(uint32_t timeout)
 {
   twi_setTimeoutInMicros(timeout);
 }
