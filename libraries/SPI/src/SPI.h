@@ -69,16 +69,16 @@
   #define SPI_AVR_EIMSK  GIMSK
 #endif
 
-class SPISettings {
+class SPISettingsAVR : public arduino::SPISettings {
 public:
-  SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
+  SPISettingsAVR(uint32_t clock, uint8_t bitOrder, uint8_t dataMode) {
     if (__builtin_constant_p(clock)) {
       init_AlwaysInline(clock, bitOrder, dataMode);
     } else {
       init_MightInline(clock, bitOrder, dataMode);
     }
   }
-  SPISettings() {
+  SPISettingsAVR() {
     init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0);
   }
 private:
@@ -149,23 +149,31 @@ private:
   }
   uint8_t spcr;
   uint8_t spsr;
-  friend class SPIClass;
+
+  SPISettingsAVR (const SPISettings& x) { SPISettingsAVR(x.getClockFreq(), x.getBitOrder(), x.getDataMode()); }
+
+  friend class SPIClassAVR;
 };
 
-
-class SPIClass {
+class SPIClassAVR : public arduino::HardwareSPI {
 public:
   // Initialize the SPI library
-  static void begin();
+  void begin();
 
   // If SPI is used from within an interrupt, this function registers
   // that interrupt with the SPI library, so beginTransaction() can
   // prevent conflicts.  The input interruptNumber is the number used
   // with attachInterrupt.  If SPI is used from a different interrupt
   // (eg, a timer), interruptNumber should be 255.
-  static void usingInterrupt(uint8_t interruptNumber);
+  void usingInterrupt(uint8_t interruptNumber);
+  void usingInterrupt(int interruptNumber) {
+    usingInterrupt(interruptNumber);
+  }
   // And this does the opposite.
-  static void notUsingInterrupt(uint8_t interruptNumber);
+  void notUsingInterrupt(uint8_t interruptNumber);
+  void notUsingInterrupt(int interruptNumber) {
+    notUsingInterrupt(interruptNumber);
+  }
   // Note: the usingInterrupt and notUsingInterrupt functions should
   // not to be called from ISR context or inside a transaction.
   // For details see:
@@ -175,7 +183,7 @@ public:
   // Before using SPI.transfer() or asserting chip select pins,
   // this function is used to gain exclusive access to the SPI bus
   // and configure the correct settings.
-  inline static void beginTransaction(SPISettings settings) {
+  inline void beginTransaction(SPISettingsAVR settings) {
     if (interruptMode > 0) {
       uint8_t sreg = SREG;
       noInterrupts();
@@ -204,8 +212,12 @@ public:
     SPSR = settings.spsr;
   }
 
+  inline void beginTransaction(SPISettings settings) {
+      beginTransaction(SPISettingsAVR(settings.getClockFreq(), settings.getBitOrder(), settings.getDataMode()));
+  }
+
   // Write to the SPI bus (MOSI pin) and also receive (MISO pin)
-  inline static uint8_t transfer(uint8_t data) {
+  inline uint8_t transfer(uint8_t data) {
     SPDR = data;
     /*
      * The following NOP introduces a small delay that can prevent the wait
@@ -217,7 +229,7 @@ public:
     while (!(SPSR & _BV(SPIF))) ; // wait
     return SPDR;
   }
-  inline static uint16_t transfer16(uint16_t data) {
+  inline uint16_t transfer16(uint16_t data) {
     union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } in, out;
     in.val = data;
     if (!(SPCR & _BV(DORD))) {
@@ -241,7 +253,7 @@ public:
     }
     return out.val;
   }
-  inline static void transfer(void *buf, size_t count) {
+  inline void transfer(void *buf, size_t count) {
     if (count == 0) return;
     uint8_t *p = (uint8_t *)buf;
     SPDR = *p;
@@ -257,7 +269,7 @@ public:
   }
   // After performing a group of transfers and releasing the chip select
   // signal, this function allows others to access the SPI bus
-  inline static void endTransaction(void) {
+  inline void endTransaction(void) {
     #ifdef SPI_TRANSACTION_MISMATCH_LED
     if (!inTransactionFlag) {
       pinMode(SPI_TRANSACTION_MISMATCH_LED, OUTPUT);
@@ -284,32 +296,33 @@ public:
   }
 
   // Disable the SPI bus
-  static void end();
+  void end();
 
   // This function is deprecated.  New applications should use
   // beginTransaction() to configure SPI settings.
-  inline static void setBitOrder(uint8_t bitOrder) {
+  inline void setBitOrder(uint8_t bitOrder) {
     if (bitOrder == LSBFIRST) SPCR |= _BV(DORD);
     else SPCR &= ~(_BV(DORD));
   }
   // This function is deprecated.  New applications should use
   // beginTransaction() to configure SPI settings.
-  inline static void setDataMode(uint8_t dataMode) {
+  inline void setDataMode(uint8_t dataMode) {
     SPCR = (SPCR & ~SPI_MODE_MASK) | dataMode;
   }
   // This function is deprecated.  New applications should use
   // beginTransaction() to configure SPI settings.
-  inline static void setClockDivider(uint8_t clockDiv) {
+  inline void setClockDivider(uint8_t clockDiv) {
     SPCR = (SPCR & ~SPI_CLOCK_MASK) | (clockDiv & SPI_CLOCK_MASK);
     SPSR = (SPSR & ~SPI_2XCLOCK_MASK) | ((clockDiv >> 2) & SPI_2XCLOCK_MASK);
   }
+
+private:
   // These undocumented functions should not be used.  SPI.transfer()
   // polls the hardware flag which is automatically cleared as the
   // AVR responds to SPI's interrupt
-  inline static void attachInterrupt() { SPCR |= _BV(SPIE); }
-  inline static void detachInterrupt() { SPCR &= ~_BV(SPIE); }
+  inline void attachInterrupt() { SPCR |= _BV(SPIE); }
+  inline void detachInterrupt() { SPCR &= ~_BV(SPIE); }
 
-private:
   static uint8_t initialized;
   static uint8_t interruptMode; // 0=none, 1=mask, 2=global
   static uint8_t interruptMask; // which interrupts to mask
@@ -319,6 +332,7 @@ private:
   #endif
 };
 
-extern SPIClass SPI;
+extern SPIClassAVR SPI;
+#define SPISettings SPISettingsAVR
 
 #endif
