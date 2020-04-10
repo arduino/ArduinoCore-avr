@@ -140,10 +140,10 @@ extern const uint8_t PROGMEM digital_pin_to_timer_PGM[];
 #endif
 
 #ifdef __cplusplus
-#include "WCharacter.h"
-#include "WString.h"
-#include "HardwareSerial.h"
-#include "USBAPI.h"
+#include "UART.h"
+#include "USBCore.h"
+#include "CDC.h"
+#include "MSC.h"
 #if defined(HAVE_HWSERIAL0) && defined(HAVE_CDCSERIAL)
 #error "Targets with both UART0 and CDC serial not supported"
 #endif
