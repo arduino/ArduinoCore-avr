@@ -1,5 +1,5 @@
 /*
-  HardwareSerial.cpp - Hardware serial library for Wiring
+  UART.cpp - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -27,12 +27,13 @@
 #include <string.h>
 #include <inttypes.h>
 #include <util/atomic.h>
+#include <avr/io.h>
 #include "Arduino.h"
 
-#include "HardwareSerial.h"
-#include "HardwareSerial_private.h"
+#include "UART.h"
+#include "UART_private.h"
 
-// this next line disables the entire HardwareSerial.cpp, 
+// this next line disables the entire UART.cpp,
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(HAVE_HWSERIAL0) || defined(HAVE_HWSERIAL1) || defined(HAVE_HWSERIAL2) || defined(HAVE_HWSERIAL3)
 
@@ -40,7 +41,7 @@
 // the linker just sets their address to 0 (which is checked below).
 // The Serialx_available is just a wrapper around Serialx.available(),
 // but we can refer to it weakly so we don't pull in the entire
-// HardwareSerial instance if the user doesn't also refer to it.
+// UART instance if the user doesn't also refer to it.
 #if defined(HAVE_HWSERIAL0)
   void serialEvent() __attribute__((weak));
   bool Serial0_available() __attribute__((weak));
@@ -78,7 +79,7 @@ void serialEventRun(void)
 }
 
 // macro to guard critical sections when needed for large TX buffer sizes
-#if (SERIAL_TX_BUFFER_SIZE>256)
+#if (SERIAL_TX_BUFFER_SIZE > 256)
 #define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #else
 #define TX_BUFFER_ATOMIC
@@ -86,7 +87,7 @@ void serialEventRun(void)
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
-void HardwareSerial::_tx_udr_empty_irq(void)
+void UartClass::_tx_udr_empty_irq(void)
 {
   // If interrupts are enabled, there must be more data in the output
   // buffer. Send the next byte
@@ -114,7 +115,7 @@ void HardwareSerial::_tx_udr_empty_irq(void)
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-void HardwareSerial::begin(unsigned long baud, byte config)
+void UartClass::begin(unsigned long baud, uint16_t config)
 {
   // Try u2x mode first
   uint16_t baud_setting = (F_CPU / 4 / baud - 1) / 2;
@@ -149,7 +150,7 @@ void HardwareSerial::begin(unsigned long baud, byte config)
   cbi(*_ucsrb, UDRIE0);
 }
 
-void HardwareSerial::end()
+void UartClass::end()
 {
   // wait for transmission of outgoing data
   flush();
@@ -163,12 +164,12 @@ void HardwareSerial::end()
   _rx_buffer_head = _rx_buffer_tail;
 }
 
-int HardwareSerial::available(void)
+int UartClass::available(void)
 {
   return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + _rx_buffer_head - _rx_buffer_tail)) % SERIAL_RX_BUFFER_SIZE;
 }
 
-int HardwareSerial::peek(void)
+int UartClass::peek(void)
 {
   if (_rx_buffer_head == _rx_buffer_tail) {
     return -1;
@@ -177,7 +178,7 @@ int HardwareSerial::peek(void)
   }
 }
 
-int HardwareSerial::read(void)
+int UartClass::read(void)
 {
   // if the head isn't ahead of the tail, we don't have any characters
   if (_rx_buffer_head == _rx_buffer_tail) {
@@ -189,7 +190,7 @@ int HardwareSerial::read(void)
   }
 }
 
-int HardwareSerial::availableForWrite(void)
+int UartClass::availableForWrite(void)
 {
   tx_buffer_index_t head;
   tx_buffer_index_t tail;
@@ -202,7 +203,7 @@ int HardwareSerial::availableForWrite(void)
   return tail - head - 1;
 }
 
-void HardwareSerial::flush()
+void UartClass::flush()
 {
   // If we have never written a byte, no need to flush. This special
   // case is needed since there is no way to force the TXC (transmit
@@ -222,7 +223,7 @@ void HardwareSerial::flush()
   // the hardware finished tranmission (TXC is set).
 }
 
-size_t HardwareSerial::write(uint8_t c)
+size_t UartClass::write(uint8_t c)
 {
   _written = true;
   // If the buffer and the data register is empty, just write the byte
