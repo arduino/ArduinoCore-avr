@@ -18,7 +18,25 @@
 #ifndef __USBCORE_H__
 #define __USBCORE_H__
 
-#include "USBAPI.h"
+#include <stdint.h>
+#include <avr/io.h>
+#include <avr/pgmspace.h>
+
+class USBDevice_
+{
+public:
+	USBDevice_();
+	bool configured();
+
+	void attach();
+	void detach();	// Serial port goes down too...
+	void poll();
+	bool wakeupHost(); // returns false, when wakeup cannot be processed
+
+	bool isSuspended();
+};
+
+extern USBDevice_ USBDevice;
 
 //	Standard requests
 #define GET_STATUS			0
@@ -31,7 +49,6 @@
 #define SET_CONFIGURATION	9
 #define GET_INTERFACE		10
 #define SET_INTERFACE		11
-
 
 // bmRequestType
 #define REQUEST_HOSTTODEVICE	0x00
@@ -133,34 +150,38 @@
 #define USB_VERSION 0x200
 #endif
 
+#define TRANSFER_PGM		0x80
+#define TRANSFER_RELEASE	0x40
+#define TRANSFER_ZERO		0x20
+
 //	Device
 typedef struct {
-	u8 len;				// 18
-	u8 dtype;			// 1 USB_DEVICE_DESCRIPTOR_TYPE
-	u16 usbVersion;		// 0x200 or 0x210
-	u8	deviceClass;
-	u8	deviceSubClass;
-	u8	deviceProtocol;
-	u8	packetSize0;	// Packet 0
-	u16	idVendor;
-	u16	idProduct;
-	u16	deviceVersion;	// 0x100
-	u8	iManufacturer;
-	u8	iProduct;
-	u8	iSerialNumber;
-	u8	bNumConfigurations;
+	uint8_t len;				// 18
+	uint8_t dtype;			// 1 USB_DEVICE_DESCRIPTOR_TYPE
+	uint16_t usbVersion;		// 0x200 or 0x210
+	uint8_t	deviceClass;
+	uint8_t	deviceSubClass;
+	uint8_t	deviceProtocol;
+	uint8_t	packetSize0;	// Packet 0
+	uint16_t	idVendor;
+	uint16_t	idProduct;
+	uint16_t	deviceVersion;	// 0x100
+	uint8_t	iManufacturer;
+	uint8_t	iProduct;
+	uint8_t	iSerialNumber;
+	uint8_t	bNumConfigurations;
 } DeviceDescriptor;
 
 //	Config
 typedef struct {
-	u8	len;			// 9
-	u8	dtype;			// 2
-	u16 clen;			// total length
-	u8	numInterfaces;
-	u8	config;
-	u8	iconfig;
-	u8	attributes;
-	u8	maxPower;
+	uint8_t	len;			// 9
+	uint8_t	dtype;			// 2
+	uint16_t clen;			// total length
+	uint8_t	numInterfaces;
+	uint8_t	config;
+	uint8_t	iconfig;
+	uint8_t	attributes;
+	uint8_t	maxPower;
 } ConfigDescriptor;
 
 //	String
@@ -168,75 +189,75 @@ typedef struct {
 //	Interface
 typedef struct
 {
-	u8 len;		// 9
-	u8 dtype;	// 4
-	u8 number;
-	u8 alternate;
-	u8 numEndpoints;
-	u8 interfaceClass;
-	u8 interfaceSubClass;
-	u8 protocol;
-	u8 iInterface;
+	uint8_t len;		// 9
+	uint8_t dtype;	// 4
+	uint8_t number;
+	uint8_t alternate;
+	uint8_t numEndpoints;
+	uint8_t interfaceClass;
+	uint8_t interfaceSubClass;
+	uint8_t protocol;
+	uint8_t iInterface;
 } InterfaceDescriptor;
 
 //	Endpoint
 typedef struct
 {
-	u8 len;		// 7
-	u8 dtype;	// 5
-	u8 addr;
-	u8 attr;
-	u16 packetSize;
-	u8 interval;
+	uint8_t len;		// 7
+	uint8_t dtype;	// 5
+	uint8_t addr;
+	uint8_t attr;
+	uint16_t packetSize;
+	uint8_t interval;
 } EndpointDescriptor;
 
 // Interface Association Descriptor
 // Used to bind 2 interfaces together in CDC compostite device
 typedef struct
 {
-	u8 len;				// 8
-	u8 dtype;			// 11
-	u8 firstInterface;
-	u8 interfaceCount;
-	u8 functionClass;
-	u8 funtionSubClass;
-	u8 functionProtocol;
-	u8 iInterface;
+	uint8_t len;				// 8
+	uint8_t dtype;			// 11
+	uint8_t firstInterface;
+	uint8_t interfaceCount;
+	uint8_t functionClass;
+	uint8_t funtionSubClass;
+	uint8_t functionProtocol;
+	uint8_t iInterface;
 } IADDescriptor;
 
 //	CDC CS interface descriptor
 typedef struct
 {
-	u8 len;		// 5
-	u8 dtype;	// 0x24
-	u8 subtype;
-	u8 d0;
-	u8 d1;
+	uint8_t len;		// 5
+	uint8_t dtype;	// 0x24
+	uint8_t subtype;
+	uint8_t d0;
+	uint8_t d1;
 } CDCCSInterfaceDescriptor;
 
 typedef struct
 {
-	u8 len;		// 4
-	u8 dtype;	// 0x24
-	u8 subtype;
-	u8 d0;
+	uint8_t len;		// 4
+	uint8_t dtype;	// 0x24
+	uint8_t subtype;
+	uint8_t d0;
 } CDCCSInterfaceDescriptor4;
 
 typedef struct 
 {
-    u8	len;
-    u8 	dtype;		// 0x24
-    u8 	subtype;	// 1
-    u8 	bmCapabilities;
-    u8 	bDataInterface;
+    uint8_t	len;
+    uint8_t 	dtype;		// 0x24
+    uint8_t 	subtype;	// 1
+    uint8_t 	bmCapabilities;
+    uint8_t 	bDataInterface;
 } CMFunctionalDescriptor;
 	
 typedef struct 
 {
-    u8	len;
-    u8 	dtype;		// 0x24
-    u8 	subtype;	// 1
-    u8 	bmCapabilities;
+    uint8_t	len;
+    uint8_t 	dtype;		// 0x24
+    uint8_t 	subtype;	// 1
+    uint8_t 	bmCapabilities;
 } ACMFunctionalDescriptor;
 
 typedef struct 
@@ -300,5 +321,50 @@ typedef struct
 #ifndef NEW_LUFA_SIGNATURE
 #define NEW_LUFA_SIGNATURE 0xDCFB
 #endif
+
+/* This core is PluggableUSB capable */
+#define PLUGGABLE_USB_ENABLED
+
+/* Endpoints number */
+#if defined(EPRST6)
+#define USB_ENDPOINTS 7 // AtMegaxxU4
+#else
+#define USB_ENDPOINTS 5 // AtMegaxxU2
+#endif
+
+#define EP_TYPE_CONTROL          (0x00)
+#define EP_TYPE_BULK_IN          ((1<<EPTYPE1) | (1<<EPDIR))
+#define EP_TYPE_BULK_OUT         (1<<EPTYPE1)
+#define EP_TYPE_INTERRUPT_IN     ((1<<EPTYPE1) | (1<<EPTYPE0) | (1<<EPDIR))
+#define EP_TYPE_INTERRUPT_OUT    ((1<<EPTYPE1) | (1<<EPTYPE0))
+#define EP_TYPE_ISOCHRONOUS_IN      ((1<<EPTYPE0) | (1<<EPDIR))
+#define EP_TYPE_ISOCHRONOUS_OUT     (1<<EPTYPE0)
+
+// This definitions is usefull if you want to reduce the EP_SIZE to 16
+// at the moment only 64 and 16 as EP_SIZE for all EPs are supported except the control endpoint
+#ifndef USB_EP_SIZE
+#define USB_EP_SIZE 64
+#endif
+
+#define ISERIAL_MAX_LEN     20
+
+#define CDC_INTERFACE_COUNT	2
+#define CDC_ENPOINT_COUNT	3
+
+#define CDC_ACM_INTERFACE	0	// CDC ACM
+#define CDC_DATA_INTERFACE	1	// CDC Data
+#define CDC_FIRST_ENDPOINT	1
+#define CDC_ENDPOINT_ACM	(CDC_FIRST_ENDPOINT)							// CDC First
+#define CDC_ENDPOINT_OUT	(CDC_FIRST_ENDPOINT+1)
+#define CDC_ENDPOINT_IN		(CDC_FIRST_ENDPOINT+2)
+
+#define INTERFACE_COUNT		(MSC_INTERFACE + MSC_INTERFACE_COUNT)
+
+#define CDC_RX CDC_ENDPOINT_OUT
+#define CDC_TX CDC_ENDPOINT_IN
+
+#define IMANUFACTURER   1
+#define IPRODUCT        2
+#define ISERIAL         3
 
 #endif
