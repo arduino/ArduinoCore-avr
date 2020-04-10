@@ -66,7 +66,7 @@ static volatile voidFuncPtr intFunc[EXTERNAL_NUM_INTERRUPTS] = {
 #endif
 };
 
-void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
+void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), PinStatus mode) {
   if(interruptNum < EXTERNAL_NUM_INTERRUPTS) {
     intFunc[interruptNum] = userFunc;
     
@@ -76,7 +76,22 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
     // the mode into place.
       
     // Enable the interrupt.
-      
+
+    switch (mode) {
+      case CHANGE:
+        mode = 1;
+        break;
+      case FALLING:
+        mode = 2;
+        break;
+      case RISING:
+        mode = 3;
+        break;
+      default:
+        // AVR doesn't support level triggered interrupts
+        return;
+    }
+
     switch (interruptNum) {
 #if defined(__AVR_ATmega32U4__)
 	// I hate doing this, but the register assignment differs between the 1280/2560

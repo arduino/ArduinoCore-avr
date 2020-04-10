@@ -491,7 +491,7 @@ void noTone(uint8_t _pin)
   
   disableTimer(_timer);
 
-  digitalWrite(_pin, 0);
+  digitalWrite(_pin, LOW);
 }
 
 #ifdef USE_TIMER0
