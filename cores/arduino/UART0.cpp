@@ -1,5 +1,5 @@
 /*
-  HardwareSerial0.cpp - Hardware serial library for Wiring
+  UART0.cpp - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -23,14 +23,14 @@
 */
 
 #include "Arduino.h"
-#include "HardwareSerial.h"
-#include "HardwareSerial_private.h"
+#include "UART.h"
+#include "UART_private.h"
 
-// Each HardwareSerial is defined in its own file, since the linker pulls
+// Each UartClass is defined in its own file, since the linker pulls
 // in the entire file when any element inside is used. --gc-sections can
 // additionally cause unused symbols to be dropped, but ISRs have the
 // "used" attribute so are never dropped and they keep the
-// HardwareSerial instance in as well. Putting each instance in its own
+// UartClass instance in as well. Putting each instance in its own
 // file prevents the linker from pulling in any unused instances in the
 // first place.
 
@@ -65,9 +65,9 @@ ISR(USART_UDRE_vect)
 }
 
 #if defined(UBRRH) && defined(UBRRL)
-  HardwareSerial Serial(&UBRRH, &UBRRL, &UCSRA, &UCSRB, &UCSRC, &UDR);
+  UartClass Serial(&UBRRH, &UBRRL, &UCSRA, &UCSRB, &UCSRC, &UDR);
 #else
-  HardwareSerial Serial(&UBRR0H, &UBRR0L, &UCSR0A, &UCSR0B, &UCSR0C, &UDR0);
+  UartClass Serial(&UBRR0H, &UBRR0L, &UCSR0A, &UCSR0B, &UCSR0C, &UDR0);
 #endif
 
 // Function that can be weakly referenced by serialEventRun to prevent

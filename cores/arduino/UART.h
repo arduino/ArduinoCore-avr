@@ -1,5 +1,5 @@
 /*
-  HardwareSerial.h - Hardware serial library for Wiring
+  UART.h - Hardware serial library for Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -21,12 +21,16 @@
   Modified 3 December 2013 by Matthijs Kooijman
 */
 
-#ifndef HardwareSerial_h
-#define HardwareSerial_h
+#ifndef _UART_H_
+#define _UART_H_
 
+#include "Arduino.h"
 #include <inttypes.h>
+#include "api/HardwareSerial.h"
 
-#include "Stream.h"
+#if ARDUINO_API_VERSION > 10000
+using namespace arduino;
+#endif
 
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which head is the index of the location
@@ -65,6 +69,31 @@ typedef uint8_t rx_buffer_index_t;
 #endif
 
 // Define config for Serial.begin(baud, config);
+#undef SERIAL_5N1
+#undef SERIAL_6N1
+#undef SERIAL_7N1
+#undef SERIAL_8N1
+#undef SERIAL_5N2
+#undef SERIAL_6N2
+#undef SERIAL_7N2
+#undef SERIAL_8N2
+#undef SERIAL_5E1
+#undef SERIAL_6E1
+#undef SERIAL_7E1
+#undef SERIAL_8E1
+#undef SERIAL_5E2
+#undef SERIAL_6E2
+#undef SERIAL_7E2
+#undef SERIAL_8E2
+#undef SERIAL_5O1
+#undef SERIAL_6O1
+#undef SERIAL_7O1
+#undef SERIAL_8O1
+#undef SERIAL_5O2
+#undef SERIAL_6O2
+#undef SERIAL_7O2
+#undef SERIAL_8O2
+
 #define SERIAL_5N1 0x00
 #define SERIAL_6N1 0x02
 #define SERIAL_7N1 0x04
@@ -90,7 +119,7 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
-class HardwareSerial : public Stream
+class UartClass : public HardwareSerial
 {
   protected:
     volatile uint8_t * const _ubrrh;
@@ -114,12 +143,12 @@ class HardwareSerial : public Stream
     unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
 
   public:
-    inline HardwareSerial(
+    inline UartClass(
       volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
       volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
       volatile uint8_t *ucsrc, volatile uint8_t *udr);
     void begin(unsigned long baud) { begin(baud, SERIAL_8N1); }
-    void begin(unsigned long, uint8_t);
+    void begin(unsigned long, uint16_t);
     void end();
     virtual int available(void);
     virtual int peek(void);
@@ -140,22 +169,20 @@ class HardwareSerial : public Stream
 };
 
 #if defined(UBRRH) || defined(UBRR0H)
-  extern HardwareSerial Serial;
+  extern UartClass Serial;
   #define HAVE_HWSERIAL0
 #endif
 #if defined(UBRR1H)
-  extern HardwareSerial Serial1;
+  extern UartClass Serial1;
   #define HAVE_HWSERIAL1
 #endif
 #if defined(UBRR2H)
-  extern HardwareSerial Serial2;
+  extern UartClass Serial2;
   #define HAVE_HWSERIAL2
 #endif
 #if defined(UBRR3H)
-  extern HardwareSerial Serial3;
+  extern UartClass Serial3;
   #define HAVE_HWSERIAL3
 #endif
-
-extern void serialEventRun(void) __attribute__((weak));
 
 #endif
