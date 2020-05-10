@@ -17,6 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
+  
+  Modified in February, 2019 by MathWorks Inc. to include timeout for I2C read and write operations
 */
 
 #include <math.h>
@@ -59,6 +61,8 @@ static volatile uint8_t twi_rxBufferIndex;
 
 static volatile uint8_t twi_error;
 
+static volatile uint32_t twi_timer_count;              // Holds a number as timeout counter and it is increased gradually to trigger timeout
+
 /* 
  * Function twi_init
  * Desc     readys twi pins and sets twi bitrate
@@ -72,9 +76,9 @@ void twi_init(void)
   twi_sendStop = true;		// default value
   twi_inRepStart = false;
   
-  // activate internal pullups for twi.
-  digitalWrite(SDA, 1);
-  digitalWrite(SCL, 1);
+  // Deactivate internal pullups for twi.
+  digitalWrite(SDA, 0);
+  digitalWrite(SCL, 0);
 
   // initialize twi prescaler and bit rate
   cbi(TWSR, TWPS0);
@@ -154,7 +158,9 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   }
 
   // wait until twi is ready, become master receiver
+  twi_timeout(1);//Initialize TimeOut counter
   while(TWI_READY != twi_state){
+    if (twi_timeout(0)) break;  
     continue;
   }
   twi_state = TWI_MRX;
@@ -189,11 +195,13 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE);	// enable INTs, but not START
   }
   else
-    // send start condition
-    TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
+  // send start condition
+  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
 
   // wait for read operation to complete
+  twi_timeout(1);
   while(TWI_MRX == twi_state){
+    if (twi_timeout(0)) break;  
     continue;
   }
 
@@ -222,6 +230,8 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
  *          2 .. address send, NACK received
  *          3 .. data send, NACK received
  *          4 .. other twi error (lost bus arbitration, bus error, ..)
+ *          32 .. timed out while trying to become Bus Master
+ *          64 .. timed out while waiting for data to be sent
  */
 uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
 {
@@ -233,7 +243,12 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   }
 
   // wait until twi is ready, become master transmitter
+  twi_timeout(1);
   while(TWI_READY != twi_state){
+    if (twi_timeout(0)) 
+	{
+		return 32;
+	}
     continue;
   }
   twi_state = TWI_MTX;
@@ -271,11 +286,16 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE);	// enable INTs, but not START
   }
   else
-    // send start condition
+  // send start condition
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE) | _BV(TWSTA);	// enable INTs
 
   // wait for write operation to complete
+  twi_timeout(1);  
   while(wait && (TWI_MTX == twi_state)){
+    if (twi_timeout(0))
+	{
+		return 64;
+	}
     continue;
   }
   
@@ -373,7 +393,9 @@ void twi_stop(void)
 
   // wait for stop condition to be exectued on bus
   // TWINT is not set after a stop condition!
+  twi_timeout(1);  
   while(TWCR & _BV(TWSTO)){
+    if (twi_timeout(0)) return;  
     continue;
   }
 
@@ -396,7 +418,39 @@ void twi_releaseBus(void)
   twi_state = TWI_READY;
 }
 
-ISR(TWI_vect)
+/*
+ * Function twi_timeout
+ * Desc     Increases the counter in a loop
+ *			and if it reaches a maximum value, 
+			the hardware is initialized and 
+			the function returns true 
+ * Input    isInitializationRequired: If 1 the 
+			timer resets the counter
+ * Output   1 Timeout occurred          
+ *          0 No timeout occurred
+*/
+
+uint8_t twi_timeout(uint8_t isInitializationRequired)
+{
+	if (isInitializationRequired) 
+	{
+		// reset the timeout counter
+		twi_timer_count=0;
+	}
+	else 
+	{
+		twi_timer_count++;	
+	}
+	if (twi_timer_count>=10000UL) {
+		twi_timer_count=0;
+		// reinitialize the hardware
+		twi_init();
+		return 1;
+	}
+    return 0;  
+}
+
+SIGNAL(TWI_vect)
 {
   switch(TW_STATUS){
     // All Master
@@ -560,4 +614,3 @@ ISR(TWI_vect)
       break;
   }
 }
-
