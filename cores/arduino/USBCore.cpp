@@ -318,14 +318,14 @@ int USB_Send(u8 ep, const void* d, int len)
 					if (ep & TRANSFER_RELEASE) {
 						sendZlp = true;
 					} else {
-						_usbZlpPending[ep] = 1;
+						_usbZlpPending[ep & 7] = 1;
 					}
 				}
 			} else if ((len == 0) && (ep & TRANSFER_RELEASE)) { // ...or if forced with TRANSFER_RELEASE
 				ReleaseTX();
-				_usbZlpPending[ep] = 0;
+				_usbZlpPending[ep & 7] = 0;
 			} else {
-				_usbZlpPending[ep] = 0;
+				_usbZlpPending[ep & 7] = 0;
 			}
 		}
 	}
@@ -656,9 +656,9 @@ ISR(USB_COM_vect)
 void USB_Flush(u8 ep)
 {
 	LockEP lock(ep);
-	if (FifoByteCount() || _usbZlpPending[ep]) {
+	if (FifoByteCount() || _usbZlpPending[ep & 7]) {
 		ReleaseTX();
-		_usbZlpPending[ep] = 0;
+		_usbZlpPending[ep & 7] = 0;
 	}
 }
 
