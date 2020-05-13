@@ -655,11 +655,27 @@ ISR(USB_COM_vect)
 
 void USB_Flush(u8 ep)
 {
-	LockEP lock(ep);
-	if (FifoByteCount() || _usbZlpPending[ep & 7]) {
-		ReleaseTX();
-		_usbZlpPending[ep & 7] = 0;
-	}
+	bool int_enabled = SREG & 0x80;
+	bool repeat;
+	do {
+		repeat = false;
+		{
+			LockEP lock(ep);
+			if (FifoByteCount() || _usbZlpPending[ep & 7]) {
+				if (USB_SendSpace(ep) > 0) {
+					ReleaseTX();
+					_usbZlpPending[ep & 7] = 0;
+				} else {
+					if (int_enabled) {
+						repeat = true;
+					}
+				}
+			}
+		}
+		if (repeat) {
+			delay(1);
+		}
+	} while (repeat);
 }
 
 static inline void USB_ClockDisable()
