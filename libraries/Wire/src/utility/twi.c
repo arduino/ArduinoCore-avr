@@ -17,6 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
+  Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
 #include <math.h>
@@ -24,6 +25,7 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include <compat/twi.h>
 #include "Arduino.h" // for digitalWrite and micros
 
@@ -42,7 +44,16 @@ static volatile uint8_t twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
+
+// twi_timeout_us > 0 prevents the code from getting stuck in various while loops here
+// if twi_timeout_us == 0 then timeout checking is disabled (the previous Wire lib behavior)
+// at some point in the future, the default twi_timeout_us value could become 25000
+// and twi_do_reset_on_timeout could become true
+// to conform to the SMBus standard
+// http://smbus.org/specs/SMBus_3_1_20180319.pdf
 static volatile uint32_t twi_timeout_us = 0ul;
+static volatile bool twi_timed_out_flag = false;  // a timeout has been seen
+static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI registers on timeout
 
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
@@ -157,11 +168,10 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   // wait until twi is ready, become master receiver
   uint32_t startMicros = micros();
   while(TWI_READY != twi_state){
-    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
-      twi_handleTimeout();
+    if((twi_timeout_us > 0ul) && ((micros() - startMicros) > twi_timeout_us)) {
+      twi_handleTimeout(twi_do_reset_on_timeout);
       return 0;
     }
-    continue;
   }
   twi_state = TWI_MRX;
   twi_sendStop = sendStop;
@@ -192,35 +202,35 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
     startMicros = micros();
     do {
       TWDR = twi_slarw;
-      if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
-        twi_handleTimeout();
+      if((twi_timeout_us > 0ul) && ((micros() - startMicros) > twi_timeout_us)) {
+        twi_handleTimeout(twi_do_reset_on_timeout);
         return 0;
       }
     } while(TWCR & _BV(TWWC));
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE);	// enable INTs, but not START
-  }
-  else
+  } else {
     // send start condition
     TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTA);
+  }
 
   // wait for read operation to complete
   startMicros = micros();
   while(TWI_MRX == twi_state){
-    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
-      twi_handleTimeout();
+    if((twi_timeout_us > 0ul) && ((micros() - startMicros) > twi_timeout_us)) {
+      twi_handleTimeout(twi_do_reset_on_timeout);
       return 0;
     }
-    continue;
   }
 
-  if (twi_masterBufferIndex < length)
+  if (twi_masterBufferIndex < length) {
     length = twi_masterBufferIndex;
+  }
 
   // copy twi buffer to data
   for(i = 0; i < length; ++i){
     data[i] = twi_masterBuffer[i];
   }
-	
+
   return length;
 }
 
@@ -238,6 +248,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
  *          2 .. address send, NACK received
  *          3 .. data send, NACK received
  *          4 .. other twi error (lost bus arbitration, bus error, ..)
+ *          5 .. timeout
  */
 uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
 {
@@ -251,11 +262,10 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   // wait until twi is ready, become master transmitter
   uint32_t startMicros = micros();
   while(TWI_READY != twi_state){
-    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
-      twi_handleTimeout();
-      return 4;
+    if((twi_timeout_us > 0ul) && ((micros() - startMicros) > twi_timeout_us)) {
+      twi_handleTimeout(twi_do_reset_on_timeout);
+      return (5);
     }
-    continue;
   }
   twi_state = TWI_MTX;
   twi_sendStop = sendStop;
@@ -289,25 +299,24 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
     startMicros = micros();
     do {
       TWDR = twi_slarw;
-      if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
-        twi_handleTimeout();
-        return 4;
+      if((twi_timeout_us > 0ul) && ((micros() - startMicros) > twi_timeout_us)) {
+        twi_handleTimeout(twi_do_reset_on_timeout);
+        return (5);
       }
     } while(TWCR & _BV(TWWC));
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE);	// enable INTs, but not START
-  }
-  else
+  } else {
     // send start condition
     TWCR = _BV(TWINT) | _BV(TWEA) | _BV(TWEN) | _BV(TWIE) | _BV(TWSTA);	// enable INTs
+  }
 
   // wait for write operation to complete
   startMicros = micros();
   while(wait && (TWI_MTX == twi_state)){
-    if((twi_timeout_us > 0ul) && (micros() - startMicros > twi_timeout_us)) {
-      twi_handleTimeout();
-      return 4;
+    if((twi_timeout_us > 0ul) && ((micros() - startMicros) > twi_timeout_us)) {
+      twi_handleTimeout(twi_do_reset_on_timeout);
+      return (5);
     }
-    continue;
   }
   
   if (twi_error == 0xFF)
@@ -387,7 +396,7 @@ void twi_reply(uint8_t ack)
   if(ack){
     TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT) | _BV(TWEA);
   }else{
-	  TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT);
+    TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWINT);
   }
 }
 
@@ -404,15 +413,17 @@ void twi_stop(void)
 
   // wait for stop condition to be exectued on bus
   // TWINT is not set after a stop condition!
-  volatile uint32_t counter = 0;
+  volatile uint32_t counter = twi_timeout_us/10ul; // approximate the timeout
   while(TWCR & _BV(TWSTO)){
-    counter++;
-    if((twi_timeout_us > 0ul) && (counter >= 25000)) {
-      twi_handleTimeout();
-      return;
+    if(twi_timeout_us > 0ul){
+      if (counter > 0ul){
+        _delay_us(10);
+        counter--;
+      } else {
+        twi_handleTimeout(twi_do_reset_on_timeout);
+        return;
+      }
     }
-
-    continue;
   }
 
   // update twi state
@@ -436,34 +447,55 @@ void twi_releaseBus(void)
 
 /* 
  * Function twi_setTimeoutInMicros
- * Desc     set a global timeout for while loops that we might get stuck in
- * Input    timeout value in microseconds
+ * Desc     set a timeout for while loops that twi might get stuck in
+ * Input    timeout value in microseconds (0 means never time out)
+ * Input    reset_with_timeout: true causes timeout events to reset twi
  * Output   none
  */
-void twi_setTimeoutInMicros(uint32_t timeout)
-{
+void twi_setTimeoutInMicros(uint32_t timeout, bool reset_with_timeout){
+  twi_timed_out_flag = false;
   twi_timeout_us = timeout;
+  twi_do_reset_on_timeout = reset_with_timeout;
 }
 
 /* 
  * Function twi_handleTimeout
- * Desc     do this stuff when a while loop here has run for longer than twi_timeout_us microseconds
- * Input    none
+ * Desc     this gets called whenever a while loop here has lasted longer than
+ *          twi_timeout_us microseconds. always sets twi_timed_out_flag
+ * Input    reset: true causes this function to reset the twi hardware interface
  * Output   none
  */
-void twi_handleTimeout(void)
-{
-  // remember bitrate and address settings
-  uint8_t previous_TWBR = TWBR;
-  uint8_t previous_TWAR = TWAR;
+void twi_handleTimeout(bool reset){
+  twi_timed_out_flag = true;
 
-  // reset the interface
-  twi_disable();
-  twi_init();
+  if (reset) {
+    // remember bitrate and address settings
+    uint8_t previous_TWBR = TWBR;
+    uint8_t previous_TWAR = TWAR;
 
-  // reapply the previous register values
-  TWAR = previous_TWAR;
-  TWBR = previous_TWBR;
+    // reset the interface
+    twi_disable();
+    twi_init();
+
+    // reapply the previous register values
+    TWAR = previous_TWAR;
+    TWBR = previous_TWBR;
+  }
+}
+
+/*
+ * Function twi_manageTimeoutFlag
+ * Desc     returns true if twi has seen a timeout
+ *          optionally clears the timeout flag
+ * Input    clear_flag: true if we should reset the hardware
+ * Output   none
+ */
+bool twi_manageTimeoutFlag(bool clear_flag){
+  bool flag = twi_timed_out_flag;
+  if (clear_flag){
+    twi_timed_out_flag = false;
+  }
+  return(flag);
 }
 
 ISR(TWI_vect)
@@ -486,16 +518,16 @@ ISR(TWI_vect)
         TWDR = twi_masterBuffer[twi_masterBufferIndex++];
         twi_reply(1);
       }else{
-	if (twi_sendStop)
+        if (twi_sendStop){
           twi_stop();
-	else {
-	  twi_inRepStart = true;	// we're gonna send the START
-	  // don't enable the interrupt. We'll generate the start, but we 
-	  // avoid handling the interrupt until we're in the next transaction,
-	  // at the point where we would normally issue the start.
-	  TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
-	  twi_state = TWI_READY;
-	}
+       } else {
+         twi_inRepStart = true;	// we're gonna send the START
+         // don't enable the interrupt. We'll generate the start, but we
+         // avoid handling the interrupt until we're in the next transaction,
+         // at the point where we would normally issue the start.
+         TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
+         twi_state = TWI_READY;
+        }
       }
       break;
     case TW_MT_SLA_NACK:  // address sent, nack received
@@ -527,17 +559,17 @@ ISR(TWI_vect)
     case TW_MR_DATA_NACK: // data received, nack sent
       // put final byte into buffer
       twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
-	if (twi_sendStop)
-          twi_stop();
-	else {
-	  twi_inRepStart = true;	// we're gonna send the START
-	  // don't enable the interrupt. We'll generate the start, but we 
-	  // avoid handling the interrupt until we're in the next transaction,
-	  // at the point where we would normally issue the start.
-	  TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
-	  twi_state = TWI_READY;
-	}    
-	break;
+      if (twi_sendStop){
+        twi_stop();
+      } else {
+        twi_inRepStart = true;	// we're gonna send the START
+        // don't enable the interrupt. We'll generate the start, but we
+        // avoid handling the interrupt until we're in the next transaction,
+        // at the point where we would normally issue the start.
+        TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
+        twi_state = TWI_READY;
+      }
+      break;
     case TW_MR_SLA_NACK: // address sent, nack received
       twi_stop();
       break;
