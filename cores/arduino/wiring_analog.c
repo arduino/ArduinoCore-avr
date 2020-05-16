@@ -164,7 +164,7 @@ void analogWrite(uint8_t pin, int val)
 
 			#if defined(TCCR1A) && defined(COM1C1)
 			case TIMER1C:
-				// connect pwm to pin on timer 1, channel B
+				// connect pwm to pin on timer 1, channel C
 				sbi(TCCR1A, COM1C1);
 				OCR1C = val; // set pwm duty
 				break;

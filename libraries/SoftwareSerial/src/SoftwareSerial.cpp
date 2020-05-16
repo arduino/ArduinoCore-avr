@@ -316,7 +316,7 @@ void SoftwareSerial::begin(long speed)
   _tx_delay = subtract_cap(bit_delay, 15 / 4);
 
   // Only setup rx when we have a valid PCINT for this pin
-  if (digitalPinToPCICR(_receivePin)) {
+  if (digitalPinToPCICR((int8_t)_receivePin)) {
     #if GCC_VERSION > 40800
     // Timings counted from gcc 4.8.2 output. This works up to 115200 on
     // 16Mhz and 57600 on 8Mhz.
@@ -357,7 +357,7 @@ void SoftwareSerial::begin(long speed)
     // Enable the PCINT for the entire port here, but never disable it
     // (others might also need it, so we disable the interrupt by using
     // the per-pin PCMSK register).
-    *digitalPinToPCICR(_receivePin) |= _BV(digitalPinToPCICRbit(_receivePin));
+    *digitalPinToPCICR((int8_t)_receivePin) |= _BV(digitalPinToPCICRbit(_receivePin));
     // Precalculate the pcint mask register and value, so setRxIntMask
     // can be used inside the ISR without costing too much time.
     _pcint_maskreg = digitalPinToPCMSK(_receivePin);
