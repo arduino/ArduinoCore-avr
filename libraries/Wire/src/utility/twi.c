@@ -413,7 +413,9 @@ void twi_stop(void)
 
   // wait for stop condition to be exectued on bus
   // TWINT is not set after a stop condition!
-  volatile uint32_t counter = twi_timeout_us/10ul; // approximate the timeout
+  // We cannot use micros() from an ISR, so approximate the timeout with cycle-counted delays
+  const uint8_t us_per_loop = 8;
+  uint32_t counter = (twi_timeout_us + us_per_loop - 1)/us_per_loop; // Round up
   while(TWCR & _BV(TWSTO)){
     if(twi_timeout_us > 0ul){
       if (counter > 0ul){

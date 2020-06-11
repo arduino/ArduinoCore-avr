@@ -90,9 +90,28 @@ void TwoWire::setClock(uint32_t clock)
 /***
  * Sets the TWI timeout.
  *
+ * This limits the maximum time to wait for the TWI hardware. If more time passes, the bus is assumed
+ * to have locked up (e.g. due to noise-induced glitches or faulty slaves) and the transaction is aborted.
+ * Optionally, the TWI hardware is also reset, which can be required to allow subsequent transactions to
+ * succeed in some cases (in particular when noise has made the TWI hardware think there is a second
+ * master that has claimed the bus).
+ *
+ * When a timeout is triggered, a flag is set that can be queried with `getWireTimeoutFlag()` and is cleared
+ * when `clearWireTimeoutFlag()` or `setWireTimeoutUs()` is called.
+ *
+ * Note that this timeout can also trigger while waiting for clock stretching or waiting for a second master
+ * to complete its transaction. So make sure to adapt the timeout to accomodate for those cases if needed.
+ * A typical timeout would be 25ms (which is the maximum clock stretching allowed by the SMBus protocol),
+ * but (much) shorter values will usually also work.
+ *
+ * In the future, a timeout will be enabled by default, so if you require the timeout to be disabled, it is
+ * recommended you disable it by default using `setWireTimeoutUs(0)`, even though that is currently
+ * the default.
+ *
  * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
  * @param reset_with_timeout if true then TWI interface will be automatically reset on timeout
  *                           if false then TWI interface will not be reset on timeout
+
  */
 void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
   twi_setTimeoutInMicros(timeout, reset_with_timeout);
@@ -101,7 +120,7 @@ void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
 /***
  * Returns the TWI timeout flag.
  *
- * @return true if timeout has occured
+ * @return true if timeout has occured since the flag was last cleared.
  */
 bool TwoWire::getWireTimeoutFlag(void){
   return(twi_manageTimeoutFlag(false));
