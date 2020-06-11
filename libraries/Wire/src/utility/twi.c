@@ -419,7 +419,7 @@ void twi_stop(void)
   while(TWCR & _BV(TWSTO)){
     if(twi_timeout_us > 0ul){
       if (counter > 0ul){
-        _delay_us(10);
+        _delay_us(us_per_loop);
         counter--;
       } else {
         twi_handleTimeout(twi_do_reset_on_timeout);
