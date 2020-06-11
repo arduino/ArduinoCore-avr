@@ -55,7 +55,7 @@ class TwoWire : public Stream
     void begin(int);
     void end();
     void setClock(uint32_t);
-    void setWireTimeoutUs(uint32_t, bool);
+    void setWireTimeout(uint32_t timeout = 25000, bool reset_with_timeout = false);
     bool getWireTimeoutFlag(void);
     void clearWireTimeoutFlag(void);
     void beginTransmission(uint8_t);
