@@ -39,7 +39,6 @@ void setup() {
   //demonstrates use of new anti-lockup feature
   Wire.setWireTimeout(3000, true); //timeout value in uSec, true to reset I2C bus on timeout
   wireTimeoutCount = 0;
-  Wire.clearWireTimeoutFlag(); //should be cleared on startup, but...
 
   Serial.begin(9600);
   while (!Serial); // Leonardo: wait for serial monitor
