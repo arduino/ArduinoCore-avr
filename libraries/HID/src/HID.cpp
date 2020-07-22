@@ -54,11 +54,11 @@ int HID_::getDescriptor(USBSetup& setup)
 			return -1;
 		total += res;
 	}
-	
+
 	// Reset the protocol on reenumeration. Normally the host should not assume the state of the protocol
 	// due to the USB specs, but Windows and Linux just assumes its in report mode.
 	protocol = HID_REPORT_PROTOCOL;
-	
+
 	return total;
 }
 
@@ -84,6 +84,11 @@ void HID_::AppendDescriptor(HIDSubDescriptor *node)
 		current->next = node;
 	}
 	descriptorSize += node->length;
+}
+
+uint8_t HID_::getKeyboardLedsStatus(void)
+{
+	return _keyboardLedsStatus;
 }
 
 int HID_::SendReport(uint8_t id, const void* data, int len)
@@ -133,6 +138,15 @@ bool HID_::setup(USBSetup& setup)
 		}
 		if (request == HID_SET_REPORT)
 		{
+			if (setup.wLength == 2)
+			{
+				uint8_t data[2];
+				if (2 == USB_RecvControl(data, 2))
+				{
+					_keyboardLedsStatus = data[1];
+					return true;
+				}
+			}
 			//uint8_t reportID = setup.wValueL;
 			//uint16_t length = setup.wLength;
 			//uint8_t data[length];
