@@ -25,6 +25,7 @@
 
 #include <inttypes.h>
 #include "Stream.h"
+#include "utility/twi.h"
 
 #define BUFFER_LENGTH 32
 
@@ -33,6 +34,10 @@
 // WIRE_HAS_TIMEOUT means Wire has setWireTimeout(), getWireTimeoutFlag
 // and clearWireTimeoutFlag()
 #define WIRE_HAS_TIMEOUT 1
+
+// When not configured, these settings are used for the timeout
+#define WIRE_DEFAULT_TIMEOUT TWI_DEFAULT_TIMEOUT
+#define WIRE_DEFAULT_RESET_ON_TIMEOUT TWI_DEFAULT_RESET_ON_TIMEOUT
 
 class TwoWire : public Stream
 {
