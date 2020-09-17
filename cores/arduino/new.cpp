@@ -36,7 +36,7 @@ namespace std {
   const nothrow_t nothrow;
 }
 
-static void * new_helper(size_t size) {
+static void * new_helper(std::size_t size) {
   // Even zero-sized allocations should return a unique pointer, but
   // malloc does not guarantee this
   if (size == 0)
@@ -44,7 +44,7 @@ static void * new_helper(size_t size) {
   return malloc(size);
 }
 
-void * operator new(size_t size) {
+void * operator new(std::size_t size) {
   void *res = new_helper(size);
 #if defined(NEW_TERMINATES_ON_FAILURE)
   if (!res)
@@ -52,11 +52,11 @@ void * operator new(size_t size) {
 #endif
   return res;
 }
-void * operator new[](size_t size) {
+void * operator new[](std::size_t size) {
   return operator new(size);
 }
 
-void * operator new(size_t size, const std::nothrow_t tag) noexcept {
+void * operator new(std::size_t size, const std::nothrow_t tag) noexcept {
 #if defined(NEW_TERMINATES_ON_FAILURE)
   // Cannot call throwing operator new as standard suggests, so call
   // new_helper directly then
@@ -65,7 +65,7 @@ void * operator new(size_t size, const std::nothrow_t tag) noexcept {
   return operator new(size);
 #endif
 }
-void * operator new[](size_t size, const std::nothrow_t& tag) noexcept {
+void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept {
 #if defined(NEW_TERMINATES_ON_FAILURE)
   // Cannot call throwing operator new[] as standard suggests, so call
   // malloc directly then
@@ -75,12 +75,12 @@ void * operator new[](size_t size, const std::nothrow_t& tag) noexcept {
 #endif
 }
 
-void * operator new(size_t size, void *place) noexcept {
+void * operator new(std::size_t size, void *place) noexcept {
   // Nothing to do
   (void)size; // unused
   return place;
 }
-void * operator new[](size_t size, void *place) noexcept {
+void * operator new[](std::size_t size, void *place) noexcept {
   return operator new(size, place);
 }
 
@@ -92,10 +92,10 @@ void operator delete[](void * ptr) noexcept {
 }
 
 #if __cplusplus >= 201402L
-void operator delete(void* ptr, size_t size) noexcept {
+void operator delete(void* ptr, std::size_t size) noexcept {
   operator delete(ptr);
 }
-void operator delete[](void * ptr, size_t size) noexcept {
+void operator delete[](void * ptr, std::size_t size) noexcept {
   operator delete[](ptr);
 }
 #endif // __cplusplus >= 201402L
