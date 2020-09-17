@@ -23,6 +23,10 @@ namespace std {
 }
 
 void * operator new(size_t size) {
+  // Even zero-sized allocations should return a unique pointer, but
+  // malloc does not guarantee this
+  if (size == 0)
+    size = 1;
   return malloc(size);
 }
 void * operator new[](size_t size) {
