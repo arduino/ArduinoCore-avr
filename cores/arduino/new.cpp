@@ -16,26 +16,63 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <stdlib.h>
+#include "new.h"
 
-void *operator new(size_t size) {
+namespace std {
+  const nothrow_t nothrow;
+}
+
+void * operator new(size_t size) {
   return malloc(size);
 }
-
-void *operator new[](size_t size) {
-  return malloc(size);
+void * operator new[](size_t size) {
+  return operator new(size);
 }
 
-void * operator new(size_t size, void * ptr) noexcept {
-  (void)size;
-  return ptr;
+void * operator new(size_t size, const std::nothrow_t tag) noexcept {
+  return operator new(size);
+}
+void * operator new[](size_t size, const std::nothrow_t& tag) noexcept {
+  return operator new[](size);
 }
 
-void operator delete(void * ptr) {
+void * operator new(size_t size, void *place) noexcept {
+  // Nothing to do
+  (void)size; // unused
+  return place;
+}
+void * operator new[](size_t size, void *place) noexcept {
+  return operator new(size, place);
+}
+
+void operator delete(void * ptr) noexcept {
   free(ptr);
 }
-
-void operator delete[](void * ptr) {
-  free(ptr);
+void operator delete[](void * ptr) noexcept {
+  operator delete(ptr);
 }
 
+#if __cplusplus >= 201402L
+void operator delete(void* ptr, size_t size) noexcept {
+  operator delete(ptr);
+}
+void operator delete[](void * ptr, size_t size) noexcept {
+  operator delete[](ptr);
+}
+#endif // __cplusplus >= 201402L
+
+void operator delete(void* ptr, const std::nothrow_t& tag) noexcept {
+  operator delete(ptr);
+}
+void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept {
+  operator delete[](ptr);
+}
+
+void operator delete(void* ptr, void* place) noexcept {
+  (void)ptr; (void)place; // unused
+  // Nothing to do
+}
+void operator delete[](void* ptr, void* place) noexcept {
+  (void)ptr; (void)place; // unused
+  // Nothing to do
+}
