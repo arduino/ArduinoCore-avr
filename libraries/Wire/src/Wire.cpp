@@ -109,12 +109,12 @@ void TwoWire::setClock(uint32_t clock)
  * the default.
  *
  * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
- * @param reset_with_timeout if true then TWI interface will be automatically reset on timeout
+ * @param reset_on_timeout if true then TWI interface will be automatically reset on timeout
  *                           if false then TWI interface will not be reset on timeout
 
  */
-void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
-  twi_setTimeoutInMicros(timeout, reset_with_timeout);
+void TwoWire::setWireTimeout(uint32_t timeout, bool reset_on_timeout){
+  twi_setTimeoutInMicros(timeout, reset_on_timeout);
 }
 
 /***

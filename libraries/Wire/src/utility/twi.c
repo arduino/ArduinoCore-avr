@@ -451,13 +451,13 @@ void twi_releaseBus(void)
  * Function twi_setTimeoutInMicros
  * Desc     set a timeout for while loops that twi might get stuck in
  * Input    timeout value in microseconds (0 means never time out)
- * Input    reset_with_timeout: true causes timeout events to reset twi
+ * Input    reset_on_timeout: true causes timeout events to reset twi
  * Output   none
  */
-void twi_setTimeoutInMicros(uint32_t timeout, bool reset_with_timeout){
+void twi_setTimeoutInMicros(uint32_t timeout, bool reset_on_timeout){
   twi_timed_out_flag = false;
   twi_timeout_us = timeout;
-  twi_do_reset_on_timeout = reset_with_timeout;
+  twi_do_reset_on_timeout = reset_on_timeout;
 }
 
 /* 
