@@ -36,9 +36,11 @@ uint16_t wireTimeoutCount; //capture I2C bus timeout events
 void setup() {
   Wire.begin();
 
-  //demonstrates use of new anti-lockup feature
+  #if defined(WIRE_HAS_TIMEOUT)
+  // Prevent lockups on bus problems by aborting after a timeout
   Wire.setWireTimeout(3000, true); //timeout value in uSec, true to reset I2C bus on timeout
   wireTimeoutCount = 0;
+  #endif
 
   Serial.begin(9600);
   while (!Serial); // Leonardo: wait for serial monitor
@@ -46,12 +48,14 @@ void setup() {
 }
 
 void loop() {
+  #if defined(WIRE_HAS_TIMEOUT)
   if (Wire.getWireTimeoutFlag())
   {
       wireTimeoutCount++;
       Wire.clearWireTimeoutFlag();
       Serial.print("Wire timeout detected; count now "); Serial.println(wireTimeoutCount);
   }
+  #endif
 
   int nDevices = 0;
 
