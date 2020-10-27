@@ -113,3 +113,15 @@ atmel_ice.protocol=atmelice_isp
 atmel_ice.program.protocol=atmelice_isp
 atmel_ice.program.tool=avrdude
 atmel_ice.program.extra_params=-Pusb
+
+avrdopercdc.name=AVR-Doper (CDC Mode)
+avrdopercdc.communication=serial
+avrdopercdc.protocol=stk500v2
+avrdopercdc.program.tool=avrdude
+avrdopercdc.program.extra_params=-P{serial.port}
+
+avrdoperhid.name=AVR-Doper (HID Mode)
+avrdoperhid.communication=usb
+avrdoperhid.protocol=stk500v2
+avrdoperhid.program.tool=avrdude
+avrdoperhid.program.extra_params=-Pavrdoper
