@@ -17,6 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
+  Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
 #ifndef TwoWire_h
@@ -49,12 +50,15 @@ class TwoWire : public Stream
     static void onReceiveService(uint8_t*, int);
   public:
     TwoWire();
-    virtual begin();
-    virtual begin(uint8_t);
-    virtual begin(int);
-    virtual end();
-    virtual setClock(uint32_t);
-    virtual beginTransmission(uint8_t);
+    virtual void begin();
+    virtual void begin(uint8_t);
+    virtual void begin(int);
+    virtual void end();
+    virtual void setClock(uint32_t);
+    virtual void setWireTimeout(uint32_t timeout = 25000, bool reset_with_timeout = false);
+    virtual bool getWireTimeoutFlag(void);
+    virtual void clearWireTimeoutFlag(void);
+    virtual void beginTransmission(uint8_t);
     virtual void beginTransmission(int);
     virtual uint8_t endTransmission(void);
     virtual uint8_t endTransmission(uint8_t);
@@ -70,7 +74,7 @@ class TwoWire : public Stream
     virtual int peek(void);
     virtual void flush(void);
     virtual void onReceive( void (*)(int) );
-    virtua void onRequest( void (*)(void) );
+    virtual void onRequest( void (*)(void) );
 
     virtual inline size_t write(unsigned long n) { return write((uint8_t)n); }
     virtual inline size_t write(long n) { return write((uint8_t)n); }
