@@ -490,7 +490,7 @@ void twi_handleTimeout(bool reset){
  * Desc     returns true if twi has seen a timeout
  *          optionally clears the timeout flag
  * Input    clear_flag: true if we should reset the hardware
- * Output   none
+ * Output   the value of twi_timed_out_flag when the function was called
  */
 bool twi_manageTimeoutFlag(bool clear_flag){
   bool flag = twi_timed_out_flag;
