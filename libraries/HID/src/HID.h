@@ -1,6 +1,7 @@
 /*
   Copyright (c) 2015, Arduino LLC
   Original code (pre-library): Copyright (c) 2011, Peter Barrett
+  Modified code: Copyright (c) 2020, Aleksandr Bratchik
 
   Permission to use, copy, modify, and/or distribute this software for
   any purpose with or without fee is hereby granted, provided that the
@@ -21,7 +22,8 @@
 
 #include <stdint.h>
 #include <Arduino.h>
-#include "PluggableUSB.h"
+#include <HardwareSerial.h>
+#include <PluggableUSB.h>
 
 #if defined(USBCON)
 
@@ -59,6 +61,14 @@
 #define HID_REPORT_TYPE_OUTPUT  2
 #define HID_REPORT_TYPE_FEATURE 3
 
+#define HID_INTERFACE		(CDC_ACM_INTERFACE + CDC_INTERFACE_COUNT)		// HID Interface
+#define HID_FIRST_ENDPOINT	(CDC_FIRST_ENDPOINT + CDC_ENPOINT_COUNT)
+#define HID_ENDPOINT_INT	(HID_FIRST_ENDPOINT)
+#define HID_ENDPOINT_OUT	(HID_FIRST_ENDPOINT+1)   
+
+#define HID_TX HID_ENDPOINT_INT
+#define HID_RX HID_ENDPOINT_OUT     //++ EP  HID_RX for ease of use with USB_Available & USB_Rec
+
 typedef struct
 {
   uint8_t len;      // 9
@@ -77,12 +87,24 @@ typedef struct
   InterfaceDescriptor hid;
   HIDDescDescriptor   desc;
   EndpointDescriptor  in;
+  EndpointDescriptor  out;                  //added
 } HIDDescriptor;
+
+class HIDReport {
+public:
+    HIDReport *next = NULL;
+    HIDReport(uint16_t i, const void *d, uint8_t l) : id(i), data(d), length(l) {}
+    
+    uint16_t id;
+    const void* data;
+    uint16_t length;
+    bool lock;
+};
 
 class HIDSubDescriptor {
 public:
   HIDSubDescriptor *next = NULL;
-  HIDSubDescriptor(const void *d, const uint16_t l) : data(d), length(l) { }
+  HIDSubDescriptor(const void *d, uint16_t l) : data(d), length(l) { }
 
   const void* data;
   const uint16_t length;
@@ -91,26 +113,49 @@ public:
 class HID_ : public PluggableUSBModule
 {
 public:
-  HID_(void);
-  int begin(void);
-  int SendReport(uint8_t id, const void* data, int len);
-  void AppendDescriptor(HIDSubDescriptor* node);
-
+    HID_(void);
+    int begin(void);
+    int SendReport(uint16_t id, const void* data, int len);
+    int SetFeature(uint16_t id, const void* data, int len);
+    int SetStringFeature(uint8_t id, const uint8_t* index, const char* data);
+    bool LockFeature(uint16_t id, bool lock);
+    
+    void AppendDescriptor(HIDSubDescriptor* node);
+    
+    void setOutput(Serial_& out) {
+        dbg = &out;
+    }
+    
+    void setSerial(const char* s) {
+        serial = s;
+    }
+    
+    HIDReport* GetFeature(uint16_t id);
+    
 protected:
-  // Implementation of the PluggableUSBModule
-  int getInterface(uint8_t* interfaceCount);
-  int getDescriptor(USBSetup& setup);
-  bool setup(USBSetup& setup);
-  uint8_t getShortName(char* name);
-
+    // Implementation of the PluggableUSBModule
+    int getInterface(uint8_t* interfaceCount);
+    int getDescriptor(USBSetup& setup);
+    bool setup(USBSetup& setup);
+    uint8_t getShortName(char* name);
+    
 private:
-  uint8_t epType[1];
+    uint8_t epType[2];
 
-  HIDSubDescriptor* rootNode;
-  uint16_t descriptorSize;
+    HIDSubDescriptor* rootNode;
+    uint16_t descriptorSize;
 
-  uint8_t protocol;
-  uint8_t idle;
+    uint8_t protocol;
+    uint8_t idle;
+  
+    // Buffer pointer to hold the feature data
+    HIDReport* rootReport;
+    uint16_t reportCount;
+    
+    Serial_ *dbg;
+    
+    const char *serial;
+    
 };
 
 // Replacement for global singleton.
@@ -118,7 +163,7 @@ private:
 // https://isocpp.org/wiki/faq/ctors#static-init-order-on-first-use
 HID_& HID();
 
-#define D_HIDREPORT(length) { 9, 0x21, 0x01, 0x01, 0, 1, 0x22, lowByte(length), highByte(length) }
+#define D_HIDREPORT(length) { 9, 0x21, 0x01, 0x01, 0x21, 1, 0x22, lowByte(length), highByte(length) }
 
 #endif // USBCON
 
