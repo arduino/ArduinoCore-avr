@@ -89,14 +89,40 @@ void yield(void);
 #undef abs
 #endif
 
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define abs(x) ((x)>0?(x):-(x))
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-#define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
+#ifdef __GNUC__
+	#define max(a,b) \
+	({ typeof (a) _a = (a); \
+		typeof (b) _b = (b); \
+		_a > _b ? _a : _b; })
+	#define min(a,b) \
+	({ typeof (a) _a = (a); \
+		typeof (b) _b = (b); \
+		_a < _b ? _a : _b; })
+	#define abs(a) \
+	({ typeof (a) _a = (a); \
+		_a > 0 ? _a : _a * -1; })
+	#define constrain(amt, low, high) \
+	({ typeof (amt) _amt = (amt); \
+		typeof (low) _low = (low); \
+		typeof (high) _high = (high); \
+		_amt < _low ? _low : _amt > _high ? _high : _amt; })
+	#define round(x) \
+	({ typeof (x) _x = (x); \
+		((_x)>=0?(long)((_x)+0.5):(long)((_x)-0.5)) })
+	#define sq(x) \
+	({ typeof (x) _x = (x); \
+		_x * _x })
+#else
+	#define min(a,b) ((a)<(b)?(a):(b))
+	#define max(a,b) ((a)>(b)?(a):(b))
+	#define abs(x) ((x)>0?(x):-(x))
+	#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+	#define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
+	#define sq(x) ((x)*(x))
+#endif
+
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
-#define sq(x) ((x)*(x))
 
 #define interrupts() sei()
 #define noInterrupts() cli()
