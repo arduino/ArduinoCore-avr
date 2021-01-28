@@ -43,6 +43,8 @@ extern "C"{
 
 uint32_t countPulseASM(volatile uint8_t *port, uint8_t bit, uint8_t stateMask, unsigned long maxloops);
 
+void init_systick(void);
+
 #define EXTERNAL_INT_0 0
 #define EXTERNAL_INT_1 1
 #define EXTERNAL_INT_2 2
