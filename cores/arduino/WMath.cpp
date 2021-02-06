@@ -49,7 +49,10 @@ long random(long howsmall, long howbig)
   return random(diff) + howsmall;
 }
 
-long map(long x, long in_min, long in_max, long out_min, long out_max) {
+// well-defined for in_min < in_max, in_min <= x <= in_max,
+// out_min <= out_max
+long map(long x, long in_min, long in_max, long out_min, long out_max)
+{
   const long dividend = out_max - out_min;
   const long divisor = in_max - in_min;
   const long delta = x - in_min;
