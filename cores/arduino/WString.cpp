@@ -748,3 +748,25 @@ double String::toDouble(void) const
 	if (buffer) return atof(buffer);
 	return 0;
 }
+
+/*********************************************/
+/*  Padding                                  */
+/*********************************************/
+
+String String::padStart(unsigned int totalLength, const char pad)
+{
+	String str = this->c_str();
+	while (str.length() < totalLength) {
+		str = pad + str;
+	}
+	return str;
+}
+
+String String::padEnd(unsigned int totalLength, const char pad)
+{
+	String str = this->c_str();
+	while (str.length() < totalLength) {
+		str += pad;
+	}
+	return str;
+}

@@ -192,6 +192,10 @@ public:
 	float toFloat(void) const;
 	double toDouble(void) const;
 
+	// padding
+	String padStart(unsigned int totalLength, const char pad = ' ');
+	String padEnd(unsigned int totalLength, const char pad = ' ');
+
 protected:
 	char *buffer;	        // the actual char array
 	unsigned int capacity;  // the array length minus one (for the '\0')
