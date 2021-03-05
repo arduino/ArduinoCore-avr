@@ -727,13 +727,13 @@ static inline void USB_ClockEnable()
 
 #if defined(RSTCPU)
 #if defined(LSM)
-	UDCON &= ~((1<<RSTCPU) | (1<<LSM) | (1<<RMWKUP) | (1<<DETACH));	// enable attach resistor, set full speed mode
+	UDCON &= ~((1<<RSTCPU) | (1<<LSM) | (1<<RMWKUP));	// set full speed mode
 #else // u2 Series
-	UDCON &= ~((1 << RSTCPU) | (1 << RMWKUP) | (1 << DETACH));	// enable attach resistor, set full speed mode
+	UDCON &= ~((1<<RSTCPU) | (1<<RMWKUP));	// set full speed mode
 #endif
 #else
 	// AT90USB64x and AT90USB128x don't have RSTCPU
-	UDCON &= ~((1<<LSM) | (1<<RMWKUP) | (1<<DETACH));	// enable attach resistor, set full speed mode
+	UDCON &= ~((1<<LSM) | (1<<RMWKUP));	// set full speed mode
 #endif
 }
 
@@ -813,14 +813,17 @@ void USBDevice_::attach()
 	_usbSuspendState = 0;
 	USB_ClockEnable();
 
+	UDCON &= ~(1<<DETACH); // attach USB pullup resistor
 	UDINT &= ~((1<<WAKEUPI) | (1<<SUSPI)); // clear already pending WAKEUP / SUSPEND requests
 	UDIEN = (1<<EORSTE) | (1<<SOFE) | (1<<SUSPE);	// Enable interrupts for EOR (End of Reset), SOF (start of frame) and SUSPEND
 	
 	TX_RX_LED_INIT;
 }
 
+// IDE CANNOT UPLOAD OVER USB WHILE DETACHED
 void USBDevice_::detach()
 {
+	UDCON |= (1<<DETACH); // detach USB pullup resistor
 }
 
 //	Check for interrupts
