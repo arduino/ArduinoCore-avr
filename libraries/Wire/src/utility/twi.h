@@ -17,6 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
+  Modified 2021 by Fernando Rubio (frubio@techdev.cl) to support I2C 3v3 devices
 */
 
 #ifndef twi_h
@@ -42,6 +43,7 @@
   
   void twi_init(void);
   void twi_disable(void);
+  void twi_disablePullups(void);
   void twi_setAddress(uint8_t);
   void twi_setFrequency(uint32_t);
   uint8_t twi_readFrom(uint8_t, uint8_t*, uint8_t, uint8_t);
