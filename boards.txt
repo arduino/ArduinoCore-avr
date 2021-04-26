@@ -1,4 +1,4 @@
-# See: http://code.google.com/p/arduino/wiki/Platforms
+# See: https://arduino.github.io/arduino-cli/latest/platform-specification/
 
 menu.cpu=Processor
 
