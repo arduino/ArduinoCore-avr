@@ -23,13 +23,14 @@
 #define TwoWire_h
 
 #include <Arduino.h>
+#include <api/HardwareI2C.h>
 
 #define BUFFER_LENGTH 32
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
-class TwoWire : public HardwareI2C
+class TwoWire : public arduino::HardwareI2C
 {
   private:
     static uint8_t rxBuffer[];
@@ -57,11 +58,9 @@ class TwoWire : public HardwareI2C
     void beginTransmission(int);
     uint8_t endTransmission(void);
     uint8_t endTransmission(bool);
-    uint8_t requestFrom(uint8_t, size_t);
-    uint8_t requestFrom(uint8_t, size_t, bool);
+    size_t requestFrom(uint8_t, size_t);
+    size_t requestFrom(uint8_t, size_t, bool);
     uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
-    uint8_t requestFrom(int, int);
-    uint8_t requestFrom(int, int, int);
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *, size_t);
     virtual int available(void);
@@ -75,7 +74,7 @@ class TwoWire : public HardwareI2C
     inline size_t write(long n) { return write((uint8_t)n); }
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
     inline size_t write(int n) { return write((uint8_t)n); }
-    using Print::write;
+    using arduino::Print::write;
 };
 
 extern TwoWire Wire;

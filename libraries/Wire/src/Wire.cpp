@@ -119,23 +119,13 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
   return read;
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool sendStop) {
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool sendStop) {
 	return requestFrom((uint8_t)address, (uint8_t)quantity, (uint32_t)0, (uint8_t)0, (uint8_t)sendStop);
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity)
 {
   return requestFrom(address, quantity, true);
-}
-
-uint8_t TwoWire::requestFrom(int address, int quantity)
-{
-  return requestFrom((uint8_t)address, (size_t)quantity, true);
-}
-
-uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop)
-{
-  return requestFrom((uint8_t)address, (size_t)quantity, (bool)sendStop);
 }
 
 void TwoWire::beginTransmission(uint8_t address)
