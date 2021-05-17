@@ -113,7 +113,7 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
-class UartClass : public HardwareSerial
+class UartClass : public arduino::HardwareSerial
 {
   protected:
     volatile uint8_t * const _ubrrh;

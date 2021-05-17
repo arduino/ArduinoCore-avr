@@ -44,7 +44,7 @@ int main(void)
 
 	for (;;) {
 		loop();
-		if (serialEventRun) serialEventRun();
+		if (arduino::serialEventRun) arduino::serialEventRun();
 	}
 
 	return 0;
