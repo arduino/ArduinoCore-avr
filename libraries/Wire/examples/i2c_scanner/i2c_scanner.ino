@@ -5,7 +5,7 @@
 //    This program (or code that looks like it)
 //    can be found in many places.
 //    For example on the Arduino.cc forum.
-//    The original author is not know.
+//    The original author is not known.
 // Version 2, Juni 2012, Using Arduino 1.0.1
 //     Adapted to be as simple as possible by Arduino.cc user Krodal
 // Version 3, Feb 26  2013
@@ -33,7 +33,7 @@ void setup() {
   Wire.begin();
 
   Serial.begin(9600);
-  while (!Serial); // Leonardo: wait for serial monitor
+  while (!Serial); // Leonardo: wait for Serial Monitor
   Serial.println("\nI2C Scanner");
 }
 
@@ -44,7 +44,7 @@ void loop() {
 
   for (byte address = 1; address < 127; ++address) {
     // The i2c_scanner uses the return value of
-    // the Write.endTransmisstion to see if
+    // the Wire.endTransmission to see if
     // a device did acknowledge to the address.
     Wire.beginTransmission(address);
     byte error = Wire.endTransmission();

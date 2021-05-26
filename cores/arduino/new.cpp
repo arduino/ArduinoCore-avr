@@ -18,7 +18,7 @@
 
 #include "new.h"
 
-// The C++ spec dicates that allocation failure should cause the
+// The C++ spec dictates that allocation failure should cause the
 // (non-nothrow version of the) operator new to throw an exception.
 // Since we expect to have exceptions disabled, it would be more
 // appropriate (and probably standards-compliant) to terminate instead.
