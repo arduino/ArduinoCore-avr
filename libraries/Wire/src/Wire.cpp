@@ -100,7 +100,7 @@ void TwoWire::setClock(uint32_t clock)
  * when `clearWireTimeoutFlag()` or `setWireTimeoutUs()` is called.
  *
  * Note that this timeout can also trigger while waiting for clock stretching or waiting for a second master
- * to complete its transaction. So make sure to adapt the timeout to accomodate for those cases if needed.
+ * to complete its transaction. So make sure to adapt the timeout to accommodate for those cases if needed.
  * A typical timeout would be 25ms (which is the maximum clock stretching allowed by the SMBus protocol),
  * but (much) shorter values will usually also work.
  *
@@ -120,7 +120,7 @@ void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
 /***
  * Returns the TWI timeout flag.
  *
- * @return true if timeout has occured since the flag was last cleared.
+ * @return true if timeout has occurred since the flag was last cleared.
  */
 bool TwoWire::getWireTimeoutFlag(void){
   return(twi_manageTimeoutFlag(false));

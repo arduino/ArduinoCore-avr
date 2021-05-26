@@ -43,7 +43,7 @@ int HID_::getDescriptor(USBSetup& setup)
 	if (setup.bmRequestType != REQUEST_DEVICETOHOST_STANDARD_INTERFACE) { return 0; }
 	if (setup.wValueH != HID_REPORT_DESCRIPTOR_TYPE) { return 0; }
 
-	// In a HID Class Descriptor wIndex cointains the interface number
+	// In a HID Class Descriptor wIndex contains the interface number
 	if (setup.wIndex != pluggedInterface) { return 0; }
 
 	int total = 0;
