@@ -26,6 +26,9 @@ jobs:
     name: ${{ matrix.board.fqbn }}
     runs-on: ubuntu-latest
 
+    env:
+      SKETCHES_REPORTS_PATH: sketches-reports
+
     strategy:
       fail-fast: false
 
@@ -184,7 +187,6 @@ jobs:
             - source-path: ./
               name: arduino:avr
           sketch-paths: |
-            - libraries
             # Compile these sketches for all boards
             - libraries/EEPROM/examples/eeprom_clear
             - libraries/EEPROM/examples/eeprom_iteration
@@ -193,3 +195,12 @@ jobs:
             # Board-specific sketches
             ${{ matrix.serial-sketch-paths }}
             ${{ matrix.softwareserial-sketch-paths }}
+          enable-deltas-report: true
+          sketches-report-path: ${{ env.SKETCHES_REPORTS_PATH }}
+
+      - name: Save sketches report as workflow artifact
+        uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: error
+          path: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: ${{ env.SKETCHES_REPORTS_PATH }}
