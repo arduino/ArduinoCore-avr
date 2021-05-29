@@ -627,23 +627,22 @@ ISR(TWI_vect)
       twi_txBufferIndex = 0;
       // set tx buffer length to be zero, to verify if user changes it
       twi_txBufferLength = 0;
-      // request for txBuffer to be filled and length to be set
-      // note: user must call twi_transmit(bytes, length) to do this
-      twi_onSlaveTransmit();
-      // if they didn't change buffer & length, initialize it
-      if(0 == twi_txBufferLength){
-        twi_txBufferLength = 1;
-        twi_txBuffer[0] = 0x00;
-      }
       __attribute__ ((fallthrough));		  
       // transmit first byte from buffer, fall
     case TW_ST_DATA_ACK: // byte sent, ack returned
-      // copy data to output register
-      TWDR = twi_txBuffer[twi_txBufferIndex++];
+      // if there is no data to send, request data.
+      if(twi_txBufferIndex == twi_txBufferLength){
+        // request for txBuffer to be filled and length to be set
+        // note: user must call twi_transmit(bytes, length) to do this
+        twi_onSlaveTransmit();
+      }
       // if there is more to send, ack, otherwise nack
       if(twi_txBufferIndex < twi_txBufferLength){
+        // copy data to output register
+        TWDR = twi_txBuffer[twi_txBufferIndex++];
         twi_reply(1);
       }else{
+        TWDR = 0;
         twi_reply(0);
       }
       break;
