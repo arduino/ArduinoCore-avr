@@ -138,7 +138,7 @@ void HardwareSerial::begin(unsigned long baud, byte config)
   _written = false;
 
   //set the data bits, parity, and stop bits
-#if defined(__AVR_ATmega8__)
+#if defined(__AVR_ATmega8__) || defined(__AVR_ATmega32__) || defined(__AVR_ATmega32A__)
   config |= 0x80; // select UCSRC register (shared with UBRRH)
 #endif
   *_ucsrc = config;
