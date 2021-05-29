@@ -19,6 +19,7 @@
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
   Modified 2017 by Chuck Todd (ctodd@cableone.net) to correct Unconfigured Slave Mode reboot
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
+  Modified 2021 by Fernando Rubio (frubio@techdev.cl) to support I2C 3v3 devices
 */
 
 extern "C" {
@@ -80,6 +81,11 @@ void TwoWire::begin(int address)
 void TwoWire::end(void)
 {
   twi_disable();
+}
+
+void TwoWire::disablePullups(void)
+{
+  twi_disablePullups();
 }
 
 void TwoWire::setClock(uint32_t clock)
