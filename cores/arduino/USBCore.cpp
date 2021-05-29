@@ -69,8 +69,18 @@ const u8 STRING_MANUFACTURER[] PROGMEM = USB_MANUFACTURER;
 #define DEVICE_CLASS 0x02
 
 //	DEVICE DESCRIPTOR
+
+#ifdef CDC_ENABLED
 const DeviceDescriptor USB_DeviceDescriptorIAD =
 	D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
+#else // CDC_DISABLED
+// The default descriptor uses USB class OxEF, subclass 0x02 with protocol 1
+// which means "Interface Association Descriptor" - that's needed for the CDC,
+// but doesn't make much sense as a default for custom devices when CDC is disabled.
+// (0x00 means "Use class information in the Interface Descriptors" which should be generally ok)
+const DeviceDescriptor USB_DeviceDescriptorIAD =
+	D_DEVICE(0x00,0x00,0x00,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
+#endif
 
 //==================================================================
 //==================================================================
@@ -328,10 +338,12 @@ int USB_Send(u8 ep, const void* d, int len)
 u8 _initEndpoints[USB_ENDPOINTS] =
 {
 	0,                      // Control Endpoint
-	
+
+#ifdef CDC_ENABLED
 	EP_TYPE_INTERRUPT_IN,   // CDC_ENDPOINT_ACM
 	EP_TYPE_BULK_OUT,       // CDC_ENDPOINT_OUT
 	EP_TYPE_BULK_IN,        // CDC_ENDPOINT_IN
+#endif
 
 	// Following endpoints are automatically initialized to 0
 };
@@ -373,10 +385,12 @@ void InitEndpoints()
 static
 bool ClassInterfaceRequest(USBSetup& setup)
 {
+#ifdef CDC_ENABLED
 	u8 i = setup.wIndex;
 
 	if (CDC_ACM_INTERFACE == i)
 		return CDC_Setup(setup);
+#endif
 
 #ifdef PLUGGABLE_USB_ENABLED
 	return PluggableUSB().setup(setup);
@@ -466,7 +480,9 @@ static u8 SendInterfaces()
 {
 	u8 interfaces = 0;
 
+#ifdef CDC_ENABLED
 	CDC_GetInterface(&interfaces);
+#endif
 
 #ifdef PLUGGABLE_USB_ENABLED
 	PluggableUSB().getInterface(&interfaces);
