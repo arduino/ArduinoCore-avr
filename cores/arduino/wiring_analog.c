@@ -82,7 +82,6 @@ void analogReference(uint8_t mode)
 
 int analogRead(uint8_t pin)
 {
-	uint8_t low, high;
 
 #if defined(analogPinToChannel)
 #if defined(__AVR_ATmega32U4__)
@@ -119,27 +118,20 @@ int analogRead(uint8_t pin)
 	// without a delay, we seem to read from the wrong channel
 	//delay(1);
 
-#if defined(ADCSRA) && defined(ADCL)
+#if defined(ADCSRA) && defined(ADC)
 	// start the conversion
 	sbi(ADCSRA, ADSC);
 
 	// ADSC is cleared when the conversion finishes
 	while (bit_is_set(ADCSRA, ADSC));
 
-	// we have to read ADCL first; doing so locks both ADCL
-	// and ADCH until ADCH is read.  reading ADCL second would
-	// cause the results of each conversion to be discarded,
-	// as ADCL and ADCH would be locked when it completed.
-	low  = ADCL;
-	high = ADCH;
+	// ADC macro takes care of reading ADC register.
+	// avr-gcc implements the proper reading order: ADCL is read first.
+	return ADC;
 #else
 	// we dont have an ADC, return 0
-	low  = 0;
-	high = 0;
+	return 0;
 #endif
-
-	// combine the two bytes
-	return (high << 8) | low;
 }
 
 // Right now, PWM output only works on the pins with
@@ -209,7 +201,7 @@ void analogWrite(uint8_t pin, int val)
 
 			#if defined(TCCR1A) && defined(COM1C1)
 			case TIMER1C:
-				// connect pwm to pin on timer 1, channel B
+				// connect pwm to pin on timer 1, channel C
 				sbi(TCCR1A, COM1C1);
 				OCR1C = val; // set pwm duty
 				break;

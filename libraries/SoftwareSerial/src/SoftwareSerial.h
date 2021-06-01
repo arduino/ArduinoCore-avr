@@ -111,13 +111,4 @@ public:
   static inline void handle_interrupt() __attribute__((__always_inline__));
 };
 
-// Arduino 0012 workaround
-#undef int
-#undef char
-#undef long
-#undef byte
-#undef float
-#undef abs
-#undef round
-
 #endif
