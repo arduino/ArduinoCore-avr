@@ -22,7 +22,8 @@
 */
 
 extern "C" {
-  #include "stdlib.h"
+  #include <stdlib.h>
+  #include <inttypes.h>
 }
 
 void randomSeed(unsigned long seed)
