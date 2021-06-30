@@ -1,4 +1,13 @@
 /*
+ Modified by Matthew Ford July 2021
+ to fix memory corruption from  
+ str += str  
+ and  
+ String(1.0,40); // and similar were result exceeds the local buf[33]
+ 
+ Copyright(c)2021 Forward Computing and Control Pty. Ltd. NSW, Australia
+ All rights reserved subject to the License below
+ 
   WString.cpp - String library for Wiring & Arduino
   ...mostly rewritten by Paul Stoffregen...
   Copyright (c) 2009-10 Hernando Barragan.  All rights reserved.
@@ -20,6 +29,7 @@
 */
 
 #include "WString.h"
+#include <math.h>
 
 /*********************************************/
 /*  Constructors                             */
@@ -108,15 +118,85 @@ String::String(unsigned long value, unsigned char base)
 String::String(float value, unsigned char decimalPlaces)
 {
 	init();
+	float tempValue = value;
+	int limit = 29; // allow for .0 /0 in buf[33]
+	int sign = 0;
+	if (value < 0.0) {
+		tempValue = -tempValue;
+		sign = 1;
+	}
 	char buf[33];
-	*this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
+	// find number integral digits
+    if (isnan(value)) {
+  		copy("nan", 3);
+		return;
+    } else if (isinf(value)) {
+    	if(sign) {
+    		copy("-inf", 4);
+    	} else {
+    		copy("+inf", 4);
+    	}
+		return;
+	} else if (tempValue >= 1e29) {
+    	if(sign) {
+    		copy("-ovr", 4);
+    	} else {
+    		copy("+ovr", 4);
+    	}
+		return;
+    }		
+	int i = 0;
+	while ((tempValue > 1.0) && (i<(limit-1))) { 
+		i++;
+		tempValue /= 10.0;
+	}
+	// limit decimalPlaces to limit-i;
+	if (decimalPlaces > (limit-i)) {
+		decimalPlaces = (limit-i);
+	}
+	*this = dtostrf(value, (decimalPlaces + 1+sign), decimalPlaces, buf); // if decimalPlaces need at least - number if negative
 }
 
 String::String(double value, unsigned char decimalPlaces)
 {
 	init();
+	float tempValue = value;
+	int limit = 29; // allow for .0 /0 in buf[33]
+	int sign = 0;
+	if (value < 0.0) {
+		tempValue = -tempValue;
+		sign = 1;
+	}
 	char buf[33];
-	*this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
+	// find number integral digits
+    if (isnan(value)) {
+  		copy("nan", 3);
+		return;
+    } else if (isinf(value)) {
+    	if(sign) {
+    		copy("-inf", 4);
+    	} else {
+    		copy("+inf", 4);
+    	}
+		return;
+	} else if (tempValue >= 1e29) {
+    	if(sign) {
+    		copy("-ovr", 4);
+    	} else {
+    		copy("+ovr", 4);
+    	}
+		return;
+    }		
+	int i = 0;
+	while ((tempValue > 1.0) && (i<(limit-1))) { 
+		i++;
+		tempValue /= 10.0;
+	}
+	// limit decimalPlaces to limit-i;
+	if (decimalPlaces > (limit-i)) {
+		decimalPlaces = (limit-i);
+	}
+	*this = dtostrf(value, (decimalPlaces + 1+sign), decimalPlaces, buf); // if decimalPlaces need at least - number if negative
 }
 
 String::~String()
@@ -266,6 +346,7 @@ unsigned char String::concat(const char *cstr, unsigned int length)
 	if (!cstr) return 0;
 	if (length == 0) return 1;
 	if (!reserve(newlen)) return 0;
+	memmove(buffer+len,cstr,length+1); // copy terminating '\0'
 	strcpy(buffer + len, cstr);
 	len = newlen;
 	return 1;
