@@ -33,8 +33,10 @@ int Stream::timedRead()
   int c;
   _startMillis = millis();
   do {
-    c = read();
-    if (c >= 0) return c;
+  	if (available()) { // skip read of -1's
+      c = read();
+      return c & (0x00ff); // prevent sign extension from 0xff return
+    }
   } while(millis() - _startMillis < _timeout);
   return -1;     // -1 indicates timeout
 }
@@ -45,8 +47,10 @@ int Stream::timedPeek()
   int c;
   _startMillis = millis();
   do {
-    c = peek();
-    if (c >= 0) return c;
+  	if (available()) { // skip read of -1's
+      c = peek();
+      return c & (0x00ff); // prevent sign extension from 0xff return
+    }
   } while(millis() - _startMillis < _timeout);
   return -1;     // -1 indicates timeout
 }
@@ -58,7 +62,7 @@ int Stream::peekNextDigit(LookaheadMode lookahead, bool detectDecimal)
   int c;
   while (1) {
     c = timedPeek();
-
+    if (c == -1) break;
     if( c < 0 ||
         c == '-' ||
         (c >= '0' && c <= '9') ||
@@ -79,6 +83,7 @@ int Stream::peekNextDigit(LookaheadMode lookahead, bool detectDecimal)
     }
     read();  // discard non-numeric
   }
+  return c;
 }
 
 // Public Methods
@@ -135,7 +140,7 @@ long Stream::parseInt(LookaheadMode lookahead, char ignore)
 
   c = peekNextDigit(lookahead, false);
   // ignore non numeric leading characters
-  if(c < 0)
+  if(c == -1)
     return 0; // zero returned if timeout
 
   do{
@@ -148,7 +153,7 @@ long Stream::parseInt(LookaheadMode lookahead, char ignore)
     read();  // consume the character we got with peek
     c = timedPeek();
   }
-  while( (c >= '0' && c <= '9') || c == ignore );
+  while( (c != -1) && ((c >= '0' && c <= '9') || c == ignore ));
 
   if(isNegative)
     value = -value;
@@ -166,7 +171,7 @@ float Stream::parseFloat(LookaheadMode lookahead, char ignore)
 
   c = peekNextDigit(lookahead, true);
     // ignore non numeric leading characters
-  if(c < 0)
+  if(c == -1)
     return 0; // zero returned if timeout
 
   do{
@@ -184,7 +189,7 @@ float Stream::parseFloat(LookaheadMode lookahead, char ignore)
     read();  // consume the character we got with peek
     c = timedPeek();
   }
-  while( (c >= '0' && c <= '9')  || (c == '.' && !isFraction) || c == ignore );
+  while( (c != -1) && ((c >= '0' && c <= '9')  || (c == '.' && !isFraction) || c == ignore ));
 
   if(isNegative)
     value = -value;
@@ -204,7 +209,7 @@ size_t Stream::readBytes(char *buffer, size_t length)
   size_t count = 0;
   while (count < length) {
     int c = timedRead();
-    if (c < 0) break;
+    if (c == -1) break;
     *buffer++ = (char)c;
     count++;
   }
@@ -221,7 +226,7 @@ size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
   size_t index = 0;
   while (index < length) {
     int c = timedRead();
-    if (c < 0 || c == terminator) break;
+    if (c == -1 || c == terminator) break;
     *buffer++ = (char)c;
     index++;
   }
@@ -232,7 +237,7 @@ String Stream::readString()
 {
   String ret;
   int c = timedRead();
-  while (c >= 0)
+  while (c != -1)
   {
     ret += (char)c;
     c = timedRead();
@@ -244,7 +249,7 @@ String Stream::readStringUntil(char terminator)
 {
   String ret;
   int c = timedRead();
-  while (c >= 0 && c != terminator)
+  while (c != -1 && c != terminator)
   {
     ret += (char)c;
     c = timedRead();
@@ -262,7 +267,7 @@ int Stream::findMulti( struct Stream::MultiTarget *targets, int tCount) {
 
   while (1) {
     int c = timedRead();
-    if (c < 0)
+    if (c == -1)
       return -1;
 
     for (struct MultiTarget *t = targets; t < targets+tCount; ++t) {
