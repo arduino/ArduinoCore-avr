@@ -175,7 +175,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   }
   twi_state = TWI_MRX;
   twi_sendStop = sendStop;
-  // reset error state (0xFF.. no error occured)
+  // reset error state (0xFF.. no error occurred)
   twi_error = 0xFF;
 
   // initialize buffer iteration vars
@@ -183,7 +183,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   twi_masterBufferLength = length-1;  // This is not intuitive, read on...
   // On receive, the previously configured ACK/NACK setting is transmitted in
   // response to the received byte before the interrupt is signalled. 
-  // Therefor we must actually set NACK when the _next_ to last byte is
+  // Therefore we must actually set NACK when the _next_ to last byte is
   // received, causing that NACK to be sent in response to receiving the last
   // expected byte of data.
 
@@ -269,7 +269,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   }
   twi_state = TWI_MTX;
   twi_sendStop = sendStop;
-  // reset error state (0xFF.. no error occured)
+  // reset error state (0xFF.. no error occurred)
   twi_error = 0xFF;
 
   // initialize buffer iteration vars
@@ -294,7 +294,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
     // We need to remove ourselves from the repeated start state before we enable interrupts,
     // since the ISR is ASYNC, and we could get confused if we hit the ISR before cleaning
     // up. Also, don't enable the START interrupt. There may be one pending from the 
-    // repeated start that we sent outselves, and that would really confuse things.
+    // repeated start that we sent ourselves, and that would really confuse things.
     twi_inRepStart = false;			// remember, we're dealing with an ASYNC ISR
     startMicros = micros();
     do {
@@ -411,7 +411,7 @@ void twi_stop(void)
   // send stop condition
   TWCR = _BV(TWEN) | _BV(TWIE) | _BV(TWEA) | _BV(TWINT) | _BV(TWSTO);
 
-  // wait for stop condition to be exectued on bus
+  // wait for stop condition to be executed on bus
   // TWINT is not set after a stop condition!
   // We cannot use micros() from an ISR, so approximate the timeout with cycle-counted delays
   const uint8_t us_per_loop = 8;
@@ -490,7 +490,7 @@ void twi_handleTimeout(bool reset){
  * Desc     returns true if twi has seen a timeout
  *          optionally clears the timeout flag
  * Input    clear_flag: true if we should reset the hardware
- * Output   none
+ * Output   the value of twi_timed_out_flag when the function was called
  */
 bool twi_manageTimeoutFlag(bool clear_flag){
   bool flag = twi_timed_out_flag;
