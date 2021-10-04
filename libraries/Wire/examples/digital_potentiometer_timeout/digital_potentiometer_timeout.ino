@@ -32,6 +32,7 @@ void loop() {
 
   if ( Wire.getWireTimeoutFlag() ) {
     // handle timeout
+    Wire.clearWireTimeoutFlag();
     count++;
   }
 
