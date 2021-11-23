@@ -89,14 +89,18 @@ recipe.preproc.includes="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags}
 preproc.macros.flags=-w -x c++ -E -CC
 recipe.preproc.macros="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} {preproc.macros.flags} -mmcu={build.mcu} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {includes} "{source_file}" -o "{preprocessed_file_path}"
 
+# Required discoveries and monitors
+# ---------------------------------
+pluggable_discovery.required.0=builtin:serial-discovery
+pluggable_discovery.required.1=builtin:mdns-discovery
+pluggable_monitor.required.serial=builtin:serial-monitor
+
 # AVR Uploader/Programmers tools
 # ------------------------------
 
 tools.avrdude.path={runtime.tools.avrdude.path}
 tools.avrdude.cmd.path={path}/bin/avrdude
 tools.avrdude.config.path={path}/etc/avrdude.conf
-
-tools.avrdude.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
 
 tools.avrdude.upload.params.verbose=-v
 tools.avrdude.upload.params.quiet=-q -q
@@ -122,7 +126,12 @@ tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verb
 
 tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex {upload.verbose} -p{build.mcu}
 
-tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -port {upload.network.port} -sketch "{build.path}/{build.project_name}.hex" -upload {upload.network.endpoint_upload} -sync {upload.network.endpoint_sync} -reset {upload.network.endpoint_reset} -sync_exp {upload.network.sync_return}
+# the following rule is deprecated by pluggable discovery
+tools.avrdude.upload.network_pattern="{tools.arduino_ota.cmd}" -address {serial.port} -port {upload.network.port} -sketch "{build.path}/{build.project_name}.hex" -upload {upload.network.endpoint_upload} -sync {upload.network.endpoint_sync} -reset {upload.network.endpoint_reset} -sync_exp {upload.network.sync_return}
+
+# arduino ota
+tools.arduino_ota.cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.arduino_ota.upload.pattern="{cmd}" -address {upload.port.address} -port {upload.port.properties.port} -sketch "{build.path}/{build.project_name}.hex" -upload {upload.port.properties.endpoint_upload} -sync {upload.port.properties.endpoint_sync} -reset {upload.port.properties.endpoint_reset} -sync_exp {upload.port.properties.sync_return}
 
 # USB Default Flags
 # Default blank usb manufacturer will be filled in at compile time
