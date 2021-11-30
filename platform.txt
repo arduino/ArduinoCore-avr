@@ -126,8 +126,10 @@ tools.avrdude.bootloader.pattern="{cmd.path}" "-C{config.path}" {bootloader.verb
 
 tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex {upload.verbose} -p{build.mcu}
 
-# the following rule is deprecated by pluggable discovery
-tools.avrdude.upload.network_pattern="{tools.arduino_ota.cmd}" -address {serial.port} -port {upload.network.port} -sketch "{build.path}/{build.project_name}.hex" -upload {upload.network.endpoint_upload} -sync {upload.network.endpoint_sync} -reset {upload.network.endpoint_reset} -sync_exp {upload.network.sync_return}
+# The following rule is deprecated by pluggable discovery.
+# We keep it to avoid breaking compatibility with the Arduino Java IDE.
+tools.avrdude.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -port {upload.network.port} -sketch "{build.path}/{build.project_name}.hex" -upload {upload.network.endpoint_upload} -sync {upload.network.endpoint_sync} -reset {upload.network.endpoint_reset} -sync_exp {upload.network.sync_return}
 
 # arduino ota
 tools.arduino_ota.cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
