@@ -285,11 +285,12 @@ size_t HardwareSerial::write(uint8_t c)
   return 1;
 }
 
-void HardwareSerial::attachInterrupt_Receive( isrRx_t fn )
+void HardwareSerial::attachInterrupt_Receive( isrRx_t fn, void* args )
 {
   uint8_t oldSREG = SREG;
   cli();
   _isrRx = fn;
+  _rxArg = args;
   SREG = oldSREG;
 }
 

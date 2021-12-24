@@ -95,7 +95,7 @@ HardwareSerial::HardwareSerial(
     _udr(udr),
     _rx_buffer_head(0), _rx_buffer_tail(0),
     _tx_buffer_head(0), _tx_buffer_tail(0),
-    _isrRx(NULL), _isrTx(dummyTxFct)
+    _isrRx(NULL), _isrTx(dummyTxFct), _rxArg(NULL)
 {
 }
 
@@ -103,11 +103,11 @@ HardwareSerial::HardwareSerial(
 
 void HardwareSerial::_rx_complete_irq(void)
 {
-  // user receive function was attached -> call it with data and status byte 
+  // user receive function was attached -> call it with data, status byte and optional argument pointer 
   if (_isrRx) {
     unsigned char status = *_ucsra;
     unsigned char data = *_udr;
-    _isrRx( data, status );
+    _isrRx( data, status, _rxArg );
   }
 
   // default: save data in ring buffer
