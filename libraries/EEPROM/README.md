@@ -53,7 +53,7 @@ This function does not return any value.
 This function will retrieve any object from the EEPROM.
 Two parameters are needed to call this function. The first is an `int` containing the address that is to be written, and the second is the object you would like to read.
 
-This function returns a reference to the `object` passed in. It does not need to be used and is only returned for conveience.
+This function returns a reference to the `object` passed in. It does not need to be used and is only returned for convenience.
 
 #### **`EEPROM.put( address, object )`** [[_example_]](examples/eeprom_put/eeprom_put.ino)
 
@@ -62,7 +62,7 @@ Two parameters are needed to call this function. The first is an `int` containin
 
 This function uses the _update_ method to write its data, and therefore only rewrites changed cells.
 
-This function returns a reference to the `object` passed in. It does not need to be used and is only returned for conveience.
+This function returns a reference to the `object` passed in. It does not need to be used and is only returned for convenience.
 
 #### **Subscript operator: `EEPROM[address]`** [[_example_]](examples/eeprom_crc/eeprom_crc.ino)
 
@@ -136,4 +136,4 @@ This is useful for STL objects, custom iteration and C++11 style ranged for loop
 This function returns an `EEPtr` pointing at the location after the last EEPROM cell.  
 Used with `begin()` to provide custom iteration.
 
-**Note:** The `EEPtr` returned is invalid as it is out of range. Infact the hardware causes wrapping of the address (overflow) and `EEPROM.end()` actually references the first EEPROM cell.
+**Note:** The `EEPtr` returned is invalid as it is out of range. In fact the hardware causes wrapping of the address (overflow) and `EEPROM.end()` actually references the first EEPROM cell.

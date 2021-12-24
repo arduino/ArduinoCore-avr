@@ -14,7 +14,7 @@
  The circuit:
   * All A pins  of AD5206 connected to +5V
   * All B pins of AD5206 connected to ground
-  * An LED and a 220-ohm resisor in series connected from each W pin to ground
+  * An LED and a 220-ohm resistor in series connected from each W pin to ground
   * CS - to digital pin 10  (SS pin)
   * SDI - to digital pin 11 (MOSI pin)
   * CLK - to digital pin 13 (SCK pin)
@@ -27,7 +27,7 @@
 */
 
 
-// inslude the SPI library:
+// include the SPI library:
 #include <SPI.h>
 
 
@@ -64,7 +64,7 @@ void digitalPotWrite(int address, int value) {
   // take the SS pin low to select the chip:
   digitalWrite(slaveSelectPin, LOW);
   delay(100);
-  //  send in the address and value via SPI:
+  // send in the address and value via SPI:
   SPI.transfer(address);
   SPI.transfer(value);
   delay(100);

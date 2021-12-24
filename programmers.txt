@@ -3,6 +3,7 @@ avrisp.communication=serial
 avrisp.protocol=stk500v1
 avrisp.program.protocol=stk500v1
 avrisp.program.tool=avrdude
+avrisp.program.tool.default=avrdude
 avrisp.program.extra_params=-P{serial.port}
 
 avrispmkii.name=AVRISP mkII
@@ -10,21 +11,25 @@ avrispmkii.communication=usb
 avrispmkii.protocol=stk500v2
 avrispmkii.program.protocol=stk500v2
 avrispmkii.program.tool=avrdude
+avrispmkii.program.tool.default=avrdude
 avrispmkii.program.extra_params=-Pusb
 
 usbtinyisp.name=USBtinyISP
 usbtinyisp.protocol=usbtiny
 usbtinyisp.program.tool=avrdude
+usbtinyisp.program.tool.default=avrdude
 usbtinyisp.program.extra_params=
 
 arduinoisp.name=ArduinoISP
 arduinoisp.protocol=arduinoisp
 arduinoisp.program.tool=avrdude
+arduinoisp.program.tool.default=avrdude
 arduinoisp.program.extra_params=
 
 arduinoisporg.name=ArduinoISP.org
 arduinoisporg.protocol=arduinoisporg
 arduinoisporg.program.tool=avrdude
+arduinoisporg.program.tool.default=avrdude
 arduinoisporg.program.extra_params=
 
 usbasp.name=USBasp
@@ -32,6 +37,7 @@ usbasp.communication=usb
 usbasp.protocol=usbasp
 usbasp.program.protocol=usbasp
 usbasp.program.tool=avrdude
+usbasp.program.tool.default=avrdude
 usbasp.program.extra_params=-Pusb
 
 parallel.name=Parallel Programmer
@@ -39,6 +45,7 @@ parallel.protocol=dapa
 parallel.force=true
 # parallel.delay=200
 parallel.program.tool=avrdude
+parallel.program.tool.default=avrdude
 parallel.program.extra_params=-F
 
 arduinoasisp.name=Arduino as ISP
@@ -48,6 +55,7 @@ arduinoasisp.speed=19200
 arduinoasisp.program.protocol=stk500v1
 arduinoasisp.program.speed=19200
 arduinoasisp.program.tool=avrdude
+arduinoasisp.program.tool.default=avrdude
 arduinoasisp.program.extra_params=-P{serial.port} -b{program.speed}
 
 arduinoasispatmega32u4.name=Arduino as ISP (ATmega32U4)
@@ -57,11 +65,13 @@ arduinoasispatmega32u4.speed=19200
 arduinoasispatmega32u4.program.protocol=arduino
 arduinoasispatmega32u4.program.speed=19200
 arduinoasispatmega32u4.program.tool=avrdude
+arduinoasispatmega32u4.program.tool.default=avrdude
 arduinoasispatmega32u4.program.extra_params=-P{serial.port} -b{program.speed}
 
 usbGemma.name=Arduino Gemma
 usbGemma.protocol=arduinogemma
 usbGemma.program.tool=avrdude
+usbGemma.program.tool.default=avrdude
 usbGemma.program.extra_params=
 usbGemma.config.path={runtime.platform.path}/bootloaders/gemma/avrdude.conf
 
@@ -76,18 +86,20 @@ buspirate.communication=serial
 buspirate.protocol=buspirate
 buspirate.program.protocol=buspirate
 buspirate.program.tool=avrdude
+buspirate.program.tool.default=avrdude
 buspirate.program.extra_params=-P{serial.port}
 
 # STK500 firmware version v1 and v2 use different serial protocols.
 # Using the 'stk500' protocol tells avrdude to try and autodetect the
 # firmware version. If this leads to problems, we might need to add
-# stk500v1 and stk500v2 entries to allow explicitely selecting the
+# stk500v1 and stk500v2 entries to allow explicitly selecting the
 # firmware version.
 stk500.name=Atmel STK500 development board
 stk500.communication=serial
 stk500.protocol=stk500
 stk500.program.protocol=stk500
 stk500.program.tool=avrdude
+stk500.program.tool.default=avrdude
 stk500.program.extra_params=-P{serial.port}
 
 jtag3isp.name=Atmel JTAGICE3 (ISP mode)
@@ -95,6 +107,7 @@ jtag3isp.communication=usb
 jtag3isp.protocol=jtag3isp
 jtag3isp.program.protocol=jtag3isp
 jtag3isp.program.tool=avrdude
+jtag3isp.program.tool.default=avrdude
 jtag3isp.program.extra_params=
 
 jtag3.name=Atmel JTAGICE3 (JTAG mode)
@@ -102,6 +115,7 @@ jtag3.communication=usb
 jtag3.protocol=jtag3
 jtag3.program.protocol=jtag3
 jtag3.program.tool=avrdude
+jtag3.program.tool.default=avrdude
 # Set a bitclock of 0.1us (the fastest supported value). This should
 # work regardless of the crystal used, since JTAG doesn't use the MCU
 # clock but dictates its own clock.
@@ -112,4 +126,5 @@ atmel_ice.communication=usb
 atmel_ice.protocol=atmelice_isp
 atmel_ice.program.protocol=atmelice_isp
 atmel_ice.program.tool=avrdude
+atmel_ice.program.tool.default=avrdude
 atmel_ice.program.extra_params=-Pusb
