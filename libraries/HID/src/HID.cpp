@@ -154,6 +154,11 @@ bool HID_::setup(USBSetup& setup)
 	return false;
 }
 
+uint8_t HID_::getKeyboardLedsStatus(void)
+{
+	return _keyboardLedsStatus;
+}
+
 HID_::HID_(void) : PluggableUSBModule(1, 1, epType),
                    rootNode(NULL), descriptorSize(0),
                    protocol(HID_REPORT_PROTOCOL), idle(1)
