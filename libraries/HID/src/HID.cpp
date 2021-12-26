@@ -133,13 +133,21 @@ bool HID_::setup(USBSetup& setup)
 		}
 		if (request == HID_SET_REPORT)
 		{
-			//uint8_t reportID = setup.wValueL;
-			//uint16_t length = setup.wLength;
-			//uint8_t data[length];
+			uint8_t reportID = setup.wValueL;
+			uint16_t length = setup.wLength;
+			uint8_t data[length];
 			// Make sure to not read more data than USB_EP_SIZE.
 			// You can read multiple times through a loop.
 			// The first byte (may!) contain the reportID on a multreport.
 			//USB_RecvControl(data, length);
+			if ((reportID == 2) && (length == 2))
+			{
+				if (2 == USB_RecvControl(data, length)) 
+				{
+					_keyboardLedsStatus = data[1];
+					return true;
+				}
+			}
 		}
 	}
 
