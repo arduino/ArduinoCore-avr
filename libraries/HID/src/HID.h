@@ -96,7 +96,8 @@ public:
   int SendReport(uint8_t id, const void* data, int len);
   void AppendDescriptor(HIDSubDescriptor* node);
   uint8_t getKeyboardLedsStatus(void);
-
+  void setKeyboardLedsStatusReportCallback(void (*callback) (void) );
+  
 protected:
   // Implementation of the PluggableUSBModule
   int getInterface(uint8_t* interfaceCount);
@@ -113,6 +114,7 @@ private:
   uint8_t protocol;
   uint8_t idle;
   uint8_t _keyboardLedsStatus;
+  void (*keyboardLedsStatusReportCallback) (void);
 };
 
 // Replacement for global singleton.
