@@ -145,6 +145,10 @@ bool HID_::setup(USBSetup& setup)
 				if (2 == USB_RecvControl(data, length)) 
 				{
 					_keyboardLedsStatus = data[1];
+					if (keyboardLedsStatusReportCallback != 0)
+					{
+						keyboardLedsStatusReportCallback();
+					}
 					return true;
 				}
 			}
@@ -159,12 +163,18 @@ uint8_t HID_::getKeyboardLedsStatus(void)
 	return _keyboardLedsStatus;
 }
 
+void HID_::setKeyboardLedsStatusReportCallback(void (*callback) (void) )
+{
+	keyboardLedsStatusReportCallback = callback;
+}
+
 HID_::HID_(void) : PluggableUSBModule(1, 1, epType),
                    rootNode(NULL), descriptorSize(0),
                    protocol(HID_REPORT_PROTOCOL), idle(1)
 {
 	epType[0] = EP_TYPE_INTERRUPT_IN;
 	PluggableUSB().plug(this);
+  setKeyboardLedsStatusReportCallback( 0 );
 }
 
 int HID_::begin(void)
