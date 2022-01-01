@@ -103,6 +103,39 @@ uno.build.variant=standard
 
 ##############################################################
 
+unomini.name=Arduino Uno Mini
+
+unomini.vid.0=0x2341
+unomini.pid.0=0x0062
+unomini.upload_port.0.vid=0x2341
+unomini.upload_port.0.pid=0x0062
+unomini.upload_port.4.board=unomini
+
+unomini.upload.tool=avrdude
+unomini.upload.tool.default=avrdude
+unomini.upload.tool.network=arduino_ota
+unomini.upload.protocol=arduino
+unomini.upload.maximum_size=32256
+unomini.upload.maximum_data_size=2048
+unomini.upload.speed=115200
+
+unomini.bootloader.tool=avrdude
+unomini.bootloader.tool.default=avrdude
+unomini.bootloader.low_fuses=0xFF
+unomini.bootloader.high_fuses=0xDE
+unomini.bootloader.extended_fuses=0xFD
+unomini.bootloader.unlock_bits=0x3F
+unomini.bootloader.lock_bits=0x0F
+unomini.bootloader.file=optiboot/optiboot_atmega328.hex
+
+unomini.build.mcu=atmega328p
+unomini.build.f_cpu=16000000L
+unomini.build.board=AVR_UNO
+unomini.build.core=arduino
+unomini.build.variant=standard
+
+##############################################################
+
 diecimila.name=Arduino Duemilanove or Diecimila
 
 diecimila.upload_port.0.board=diecimila
@@ -1271,38 +1304,5 @@ unowifi.build.core=arduino
 unowifi.build.variant=standard
 unowifi.build.esp_ch_uart_br=19200
 unowifi.build.extra_flags=-DESP_CH_UART -DESP_CH_UART_BR={build.esp_ch_uart_br}
-
-##############################################################
-
-unomini.name=Arduino Uno Mini
-
-unomini.vid.0=0x2341
-unomini.pid.0=0x0062
-unomini.upload_port.0.vid=0x2341
-unomini.upload_port.0.pid=0x0062
-unomini.upload_port.4.board=unomini
-
-unomini.upload.tool=avrdude
-unomini.upload.tool.default=avrdude
-unomini.upload.tool.network=arduino_ota
-unomini.upload.protocol=arduino
-unomini.upload.maximum_size=32256
-unomini.upload.maximum_data_size=2048
-unomini.upload.speed=115200
-
-unomini.bootloader.tool=avrdude
-unomini.bootloader.tool.default=avrdude
-unomini.bootloader.low_fuses=0xFF
-unomini.bootloader.high_fuses=0xDE
-unomini.bootloader.extended_fuses=0xFD
-unomini.bootloader.unlock_bits=0x3F
-unomini.bootloader.lock_bits=0x0F
-unomini.bootloader.file=optiboot/optiboot_atmega328.hex
-
-unomini.build.mcu=atmega328p
-unomini.build.f_cpu=16000000L
-unomini.build.board=AVR_UNO
-unomini.build.core=arduino
-unomini.build.variant=standard
 
 ##############################################################
