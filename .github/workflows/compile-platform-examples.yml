@@ -145,6 +145,9 @@ jobs:
           - fqbn: arduino:avr:unowifi
             serial: true
             softwareserial: true
+          - fqbn: arduino:avr:unomini
+            serial: true
+            softwareserial: true
 
         # Make board type-specific customizations to the matrix jobs
         include:
