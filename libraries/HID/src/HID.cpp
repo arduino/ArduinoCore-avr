@@ -174,7 +174,7 @@ HID_::HID_(void) : PluggableUSBModule(1, 1, epType),
 {
 	epType[0] = EP_TYPE_INTERRUPT_IN;
 	PluggableUSB().plug(this);
-  setKeyboardLedsStatusReportCallback( 0 );
+	setKeyboardLedsStatusReportCallback( NULL );
 }
 
 int HID_::begin(void)
