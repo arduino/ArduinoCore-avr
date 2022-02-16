@@ -6,7 +6,7 @@
 # https://arduino.github.io/arduino-cli/latest/platform-specification/
 
 name=Arduino AVR Boards
-version=1.8.4
+version=1.8.5
 
 # AVR compile variables
 # ---------------------
