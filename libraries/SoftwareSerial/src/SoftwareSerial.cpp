@@ -246,13 +246,14 @@ ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 //
 // Constructor
 //
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) : 
+SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin , bool inverse_logic/* = false */) : 
   _rx_delay_centering(0),
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
   _tx_delay(0),
   _buffer_overflow(false),
   _inverse_logic(inverse_logic)
+ 
 {
   setTX(transmitPin);
   setRX(receivePin);
@@ -301,12 +302,13 @@ uint16_t SoftwareSerial::subtract_cap(uint16_t num, uint16_t sub) {
 // Public methods
 //
 
-void SoftwareSerial::begin(long speed)
+void SoftwareSerial::begin(long speed,uint8_t parity)
 {
   _rx_delay_centering = _rx_delay_intrabit = _rx_delay_stopbit = _tx_delay = 0;
 
   // Precalculate the various delays, in number of 4-cycle delays
   uint16_t bit_delay = (F_CPU / speed) / 4;
+  Tparity = parity;
 
   // 12 (gcc 4.8.2) or 13 (gcc 4.3.2) cycles from start bit to first bit,
   // 15 (gcc 4.8.2) or 16 (gcc 4.3.2) cycles between bits,
@@ -316,7 +318,7 @@ void SoftwareSerial::begin(long speed)
   _tx_delay = subtract_cap(bit_delay, 15 / 4);
 
   // Only setup rx when we have a valid PCINT for this pin
-  if (digitalPinToPCICR((int8_t)_receivePin)) {
+  if (digitalPinToPCICR(_receivePin)) {
     #if GCC_VERSION > 40800
     // Timings counted from gcc 4.8.2 output. This works up to 115200 on
     // 16Mhz and 57600 on 8Mhz.
@@ -343,7 +345,13 @@ void SoftwareSerial::begin(long speed)
     // delay will be at 1/4th of the stopbit. This allows some extra
     // time for ISR cleanup, which makes 115200 baud at 16Mhz work more
     // reliably
-    _rx_delay_stopbit = subtract_cap(bit_delay * 3 / 4, (37 + 11) / 4);
+    
+	if (Tparity != NONE)
+		_rx_delay_stopbit = subtract_cap(2 * bit_delay * 3 / 4, (37 + 11) / 4);
+	else
+		_rx_delay_stopbit = subtract_cap(bit_delay * 3 / 4, (37 + 11) / 4);
+	
+	
     #else // Timings counted from gcc 4.3.2 output
     // Note that this code is a _lot_ slower, mostly due to bad register
     // allocation choices of gcc. This works up to 57600 on 16Mhz and
@@ -357,7 +365,7 @@ void SoftwareSerial::begin(long speed)
     // Enable the PCINT for the entire port here, but never disable it
     // (others might also need it, so we disable the interrupt by using
     // the per-pin PCMSK register).
-    *digitalPinToPCICR((int8_t)_receivePin) |= _BV(digitalPinToPCICRbit(_receivePin));
+    *digitalPinToPCICR(_receivePin) |= _BV(digitalPinToPCICRbit(_receivePin));
     // Precalculate the pcint mask register and value, so setRxIntMask
     // can be used inside the ISR without costing too much time.
     _pcint_maskreg = digitalPinToPCMSK(_receivePin);
@@ -409,7 +417,7 @@ int SoftwareSerial::available()
   if (!isListening())
     return 0;
 
-  return ((unsigned int)(_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head)) % _SS_MAX_RX_BUFF;
+  return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
 size_t SoftwareSerial::write(uint8_t b)
@@ -442,20 +450,41 @@ size_t SoftwareSerial::write(uint8_t b)
     *reg &= inv_mask;
 
   tunedDelay(delay);
-
+  Cparity = 0;
   // Write each of the 8 bits
   for (uint8_t i = 8; i > 0; --i)
   {
-    if (b & 1) // choose bit
+    if (b & 1){ // choose bit
       *reg |= reg_mask; // send 1
-    else
+	  Cparity++;
+	}
+    else{
       *reg &= inv_mask; // send 0
-
+	}
     tunedDelay(delay);
     b >>= 1;
   }
 
-  // restore pin to natural state
+    if (Tparity == ODD){ //odd parity
+		if (Cparity & 1) // choose bit
+		  *reg &= inv_mask; // send 0
+		else
+		  *reg |= reg_mask; // send 1
+
+		tunedDelay(delay);
+	}
+
+    if (Tparity == EVEN){ //even parity
+		if (Cparity & 1) // choose bit
+		  *reg |= reg_mask; // send 1
+		else
+		  *reg &= inv_mask; // send 0
+
+		tunedDelay(delay);
+	}
+
+
+	// restore pin to natural state
   if (inv)
     *reg &= inv_mask;
   else
