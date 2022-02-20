@@ -1,6 +1,5 @@
 #######################################
 # Syntax Coloring Map for SoftwareSerial
-# (formerly NewSoftSerial)
 #######################################
 
 #######################################
@@ -14,15 +13,17 @@ SoftwareSerial	KEYWORD1
 #######################################
 
 begin	KEYWORD2
-end	KEYWORD2
-read	KEYWORD2
-write	KEYWORD2
-available	KEYWORD2
-isListening	KEYWORD2
-overflow	KEYWORD2
-flush	KEYWORD2
 listen	KEYWORD2
+end	KEYWORD2
+isListening	KEYWORD2
+stopListening	KEYWORD2
+overflow	KEYWORD2
 peek	KEYWORD2
+write	KEYWORD2
+read	KEYWORD2
+available	KEYWORD2
+flush	KEYWORD2
+handle_interrupt	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
