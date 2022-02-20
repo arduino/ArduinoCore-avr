@@ -1,4 +1,20 @@
 /*
+SoftwareSerial.cpp (formerly SoftwareSerial.cpp) - 
+Multi-instance software serial with half duplex library for Arduino/Wiring
+
+By default the library works the same as the SoftwareSerial library, but by adding a couple of additional arguments
+it can be configured for half-duplex. In that case, the transmit pin is set by default to an input, with the pull-up set. 
+When transmitting, the pin temporarily switches to an output until the byte is sent, then flips back to input. When a module is 
+receiving it should not be able to transmit, and vice-versa. This library probably won't work as is if you need inverted-logic.
+
+This is a first draft of the library and test programs. It appears to work, but has only been tested on a limited basis.
+The library also works to communicate with Robotis Bioloid AX-12 motors.
+Seems fairly reliable up to 57600 baud. As with all serial neither error checking, nor addressing are implemented, 
+so it is likely that you will need to do this yourself. Also, you can make use of other protocols such as i2c. 
+I am looking for any feedback, advice and help at this stage. 
+Changes from SoftwareSerial have been noted with a comment of "//NS" for your review. Only a few were required.
+Contact me at n.stedman@steddyrobots.com, or on the arduino forum.
+----
 SoftwareSerial.cpp (formerly NewSoftSerial.cpp) - 
 Multi-instance software serial library for Arduino/Wiring
 -- Interrupt-driven receive and other improvements by ladyada
@@ -24,10 +40,8 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-The latest version of this library can always be found at
-http://arduiniana.org.
 */
+
 
 // When set, _DEBUG co-opts pins 11 and 13 for debugging with an
 // oscilloscope or logic analyzer.  Beware: it also slightly modifies
@@ -48,7 +62,7 @@ http://arduiniana.org.
 // Statics
 //
 SoftwareSerial *SoftwareSerial::active_object = 0;
-uint8_t SoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF]; 
+char SoftwareSerial::_receive_buffer[_SS_MAX_RX_BUFF]; 
 volatile uint8_t SoftwareSerial::_receive_buffer_tail = 0;
 volatile uint8_t SoftwareSerial::_receive_buffer_head = 0;
 
@@ -57,9 +71,9 @@ volatile uint8_t SoftwareSerial::_receive_buffer_head = 0;
 //
 // This function generates a brief pulse
 // for debugging or measuring on an oscilloscope.
-#if _DEBUG
 inline void DebugPulse(uint8_t pin, uint8_t count)
 {
+#if _DEBUG
   volatile uint8_t *pport = portOutputRegister(digitalPinToPort(pin));
 
   uint8_t val = *pport;
@@ -68,10 +82,8 @@ inline void DebugPulse(uint8_t pin, uint8_t count)
     *pport = val | digitalPinToBitMask(pin);
     *pport = val;
   }
-}
-#else
-inline void DebugPulse(uint8_t, uint8_t) {}
 #endif
+}
 
 //
 // Private methods
@@ -246,7 +258,7 @@ ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 //
 // Constructor
 //
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) : 
+SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */, bool full_duplex /* = true */) : 
   _rx_delay_centering(0),
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
@@ -254,6 +266,10 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
   _buffer_overflow(false),
   _inverse_logic(inverse_logic)
 {
+  // @micooke - passing half_duplex is fairly pointless as you can determine it from the tx and rx pin chose.
+  // Im inclined to remove full_duplex as an argument.
+  // This change allows the user to test half-duplex with different or the same pins
+  _full_duplex = (transmitPin == receivePin)?false:full_duplex;				//NS Added 
   setTX(transmitPin);
   setRX(receivePin);
 }
@@ -273,7 +289,10 @@ void SoftwareSerial::setTX(uint8_t tx)
   // output high. Now, it is input with pullup for a short while, which
   // is fine. With inverse logic, either order is fine.
   digitalWrite(tx, _inverse_logic ? LOW : HIGH);
-  pinMode(tx, OUTPUT);
+  if(_full_duplex)	pinMode(tx, OUTPUT);					//NS Added
+  else pinMode(tx, INPUT);									//NS Added
+  _transmitPin = tx;  										//NS Added  
+
   _transmitBitMask = digitalPinToBitMask(tx);
   uint8_t port = digitalPinToPort(tx);
   _transmitPortRegister = portOutputRegister(port);
@@ -316,7 +335,7 @@ void SoftwareSerial::begin(long speed)
   _tx_delay = subtract_cap(bit_delay, 15 / 4);
 
   // Only setup rx when we have a valid PCINT for this pin
-  if (digitalPinToPCICR((int8_t)_receivePin)) {
+  if (digitalPinToPCICR(_receivePin)) {
     #if GCC_VERSION > 40800
     // Timings counted from gcc 4.8.2 output. This works up to 115200 on
     // 16Mhz and 57600 on 8Mhz.
@@ -357,7 +376,7 @@ void SoftwareSerial::begin(long speed)
     // Enable the PCINT for the entire port here, but never disable it
     // (others might also need it, so we disable the interrupt by using
     // the per-pin PCMSK register).
-    *digitalPinToPCICR((int8_t)_receivePin) |= _BV(digitalPinToPCICRbit(_receivePin));
+    *digitalPinToPCICR(_receivePin) |= _BV(digitalPinToPCICRbit(_receivePin));
     // Precalculate the pcint mask register and value, so setRxIntMask
     // can be used inside the ISR without costing too much time.
     _pcint_maskreg = digitalPinToPCMSK(_receivePin);
@@ -409,7 +428,7 @@ int SoftwareSerial::available()
   if (!isListening())
     return 0;
 
-  return ((unsigned int)(_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head)) % _SS_MAX_RX_BUFF;
+  return (_receive_buffer_tail + _SS_MAX_RX_BUFF - _receive_buffer_head) % _SS_MAX_RX_BUFF;
 }
 
 size_t SoftwareSerial::write(uint8_t b)
@@ -434,6 +453,10 @@ size_t SoftwareSerial::write(uint8_t b)
     b = ~b;
 
   cli();  // turn off interrupts for a clean txmit
+
+  // NS - Set Pin to Output
+  if(!_full_duplex)															//NS Added
+	  pinMode(_transmitPin, OUTPUT);										//NS Added    
 
   // Write the start bit
   if (inv)
@@ -461,6 +484,11 @@ size_t SoftwareSerial::write(uint8_t b)
   else
     *reg |= reg_mask;
 
+  // NS - Set Pin back to Input
+  if(!_full_duplex){
+	  pinMode(_transmitPin, INPUT);							//NS Added
+	  *reg |= reg_mask; 									//pull _transmitPin HIGH
+  }
   SREG = oldSREG; // turn interrupts back on
   tunedDelay(_tx_delay);
   
@@ -469,7 +497,13 @@ size_t SoftwareSerial::write(uint8_t b)
 
 void SoftwareSerial::flush()
 {
-  // There is no tx buffering, simply return
+  if (!isListening())
+    return;
+
+  uint8_t oldSREG = SREG;
+  cli();
+  _receive_buffer_head = _receive_buffer_tail = 0;
+  SREG = oldSREG;
 }
 
 int SoftwareSerial::peek()
