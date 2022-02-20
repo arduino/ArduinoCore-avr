@@ -27,4 +27,6 @@ peek	KEYWORD2
 #######################################
 # Constants (LITERAL1)
 #######################################
-
+NONE LITERAL1
+ODD LITERAL1
+EVEN LITERAL1
