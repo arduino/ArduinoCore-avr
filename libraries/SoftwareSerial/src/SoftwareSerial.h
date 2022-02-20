@@ -1,5 +1,26 @@
 /*
-SoftwareSerial.h (formerly NewSoftSerial.h) - 
+SoftwareSerial.h (formerly SoftwareSerial.h) - 
+Multi-instance software serial with half duplex library for Arduino/Wiring
+
+By default the library works the same as the SoftwareSerial library, 
+but by adding a couple of additional arguments it can be configured for 
+half-duplex. In that case, the transmit pin is set by default to an input, 
+with the pull-up set. When transmitting, the pin temporarily switches to 
+an output until the byte is sent, then flips back to input. When a module 
+is receiving it should not be able to transmit, and vice-versa. 
+This library probably won't work as is if you need inverted-logic.
+
+This is a first draft of the library and test programs. It appears to work, 
+but has only been tested on a limited basis. The library also works with 
+Robotis Bioloid AX-12 motors. Seems fairly reliable up to 57600 baud. 
+As with all serial neither error checking, nor addressing are implemented, 
+so it is likely that you will need to do this yourself. Also, you can make 
+use of other protocols such as i2c. I am looking for any feedback, advice 
+and help at this stage. Changes from SoftwareSerial have been noted with a 
+comment of "//NS" for your review. Only a few were required.
+Contact me at n.stedman@steddyrobots.com, or on the arduino forum.
+----
+SoftwareSerial.cpp (formerly NewSoftSerial.cpp) - 
 Multi-instance software serial library for Arduino/Wiring
 -- Interrupt-driven receive and other improvements by ladyada
    (http://ladyada.net)
@@ -24,9 +45,6 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-The latest version of this library can always be found at
-http://arduiniana.org.
 */
 
 #ifndef SoftwareSerial_h
@@ -39,10 +57,7 @@ http://arduiniana.org.
 * Definitions
 ******************************************************************************/
 
-#ifndef _SS_MAX_RX_BUFF
 #define _SS_MAX_RX_BUFF 64 // RX buffer size
-#endif
-
 #ifndef GCC_VERSION
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
@@ -54,6 +69,7 @@ private:
   uint8_t _receivePin;
   uint8_t _receiveBitMask;
   volatile uint8_t *_receivePortRegister;
+  uint8_t _transmitPin;								//NS Added
   uint8_t _transmitBitMask;
   volatile uint8_t *_transmitPortRegister;
   volatile uint8_t *_pcint_maskreg;
@@ -65,21 +81,23 @@ private:
   uint16_t _rx_delay_stopbit;
   uint16_t _tx_delay;
 
-  uint16_t _buffer_overflow:1;
-  uint16_t _inverse_logic:1;
+  bool _buffer_overflow;
+  bool _inverse_logic;
+  bool _full_duplex;							//NS Added
 
   // static data
-  static uint8_t _receive_buffer[_SS_MAX_RX_BUFF]; 
+  static char _receive_buffer[_SS_MAX_RX_BUFF]; 
   static volatile uint8_t _receive_buffer_tail;
   static volatile uint8_t _receive_buffer_head;
   static SoftwareSerial *active_object;
 
   // private methods
-  inline void recv() __attribute__((__always_inline__));
+  void recv() __attribute__((__always_inline__));
   uint8_t rx_pin_read();
+  //void tx_pin_write(uint8_t pin_state) __attribute__((__always_inline__));
   void setTX(uint8_t transmitPin);
   void setRX(uint8_t receivePin);
-  inline void setRxIntMsk(bool enable) __attribute__((__always_inline__));
+  void setRxIntMsk(bool enable) __attribute__((__always_inline__));
 
   // Return num - sub, or 1 if the result would be < 1
   static uint16_t subtract_cap(uint16_t num, uint16_t sub);
@@ -89,7 +107,7 @@ private:
 
 public:
   // public methods
-  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
+  SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false, bool full_duplex = true);
   ~SoftwareSerial();
   void begin(long speed);
   bool listen();
@@ -111,4 +129,14 @@ public:
   static inline void handle_interrupt() __attribute__((__always_inline__));
 };
 
+// Arduino 0012 workaround
+#ifdef int
+#undef int
+#undef char
+#undef long
+#undef byte
+#undef float
+#undef abs
+#undef round
+#endif
 #endif
