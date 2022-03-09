@@ -92,7 +92,8 @@ HardwareSerial::HardwareSerial(
     _ucsra(ucsra), _ucsrb(ucsrb), _ucsrc(ucsrc),
     _udr(udr),
     _rx_buffer_head(0), _rx_buffer_tail(0),
-    _tx_buffer_head(0), _tx_buffer_tail(0)
+    _tx_buffer_head(0), _tx_buffer_tail(0),
+    _rxcallback(0)
 {
 }
 
@@ -104,6 +105,8 @@ void HardwareSerial::_rx_complete_irq(void)
     // No Parity error, read byte and store it in the buffer if there is
     // room
     unsigned char c = *_udr;
+    if(_rxcallback != 0 && !_rxcallback(c))
+       return;
     rx_buffer_index_t i = (unsigned int)(_rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
 
     // if we should be storing the received character into the location

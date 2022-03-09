@@ -106,6 +106,7 @@ class HardwareSerial : public Stream
     volatile rx_buffer_index_t _rx_buffer_tail;
     volatile tx_buffer_index_t _tx_buffer_head;
     volatile tx_buffer_index_t _tx_buffer_tail;
+    bool (*_rxcallback)(char);
 
     // Don't put any members after these buffers, since only the first
     // 32 bytes of this struct can be accessed quickly using the ldd
@@ -137,8 +138,8 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+    void setRxCallBack( bool (*CallBackFun)(char)) { _rxcallback = CallBackFun; }
 };
-
 #if defined(UBRRH) || defined(UBRR0H)
   extern HardwareSerial Serial;
   #define HAVE_HWSERIAL0
