@@ -93,6 +93,8 @@ bool SoftwareSerial::listen()
   {
     if (active_object)
       active_object->stopListening();
+    if (_singleWirePin)
+      setupRXPin(_singleWirePin);
 
     _buffer_overflow = false;
     _receive_buffer_head = _receive_buffer_tail = 0;
@@ -111,6 +113,8 @@ bool SoftwareSerial::stopListening()
   if (active_object == this)
   {
     setRxIntMsk(false);
+    if (_singleWirePin)
+      setupTXPin(_singleWirePin);
     active_object = NULL;
     return true;
   }
@@ -246,7 +250,8 @@ ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
 //
 // Constructor
 //
-SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) : 
+SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic /* = false */) :
+  _singleWirePin(receivePin == transmitPin ? receivePin : 0), 
   _rx_delay_centering(0),
   _rx_delay_intrabit(0),
   _rx_delay_stopbit(0),
@@ -256,6 +261,9 @@ SoftwareSerial::SoftwareSerial(uint8_t receivePin, uint8_t transmitPin, bool inv
 {
   setTX(transmitPin);
   setRX(receivePin);
+
+  if (_singleWirePin)
+    setupTXPin(_singleWirePin);
 }
 
 //
@@ -266,7 +274,7 @@ SoftwareSerial::~SoftwareSerial()
   end();
 }
 
-void SoftwareSerial::setTX(uint8_t tx)
+void SoftwareSerial::setupTXPin(uint8_t tx) 
 {
   // First write, then set output. If we do this the other way around,
   // the pin would be output low for a short while before switching to
@@ -274,16 +282,30 @@ void SoftwareSerial::setTX(uint8_t tx)
   // is fine. With inverse logic, either order is fine.
   digitalWrite(tx, _inverse_logic ? LOW : HIGH);
   pinMode(tx, OUTPUT);
+}
+
+void SoftwareSerial::setTX(uint8_t tx)
+{
+  if(!_singleWirePin) 
+    setupTXPin(tx);
+  
   _transmitBitMask = digitalPinToBitMask(tx);
   uint8_t port = digitalPinToPort(tx);
   _transmitPortRegister = portOutputRegister(port);
 }
 
-void SoftwareSerial::setRX(uint8_t rx)
+void SoftwareSerial::setupRXPin(uint8_t rx)
 {
   pinMode(rx, INPUT);
   if (!_inverse_logic)
     digitalWrite(rx, HIGH);  // pullup for normal logic!
+}
+
+void SoftwareSerial::setRX(uint8_t rx)
+{
+  if(!_singleWirePin) 
+    setupRXPin(rx);
+  
   _receivePin = rx;
   _receiveBitMask = digitalPinToBitMask(rx);
   uint8_t port = digitalPinToPort(rx);
@@ -371,7 +393,9 @@ void SoftwareSerial::begin(long speed)
   pinMode(_DEBUG_PIN2, OUTPUT);
 #endif
 
-  listen();
+  // Single-wire will be in TX mode by default
+  if (!_singleWirePin)
+    listen();
 }
 
 void SoftwareSerial::setRxIntMsk(bool enable)
@@ -414,6 +438,9 @@ int SoftwareSerial::available()
 
 size_t SoftwareSerial::write(uint8_t b)
 {
+  if (_singleWirePin && isListening())
+    return 0;
+
   if (_tx_delay == 0) {
     setWriteError();
     return 0;
