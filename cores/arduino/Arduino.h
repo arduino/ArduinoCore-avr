@@ -93,17 +93,117 @@ void yield(void);
 }; // extern "C"
 #endif
 
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
+#if defined(__cplusplus)
+template<typename T, typename L> constexpr auto min(const T& a, const L& b) -> decltype((b < a) ? b : a)
+{
+  return (b < a) ? b : a;
+}
+
+template<typename T, typename L> constexpr auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
+{
+  return (a < b) ? b : a;
+}
+
+template <typename T> constexpr auto abs(const T x) -> decltype(x>0?x:-x){
+  return x>0?x:-x;
+}
+
+template<typename T, typename U, typename V> constexpr auto constrain(const T& amt, const U& low, const V& high) -> decltype(amt < low ? low : (amt > high ? high : amt)) {
+  return amt < low ? low : (amt > high ? high : amt);
+}
+
+template <typename T> constexpr T round(const T x){
+  return x>=0?static_cast<long>(x+0.5):static_cast<long>(x-0.5);
+}
+
+template<typename T> constexpr auto radians(const T& deg) -> decltype(deg * DEG_TO_RAD){
+  return deg * DEG_TO_RAD;
+}
+
+template<typename T> constexpr auto degrees(const T& rad) -> decltype(rad * RAD_TO_DEG){
+  return rad * RAD_TO_DEG;
+}
+
+template<typename T> constexpr auto sq(const T& x) -> decltype(x*x){
+  return x*x;
+}
+#else
+#ifndef min
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+#endif
+
+#ifndef max
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+#endif
+
 #define abs(x) ((x)>0?(x):-(x))
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+   
+#ifndef constrain
+#define constrain(amt,low,high) \
+({ __typeof__ (amt) _amt = (amt); \
+  __typeof__ (low) _low = (low); \
+  __typeof__ (high) _high = (high); \
+  _amt < _low ? _low : (_amt > _high ? _high :_amt); })
+#endif
+
 #define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
-#define radians(deg) ((deg)*DEG_TO_RAD)
-#define degrees(rad) ((rad)*RAD_TO_DEG)
-#define sq(x) ((x)*(x))
+
+#ifndef radians
+#define radians(deg) \
+  ({ __typeof__ (deg) _deg = deg; \
+    _deg * DEG_TO_RAD; })
+#endif
+  
+#ifndef degrees
+#define degrees(rad) \
+  ({ __typeof__ (rad) _rad = rad; \
+  _rad * RAD_TO_DEG; })
+#endif
+  
+#ifndef sq
+#define sq(x) \
+  ({ __typeof__ (x) _x = x; \
+  _x * _x; })
+#endif
+
+#endif
 
 #define interrupts() sei()
 #define noInterrupts() cli()
+
+#if defined(__cplusplus)
+constexpr unsigned long clockCyclesPerMicrosecond(){
+  return F_CPU / 1000000L;
+}
+
+template <typename T> constexpr T clockCyclesToMicroseconds(const T a){
+  return a / clockCyclesPerMicrosecond();
+}
+
+template <typename T> constexpr T microsecondsToClockCycles(const T a){
+  return a * clockCyclesPerMicrosecond();
+}
+
+constexpr unsigned char lowByte(uint16_t w){
+  return w & 0xff;
+}
+
+constexpr unsigned char highByte(uint16_t w){
+  return w >> 8;
+}
+
+template <typename T>
+constexpr bool bitRead(T value, unsigned char bit){
+  return (value >> bit) & 0x01;
+}
+
+#else
 
 #define clockCyclesPerMicrosecond() ( F_CPU / 1000000L )
 #define clockCyclesToMicroseconds(a) ( (a) / clockCyclesPerMicrosecond() )
@@ -113,6 +213,8 @@ void yield(void);
 #define highByte(w) ((uint8_t) ((w) >> 8))
 
 #define bitRead(value, bit) (((value) >> (bit)) & 0x01)
+#endif
+
 #define bitSet(value, bit) ((value) |= (1UL << (bit)))
 #define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
 #define bitToggle(value, bit) ((value) ^= (1UL << (bit)))
