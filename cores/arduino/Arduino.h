@@ -89,6 +89,10 @@ void yield(void);
 #undef abs
 #endif
 
+#if defined(__cplusplus)
+}; // extern "C"
+#endif
+
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
@@ -125,6 +129,10 @@ typedef unsigned int word;
 
 typedef bool boolean;
 typedef uint8_t byte;
+
+#if defined(__cplusplus)
+extern "C"{
+#endif
 
 void init(void);
 void initVariant(void);
