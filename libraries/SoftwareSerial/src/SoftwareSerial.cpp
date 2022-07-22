@@ -439,7 +439,7 @@ int SoftwareSerial::available()
 size_t SoftwareSerial::write(uint8_t b)
 {
   if (_singleWirePin && isListening())
-    setupTXPin();
+    setupTXPin(_singleWirePin);
 
   if (_tx_delay == 0) {
     setWriteError();
