@@ -35,6 +35,8 @@ http://arduiniana.org.
 #define _DEBUG 0
 #define _DEBUG_PIN1 11
 #define _DEBUG_PIN2 13
+
+#define HALFDUPLEX_SWITCH_DELAY 5
 // 
 // Includes
 // 
@@ -93,8 +95,6 @@ bool SoftwareSerial::listen()
   {
     if (active_object)
       active_object->stopListening();
-    if (_singleWirePin)
-      setupRXPin(_singleWirePin);
 
     _buffer_overflow = false;
     _receive_buffer_head = _receive_buffer_tail = 0;
@@ -393,7 +393,7 @@ void SoftwareSerial::begin(long speed)
   pinMode(_DEBUG_PIN2, OUTPUT);
 #endif
 
-  // Single-wire will be in TX mode by default
+  // Single-wire will not listen by default
   if (!_singleWirePin)
     listen();
 }
@@ -439,7 +439,7 @@ int SoftwareSerial::available()
 size_t SoftwareSerial::write(uint8_t b)
 {
   if (_singleWirePin && isListening())
-    return 0;
+    setupTXPin();
 
   if (_tx_delay == 0) {
     setWriteError();
@@ -489,8 +489,13 @@ size_t SoftwareSerial::write(uint8_t b)
     *reg |= reg_mask;
 
   SREG = oldSREG; // turn interrupts back on
-  tunedDelay(_tx_delay);
-  
+
+  if (!_singleWirePin)
+    tunedDelay(_tx_delay);
+  else if(isListening()) {
+    tunedDelay(_tx_delay * HALFDUPLEX_SWITCH_DELAY);
+    setupRXPin(_singleWirePin);
+  }
   return 1;
 }
 
