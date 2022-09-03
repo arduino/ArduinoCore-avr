@@ -1,7 +1,7 @@
 # See: https://github.com/codespell-project/codespell#using-a-config-file
 [codespell]
 # In the event of a false positive, add the problematic word, in all lowercase, to a comma-separated list here:
-ignore-words-list = hart,pullrequest
+ignore-words-list = clen,hart,pullrequest
 builtin = clear
 check-filenames =
 check-hidden =
