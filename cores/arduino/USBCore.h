@@ -191,7 +191,7 @@ typedef struct
 } EndpointDescriptor;
 
 // Interface Association Descriptor
-// Used to bind 2 interfaces together in CDC compostite device
+// Used to bind 2 interfaces together in CDC composite device
 typedef struct
 {
 	u8 len;				// 8

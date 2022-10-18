@@ -119,7 +119,7 @@ bool CDC_Setup(USBSetup& setup)
 			// For future boards save the key in the inproblematic RAMEND
 			// Which is reserved for the main() return value (which will never return)
 			if (isLUFAbootloader()) {
-				// horray, we got a new bootloader!
+				// hooray, we got a new bootloader!
 				magic_key_pos = (RAMEND-1);
 			}
 #endif
