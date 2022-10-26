@@ -57,6 +57,8 @@ class Print
     size_t write(const char *buffer, size_t size) {
       return write((const uint8_t *)buffer, size);
     }
+  
+    size_t printf(const char * format, ...)  __attribute__ ((format (printf, 2, 3)));
 
     // default to zero, meaning "a single write may block"
     // should be overridden by subclasses with buffering
