@@ -465,7 +465,7 @@ putch(0x0D);
 
 
 	/* Request programmer ID */
-	/* Not using PROGMEM string due to boot block in m128 being beyond 64kB boundry  */
+	/* Not using PROGMEM string due to boot block in m128 being beyond 64kB boundary  */
 	/* Would need to selectively manipulate RAMPZ, and it's only 9 characters anyway so who cares.  */
 	else if(ch=='1') {
 	    if (getch() == ' ') {
@@ -727,7 +727,7 @@ putch(0x0D);
 			if (!flags.rampz) putch(pgm_read_byte_near(address.word));
 #if defined __AVR_ATmega128__
 			else putch(pgm_read_byte_far(address.word + 0x10000));
-			// Hmmmm, yuck  FIXME when m256 arrvies
+			// Hmmmm, yuck  FIXME when m256 arrives
 #endif
 			address.word++;
 		    }

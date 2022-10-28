@@ -199,7 +199,7 @@ int main(void)
 		}
 	
 		/* Request programmer ID */
-		/* Not using PROGMEM string due to boot block in m128 being beyond 64kB boundry  */
+		/* Not using PROGMEM string due to boot block in m128 being beyond 64kB boundary  */
 		/* Would need to selectively manipulate RAMPZ, and it's only 9 characters anyway so who cares.  */
 		else if(ch=='1') {
 			if (getch() == ' ') {
@@ -248,7 +248,7 @@ int main(void)
 		else if(ch=='P') {
 		  nothing_response();
 		  // FIXME: modified only here by DojoCorp, Mumbai, India, 20050626
-		  //time_count=0; // exted the delay once entered prog.mode
+		  //time_count=0; // extend the delay once entered prog.mode
 		}
 	
 		/* Leave programming mode  */

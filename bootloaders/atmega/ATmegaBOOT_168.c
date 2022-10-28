@@ -387,7 +387,7 @@ int main(void)
 	UCSR0C = (1<<UCSZ00) | (1<<UCSZ01);
 
 	/* Enable internal pull-up resistor on pin D0 (RX), in order
-	to supress line noise that prevents the bootloader from
+	to suppress line noise that prevents the bootloader from
 	timing out (DAM: 20070509) */
 	DDRD &= ~_BV(PIND0);
 	PORTD |= _BV(PIND0);
@@ -408,7 +408,7 @@ int main(void)
 
 #if defined __AVR_ATmega1280__
 	/* Enable internal pull-up resistor on pin D0 (RX), in order
-	to supress line noise that prevents the bootloader from
+	to suppress line noise that prevents the bootloader from
 	timing out (DAM: 20070509) */
 	/* feature added to the Arduino Mega --DC: 080930 */
 	DDRE &= ~_BV(PINE0);
@@ -447,7 +447,7 @@ int main(void)
 
 
 	/* Request programmer ID */
-	/* Not using PROGMEM string due to boot block in m128 being beyond 64kB boundry  */
+	/* Not using PROGMEM string due to boot block in m128 being beyond 64kB boundary  */
 	/* Would need to selectively manipulate RAMPZ, and it's only 9 characters anyway so who cares.  */
 	else if(ch=='1') {
 		if (getch() == ' ') {
@@ -730,7 +730,7 @@ int main(void)
 					if (!flags.rampz) putch(pgm_read_byte_near(address.word));
 #if defined(__AVR_ATmega128__) || defined(__AVR_ATmega1280__)
 					else putch(pgm_read_byte_far(address.word + 0x10000));
-					// Hmmmm, yuck  FIXME when m256 arrvies
+					// Hmmmm, yuck  FIXME when m256 arrives
 #endif
 					address.word++;
 				}
