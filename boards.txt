@@ -58,7 +58,7 @@ yun.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-uno.name=Arduino Uno
+uno.name=Arduino UNO
 
 uno.vid.0=0x2341
 uno.pid.0=0x0043
@@ -107,7 +107,7 @@ uno.build.variant=standard
 
 ##############################################################
 
-unomini.name=Arduino Uno Mini
+unomini.name=Arduino UNO Mini
 
 unomini.vid.0=0x2341
 unomini.pid.0=0x0062
@@ -1272,7 +1272,7 @@ one.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-unowifi.name=Arduino Uno WiFi
+unowifi.name=Arduino UNO WiFi
 unowifi.vid.0=0x2A03
 unowifi.pid.0=0x0057
 unowifi.upload_port.0.vid=0x2A03
