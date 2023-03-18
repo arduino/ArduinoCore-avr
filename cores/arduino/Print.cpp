@@ -202,22 +202,35 @@ size_t Print::println(const Printable& x)
 
 size_t Print::printNumber(unsigned long n, uint8_t base)
 {
-  char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
-  char *str = &buf[sizeof(buf) - 1];
-
-  *str = '\0';
+  // shortcut printing just 0 prevents later overhead
+  if (n == 0) {
+    return write('0');
+  }
 
   // prevent crash if called with base == 1
   if (base < 2) base = 10;
 
-  do {
-    char c = n % base;
+  unsigned long reverse = 0;
+  uint8_t digits = 0;
+
+  // reverse the number and count digits
+  while (n != 0) {
+    uint8_t remainder = n % base;
+    reverse = reverse * base + remainder;
     n /= base;
+    digits++;
+  }
+  
+  // from here onwards reuse of variable 'n' to count written chars
+  do {
+    char c = reverse % base;
+    reverse /= base;
 
-    *--str = c < 10 ? c + '0' : c + 'A' - 10;
-  } while(n);
+    c = (c < 10 ? c + '0' : c + 'A' - 10);
+    n += write(c);
+  } while(--digits);
 
-  return write(str);
+  return n;
 }
 
 size_t Print::printFloat(double number, uint8_t digits) 
