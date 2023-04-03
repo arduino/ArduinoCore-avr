@@ -210,34 +210,94 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
   // prevent crash if called with base == 1
   if (base < 2) base = 10;
 
-  unsigned long reverse = 0;
-  uint8_t digits = 0;
-  char avoid_overflow = n % base;
+// use -D ARDUINO_PRINT_NUMBER_GENERIC_ONLY when compiling to get only the generic version
+#ifndef ARDUINO_PRINT_NUMBER_GENERIC_ONLY
+  switch (base) {
+  case 16:
+  // optimized version for hex prints
+    {
+      uint8_t *access = (uint8_t*) &n;
+      uint8_t written = 0;
+      for (int8_t i=3; i>=0; i--) {
+          char c;
+          c = (access[i] & 0xf0) >> 4;
+          if (c != 0 || written != 0) {
+            c = (c < 10 ? c + '0' : c + 'A' - 10);
+            written += write(c);
+          } // else: skip leading zeros
+          c = access[i] & 0x0f;
+          if (c != 0 || written != 0) {
+            // skip leading zeros
+            c = (c < 10 ? c + '0' : c + 'A' - 10);
+            written += write(c);
+          } // else: skip leading zeros
+      }
+      return written;
+    }
+  case 2:
+  // optimized version for binary prints
+    {
+      uint8_t *access = (uint8_t*) &n;
+      uint8_t written = 0;
+      for (int8_t i=3; i>=0; i--) {
+        if (access[i] == 0 && written == 0) {
+            // skip leading zeros
+            continue;
+        }
+        for (int8_t j=7; j>=0; j--) {
+          char c;
+          if (j == 0) {
+            // avoid shift by 0 - undefined
+            c = (access[i] & 0x01);
+          } else {
+            c = (access[i] & 1<<j) >> j;
+          }
+          if (c == 0 && written == 0) {
+            // skip leading zeros
+            continue;
+          }
+          c = (c < 10 ? c + '0' : c + 'A' - 10);
+          written += write(c);
+        }
+      }
+      return written;
+    }
+  default:
+  // the generic implementation
+#endif
+    {
+      unsigned long reverse = 0;
+      uint8_t digits = 0;
+      char avoid_overflow = n % base;
 
-  // this step and 'avoid_overflow' will make sure it stays in unsigned long range beeing able to print all 10 digits no matter what
-  n /= base;
+      // this step and 'avoid_overflow' will make sure it stays in unsigned long range beeing able to print all 10 digits no matter what
+      n /= base;
 
-  // reverse the number and count digits
-  while (n != 0) {
-    uint8_t remainder = n % base;
-    reverse = reverse * base + remainder;
-    n /= base;
-    digits++;
+      // reverse the number and count digits
+      while (n != 0) {
+        uint8_t remainder = n % base;
+        reverse = reverse * base + remainder;
+        n /= base;
+        digits++;
+      }
+
+      // from here onwards reuse of variable 'n' to count written chars
+      while (digits--) {
+        char c = reverse % base;
+        reverse /= base;
+
+        c = (c < 10 ? c + '0' : c + 'A' - 10);
+        n += write(c);
+      }
+
+      avoid_overflow = (avoid_overflow < 10 ? avoid_overflow + '0' : avoid_overflow + 'A' - 10);
+      n += write(avoid_overflow);
+
+      return n;
+    }
+#ifndef ARDUINO_PRINT_NUMBER_GENERIC_ONLY
   }
-  
-  // from here onwards reuse of variable 'n' to count written chars
-  while (digits--) {
-    char c = reverse % base;
-    reverse /= base;
-
-    c = (c < 10 ? c + '0' : c + 'A' - 10);
-    n += write(c);
-  }
-
-  avoid_overflow = (avoid_overflow < 10 ? avoid_overflow + '0' : avoid_overflow + 'A' - 10);
-  n += write(avoid_overflow);
-
-  return n;
+#endif
 }
 
 size_t Print::printFloat(double number, uint8_t digits) 
