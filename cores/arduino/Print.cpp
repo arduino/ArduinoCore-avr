@@ -227,7 +227,6 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
           } // else: skip leading zeros
           c = access[i] & 0x0f;
           if (c != 0 || written != 0) {
-            // skip leading zeros
             c = (c < 10 ? c + '0' : c + 'A' - 10);
             written += write(c);
           } // else: skip leading zeros
