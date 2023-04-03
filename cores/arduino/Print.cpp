@@ -202,7 +202,7 @@ size_t Print::println(const Printable& x)
 
 size_t Print::printNumber(unsigned long n, uint8_t base)
 {
-  // shortcut printing just 0 prevents later overhead
+  // shortcut printing just 0 and prevent later overhead
   if (n == 0) {
     return write('0');
   }
@@ -212,6 +212,10 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
 
   unsigned long reverse = 0;
   uint8_t digits = 0;
+  char avoid_overflow = n % base;
+
+  // this step and 'avoid_overflow' will make sure it stays in unsigned long range beeing able to print all 10 digits no matter what
+  n /= base;
 
   // reverse the number and count digits
   while (n != 0) {
@@ -222,13 +226,16 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
   }
   
   // from here onwards reuse of variable 'n' to count written chars
-  do {
+  while (digits--) {
     char c = reverse % base;
     reverse /= base;
 
     c = (c < 10 ? c + '0' : c + 'A' - 10);
     n += write(c);
-  } while(--digits);
+  }
+
+  avoid_overflow = (avoid_overflow < 10 ? avoid_overflow + '0' : avoid_overflow + 'A' - 10);
+  n += write(avoid_overflow);
 
   return n;
 }
