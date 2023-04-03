@@ -269,7 +269,7 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
       uint8_t digits = 0;
       char avoid_overflow = n % base;
 
-      // this step and 'avoid_overflow' will make sure it stays in unsigned long range beeing able to print all 10 digits no matter what
+      // this step and 'avoid_overflow' will make sure it stays in unsigned long range being able to print all 10 digits no matter what
       n /= base;
 
       // reverse the number and count digits
