@@ -218,7 +218,7 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
     {
       uint8_t *access = (uint8_t*) &n;
       uint8_t written = 0;
-      for (int8_t i=3; i>=0; i--) {
+      for (int8_t i=sizeof(unsigned long)-1; i>=0; i--) {
           char c;
           c = (access[i] & 0xf0) >> 4;
           if (c != 0 || written != 0) {
@@ -238,7 +238,7 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
     {
       uint8_t *access = (uint8_t*) &n;
       uint8_t written = 0;
-      for (int8_t i=3; i>=0; i--) {
+      for (int8_t i=sizeof(unsigned long)-1; i>=0; i--) {
         if (access[i] == 0 && written == 0) {
             // skip leading zeros
             continue;
