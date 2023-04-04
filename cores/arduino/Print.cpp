@@ -208,7 +208,7 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
   }
 
   // prevent crash if called with base == 1
-  if (base < 2) base = 10;
+  if (base < 2) return printNumber(n, 10);
 
 // use -D ARDUINO_PRINT_NUMBER_GENERIC_ONLY when compiling to get only the generic version
 #ifndef ARDUINO_PRINT_NUMBER_GENERIC_ONLY
