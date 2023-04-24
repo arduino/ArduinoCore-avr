@@ -246,6 +246,7 @@ unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 10
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration = 0);
 void noTone(uint8_t _pin);
+void noTone(uint8_t _pin, bool _exit_state);
 
 // WMath prototypes
 long random(long);
