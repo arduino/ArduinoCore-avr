@@ -494,6 +494,23 @@ void noTone(uint8_t _pin)
   digitalWrite(_pin, 0);
 }
 
+
+void noTone(uint8_t _pin, bool _exit_state)
+{
+  int8_t _timer = -1;
+
+  for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
+    if (tone_pins[i] == _pin) {
+      _timer = pgm_read_byte(tone_pin_to_timer_PGM + i);
+      tone_pins[i] = 255;
+      break;
+    }
+  }
+
+  disableTimer(_timer);
+  digitalWrite(_pin, _exit_state);
+}
+
 #ifdef USE_TIMER0
 ISR(TIMER0_COMPA_vect)
 {
