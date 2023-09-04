@@ -55,5 +55,6 @@
   void twi_setTimeoutInMicros(uint32_t, bool);
   void twi_handleTimeout(bool);
   bool twi_manageTimeoutFlag(bool);
+  bool twi_isSollicited(void);
 
 #endif
