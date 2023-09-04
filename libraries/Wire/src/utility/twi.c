@@ -18,6 +18,7 @@
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
+  Modified 2021 by Fernando Rubio (frubio@techdev.cl) to support I2C 3v3 devices
 */
 
 #include <math.h>
@@ -55,6 +56,9 @@ static volatile uint32_t twi_timeout_us = 0ul;
 static volatile bool twi_timed_out_flag = false;  // a timeout has been seen
 static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI registers on timeout
 
+//3v3 Compatibility need the feature of disable pullups and allow external pullups
+static volatile uint8_t twi_pullups_state = 1;  //Pull-ups Enabled by default as previous Lib versions, state is needed to support future resets from timeouts
+
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
 
@@ -84,9 +88,9 @@ void twi_init(void)
   twi_sendStop = true;		// default value
   twi_inRepStart = false;
   
-  // activate internal pullups for twi.
-  digitalWrite(SDA, 1);
-  digitalWrite(SCL, 1);
+  // activate/deactivate internal pullups for twi according to default value.
+  digitalWrite(SDA, twi_pullups_state);
+  digitalWrite(SCL, twi_pullups_state);
 
   // initialize twi prescaler and bit rate
   cbi(TWSR, TWPS0);
@@ -116,6 +120,18 @@ void twi_disable(void)
   // deactivate internal pullups for twi.
   digitalWrite(SDA, 0);
   digitalWrite(SCL, 0);
+}
+
+/* 
+ * Function twi_disablePullups
+ * Desc     disables internal pullups on init
+ * Input    none
+ * Output   none
+ */
+void twi_disablePullups(void)
+{
+  // deactivate internal pullups for twi.
+  twi_pullups_state = 0;
 }
 
 /* 
