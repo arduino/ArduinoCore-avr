@@ -100,7 +100,7 @@ unsigned long micros() {
 
 	SREG = oldSREG;
 	
-	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
+	return clockCyclesToMicroseconds(((m << 8) + t) * 64);
 }
 
 void delay(unsigned long ms)
