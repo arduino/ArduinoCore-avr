@@ -10,7 +10,7 @@
  * 4. Writing data block to registers (useful for FIFO buffers)
  * 5. Reading data block from registers (useful for FIFO buffers)
  * 
- * Example is writen by Ivan Stefanov on 10 Sep 2023
+ * Example is written by Ivan Stefanov on 10 Sep 2023
  */
 
 #include <Wire.h>
@@ -53,7 +53,7 @@ void setup() {
   Serial.print("Read read-only register: ");
   Serial.println((unsigned int)test, HEX);
 
-  // Data to be writen to register block
+  // Data to be written to register block
   uint8_t arr[4] = {0}, dat[4] = {0x91, 0x64, 0xA4, 0x30};
 
   /* Write and read 4 byte block */
