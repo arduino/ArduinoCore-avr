@@ -19,8 +19,17 @@ endTransmission	KEYWORD2
 requestFrom	KEYWORD2
 onReceive	KEYWORD2
 onRequest	KEYWORD2
+registerRead	KEYWORD2
+registerWrite	KEYWORD2
+registerWriteVerify	KEYWORD2
+registerBlockRead	KEYWORD2
+registerBlockWrite	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
-
+I2C_LOW_SPEED	LITERAL1
+I2C_STD_SPEED	LITERAL1
+I2C_FAST_SPEED	LITERAL1
+I2C_FAST_PLUS_SPEED	LITERAL1
+I2C_HIGH_SPEED	LITERAL1
