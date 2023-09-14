@@ -146,6 +146,29 @@ static const uint8_t A9 = PIN_A9;	// D9
 static const uint8_t A10 = PIN_A10;	// D10
 static const uint8_t A11 = PIN_A11;	// D12
 
+// Digital pins
+// -----------
+#define D0  (0u)
+#define D1  (1u)
+#define D2  (2u)
+#define D3  (3u)
+#define D4  (4u)
+#define D5  (5u)
+#define D6  (6u)
+#define D7  (7u)
+#define D8  (8u)
+#define D9  (9u)
+#define D10 (10u)
+#define D11 (11u)
+#define D12 (12u)
+#define D13 (13u)
+#define D14 (14u)
+#define D15 (15u)
+#define D16 (16u)
+#define D17 (17u)
+#define D18 (18u)
+#define D19 (19u)
+
 #define digitalPinToPCICR(p)    ((((p) >= 8 && (p) <= 11) || ((p) >= 14 && (p) <= 17) || ((p) >= A8 && (p) <= A10)) ? (&PCICR) : ((uint8_t *)0))
 #define digitalPinToPCICRbit(p) 0
 #define digitalPinToPCMSK(p)    ((((p) >= 8 && (p) <= 11) || ((p) >= 14 && (p) <= 17) || ((p) >= A8 && (p) <= A10)) ? (&PCMSK0) : ((uint8_t *)0))
