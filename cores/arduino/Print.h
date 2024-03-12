@@ -87,6 +87,8 @@ class Print
     size_t println(const Printable&);
     size_t println(void);
 
+    size_t printf(const char[], ...); //added by bonezegei 
+
     virtual void flush() { /* Empty implementation for backward compatibility */ }
 };
 
