@@ -264,3 +264,17 @@ size_t Print::printFloat(double number, uint8_t digits)
   
   return n;
 }
+
+//added by bonezegei
+size_t Print::printf(const char c[], ...){
+	char text[64];
+	va_list     ap;
+	
+	if (c == NULL)
+    return 0;		
+	va_start(ap, c);
+    vsprintf(text, c, ap);
+    va_end(ap);
+	
+	return write(text);
+}
