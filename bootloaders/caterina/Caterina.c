@@ -68,7 +68,7 @@ uint16_t Timeout = 0;
 uint16_t bootKey = 0x7777;
 volatile uint16_t *const bootKeyPtr = (volatile uint16_t *)0x0800;
 
-void StartSketch(void)
+void StartSketch(uint8_t mcusr_state)
 {
 	cli();
 	
@@ -85,6 +85,8 @@ void StartSketch(void)
 	L_LED_OFF();
 	TX_LED_OFF();
 	RX_LED_OFF();
+
+	GPIOR0 = mcusr_state;
 
 	/* jump to beginning of application space */
 	__asm__ volatile("jmp 0x0000");
@@ -126,10 +128,10 @@ int main(void)
 	} else if ((mcusr_state & (1<<PORF)) && (pgm_read_word(0) != 0xFFFF)) {		
 		// After a power-on reset skip the bootloader and jump straight to sketch 
 		// if one exists.	
-		StartSketch();
+		StartSketch(mcusr_state);
 	} else if ((mcusr_state & (1<<WDRF)) && (bootKeyPtrVal != bootKey) && (pgm_read_word(0) != 0xFFFF)) {	
 		// If it looks like an "accidental" watchdog reset then start the sketch.
-		StartSketch();
+		StartSketch(mcusr_state);
 	}
 	
 	/* Setup hardware required for the bootloader */
@@ -155,7 +157,7 @@ int main(void)
 	USB_Detach();
 
 	/* Jump to beginning of application space to run the sketch - do not reset */	
-	StartSketch();
+	StartSketch(mcusr_state);
 }
 
 /** Configures all hardware required for the bootloader. */
