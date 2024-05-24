@@ -246,7 +246,7 @@ unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 10
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration = 0);
 void tone(void (*f)(void));
-void auto_tone(uint8_t pin, const int16_t* pointer);
+void autoTone(uint8_t pin, const int16_t* pointer);
 void noTone(uint8_t _pin);
 
 // WMath prototypes
