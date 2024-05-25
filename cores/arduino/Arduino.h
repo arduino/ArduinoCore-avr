@@ -146,7 +146,7 @@ unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 
 void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val);
-uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
+uint8_t shifting(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
 
 void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode);
 void detachInterrupt(uint8_t interruptNum);
@@ -245,6 +245,8 @@ unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout = 100000
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout = 1000000L);
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration = 0);
+void tone(void (*f)(void));
+void autoTone(uint8_t pin, const int16_t* pointer);
 void noTone(uint8_t _pin);
 
 // WMath prototypes
