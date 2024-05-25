@@ -146,7 +146,7 @@ unsigned long pulseIn(uint8_t pin, uint8_t state, unsigned long timeout);
 unsigned long pulseInLong(uint8_t pin, uint8_t state, unsigned long timeout);
 
 void shiftOut(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder, uint8_t val);
-uint8_t shifting(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
+uint8_t shiftIn(uint8_t dataPin, uint8_t clockPin, uint8_t bitOrder);
 
 void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode);
 void detachInterrupt(uint8_t interruptNum);
