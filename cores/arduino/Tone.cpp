@@ -50,7 +50,6 @@ Version Modified By Date     Comments
 #define TIMER2_COMPA_vect TIMER2_COMP_vect
 #define TIMSK1 TIMSK
 #endif
-
 // timerx_toggle_count:
 //  > 0 - duration specified
 //  = 0 - stopped
@@ -68,6 +67,8 @@ volatile uint8_t timer1_pin_mask;
 volatile long timer2_toggle_count;
 volatile uint8_t *timer2_pin_port;
 volatile uint8_t timer2_pin_mask;
+volatile uint8_t tonePin;
+volatile uint8_t nonzerofreq;
 
 #if defined(TIMSK3)
 volatile long timer3_toggle_count;
@@ -122,8 +123,6 @@ const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2 /*, 1, 0 */ };
 static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255, 255 */ };
 
 #endif
-
-
 
 static int8_t toneBegin(uint8_t _pin)
 {
@@ -242,6 +241,7 @@ static int8_t toneBegin(uint8_t _pin)
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 {
+  nonzerofreq = frequency > 20;
   uint8_t prescalarbits = 0b001;
   long toggle_count = 0;
   uint32_t ocr = 0;
@@ -477,10 +477,51 @@ void disableTimer(uint8_t _timer)
 }
 
 
+void _next_tone(){
+    // need to call noTone() so that the tone_pins[] entry is reset, so the
+    // timer gets initialized next time we call tone().
+    // XXX: this assumes timer 2 is always the first one used.
+    disableTimer(2);
+    *timer2_pin_port &= ~(timer2_pin_mask);  // keep pin low after stop
+}
+
+const int16_t* auto_next_tone_pointer;
+uint8_t auto_next_tone_pin;
+uint16_t auto_next_tone_index;
+
+void auto_next_tone() {
+    switch (pgm_read_word(auto_next_tone_pointer + auto_next_tone_index)) {
+		case -1: noTone(auto_next_tone_pin); return;
+		case -2: auto_next_tone_index = 0; break;
+	}
+	tone(auto_next_tone_pin, pgm_read_word(auto_next_tone_pointer + auto_next_tone_index), pgm_read_word(auto_next_tone_pointer + auto_next_tone_index + 1));
+	auto_next_tone_index += 2;
+}
+
+
+
+void (*next_tone)(void) = *_next_tone;
+
+
+void tone(void (*f)(void)) {
+	next_tone = *f;
+	next_tone();
+}
+
+void autoTone(uint8_t pin, const int16_t* ntp){
+	next_tone = *auto_next_tone;
+	auto_next_tone_pointer = ntp;
+	auto_next_tone_pin = pin;
+	auto_next_tone_index = 0;
+	next_tone();
+}
+
+
 void noTone(uint8_t _pin)
 {
+  digitalWrite(_pin, 0);
+  next_tone = *_next_tone;
   int8_t _timer = -1;
-  
   for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
     if (tone_pins[i] == _pin) {
       _timer = pgm_read_byte(tone_pin_to_timer_PGM + i);
@@ -490,9 +531,8 @@ void noTone(uint8_t _pin)
   }
   
   disableTimer(_timer);
-
-  digitalWrite(_pin, 0);
 }
+
 
 #ifdef USE_TIMER0
 ISR(TIMER0_COMPA_vect)
@@ -537,23 +577,18 @@ ISR(TIMER1_COMPA_vect)
 #ifdef USE_TIMER2
 ISR(TIMER2_COMPA_vect)
 {
-
   if (timer2_toggle_count != 0)
   {
     // toggle the pin
-    *timer2_pin_port ^= timer2_pin_mask;
+    if (nonzerofreq)
+	  *timer2_pin_port ^= timer2_pin_mask;
 
     if (timer2_toggle_count > 0)
       timer2_toggle_count--;
   }
   else
   {
-    // need to call noTone() so that the tone_pins[] entry is reset, so the
-    // timer gets initialized next time we call tone().
-    // XXX: this assumes timer 2 is always the first one used.
-    noTone(tone_pins[0]);
-//    disableTimer(2);
-//    *timer2_pin_port &= ~(timer2_pin_mask);  // keep pin low after stop
+    next_tone();
   }
 }
 #endif
