@@ -1,19 +1,15 @@
 /*
   wiring.c - Partial implementation of the Wiring API for the ATmega8.
   Part of Arduino - http://www.arduino.cc/
-
   Copyright (c) 2005-2006 David A. Mellis
-
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
-
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
   Lesser General Public License for more details.
-
   You should have received a copy of the GNU Lesser General
   Public License along with this library; if not, write to the
   Free Software Foundation, Inc., 59 Temple Place, Suite 330,
@@ -22,22 +18,92 @@
 
 #include "wiring_private.h"
 
-// the prescaler is set so that timer0 ticks every 64 clock cycles, and the
+// CHANGE by Gijs Withagen, 18-02-2019
+// Prescaler can be changed in runtime and still have a correct millis()
+// the micros() just has a glitch, but counted form changing the prescaler
+// it gives proper relative values.
+//
+// Defalult the prescaler is set so that timer0 ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
-#define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
+#define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(getPrescaler() * 256))
 
 // the whole number of milliseconds per timer0 overflow
 #define MILLIS_INC (MICROSECONDS_PER_TIMER0_OVERFLOW / 1000)
 
-// the fractional number of milliseconds per timer0 overflow. we shift right
-// by three to fit these numbers into a byte. (for the clock speeds we care
-// about - 8 and 16 MHz - this doesn't lose precision.)
-#define FRACT_INC ((MICROSECONDS_PER_TIMER0_OVERFLOW % 1000) >> 3)
-#define FRACT_MAX (1000 >> 3)
+// the fractional number of milliseconds per timer0 overflow.
+#define FRACT_INC ((MICROSECONDS_PER_TIMER0_OVERFLOW % 1000))
+#define FRACT_MAX (1000)
 
 volatile unsigned long timer0_overflow_count = 0;
-volatile unsigned long timer0_millis = 0;
-static unsigned char timer0_fract = 0;
+
+volatile unsigned long correction_millis = 0;
+volatile unsigned long correction_frac = 0;
+
+volatile unsigned long millis_correction_inc = 0;
+volatile unsigned long fract_correction_inc = 0;
+volatile unsigned int previous_prescaler = 0;
+
+// Returns the actual value of the prescaler of Timer 0 needed to calculate
+// the elapsed microseconds and milliseconds based on the timer0_overflow_count
+unsigned int getPrescaler() {
+	// set timer 0 prescale factor to 64
+#if defined(__AVR_ATmega128__)
+	// CPU specific: different values for the ATmega128
+	switch ((TTCR0 & _BV(CS02)) + (TTCR0 & _BV(CS01)) + (TCCR0 & _BV(CS00))) {
+		case 0x00: /* 000 */
+			return 1; // counter is stopped, return 1 to prevent DIV0 errors
+		case 0x01: /* 001 */
+			return 1;
+		case 0x02: /* 010 */
+			return 8;
+		case 0x03: /* 011 */
+			return 32;
+		case 0x04: /* 100 */
+			return 64;
+		case 0x05: /* 101 */
+			return 128;
+		case 0x06: /* 110 */
+			return 256;
+		case 0x07: /* 111 */
+			return 1024;
+		default:
+			return 1;
+		}
+#elif defined(TCCR0) && defined(CS01) && defined(CS00) && defined(CS02)
+	// this is for the standard atmega8
+switch ((TCCR0 & _BV(CS02)) + (TCCR0 & _BV(CS01)) + (TCCR0 & _BV(CS00)))
+#elif defined(TCCR0B) && defined(CS01) && defined(CS00) && defined(CS02)
+	// this  is for the standard 168/328/1280/2560
+	switch ((TCCR0B & _BV(CS02)) + (TCCR0B & _BV(CS01)) + (TCCR0B & _BV(CS00)))
+#elif defined(TCCR0A) && defined(CS01) && defined(CS00) && defined(CS02)
+	// this is for the __AVR_ATmega645__ series
+	switch ((TCCR0A & _BV(CS02)) + (TCCR0A & _BV(CS01)) + (TCCR0A & _BV(CS00)))
+#else
+	#error Timer 0 prescaler cannot be determined correctly
+#endif
+	{
+	case 0x00: /* 000 */
+		return 1; // counter is stopped, return 1 to prevent DIV0 errors
+	case 0x01: /* 001 */
+		return 1;
+	case 0x02: /* 010 */
+		return 8;
+	case 0x03: /* 011 */
+		return 64;
+	case 0x04: /* 100 */
+		return 256;
+	case 0x05: /* 101 */
+		return 1024;
+	case 0x06: /* 110 */
+		return 1;  // External clock
+	case 0x07: /* 111 */
+		return 1;  // External clock
+	default:
+		return 1;
+	}
+}
+
+// Timer0 counter overflow interrupt
 
 #if defined(TIM0_OVF_vect)
 ISR(TIM0_OVF_vect)
@@ -45,21 +111,33 @@ ISR(TIM0_OVF_vect)
 ISR(TIMER0_OVF_vect)
 #endif
 {
-	// copy these to local variables so they can be stored in registers
-	// (volatile variables must be read from memory on every access)
-	unsigned long m = timer0_millis;
-	unsigned char f = timer0_fract;
-
-	m += MILLIS_INC;
-	f += FRACT_INC;
-	if (f >= FRACT_MAX) {
-		f -= FRACT_MAX;
-		m += 1;
-	}
-
-	timer0_fract = f;
-	timer0_millis = m;
 	timer0_overflow_count++;
+	// update correction values on overflow
+  if (timer0_overflow_count == 0) {
+		correction_millis += millis_correction_inc;
+		correction_frac = (correction_frac + fract_correction_inc) % 1000;
+	}
+}
+
+void calc_incrementfactors(){
+  const unsigned long ULONG_MAX = 0ul - 1ul;
+  //
+	// calculate # ticks to have just something more than a millisecond.
+	// and the overshoot in microsecs.
+
+  unsigned long ticks_per_milli = (1000/FRACT_INC) + 1;
+	unsigned long overshoot_per_milli = (ticks_per_milli*FRACT_INC) % 1000;
+
+  // calculate how often this happens in UCHAR_MAX+1 TIM0_OVF's
+	// and the numer of unaccounted microsecs
+	unsigned long counted_millis = (ULONG_MAX - ticks_per_milli + 1)/ticks_per_milli + 1;
+	unsigned long sum_of_overshoots = (ULONG_MAX - counted_millis*ticks_per_milli + 1 ) * FRACT_INC +
+									overshoot_per_milli*counted_millis;
+
+  // this leads to the number of millis and the number of microsecs
+	// to be added for every overflow of timer0_overflow_count
+	millis_correction_inc = counted_millis + (sum_of_overshoots / 1000);
+	fract_correction_inc = sum_of_overshoots % 1000;
 }
 
 unsigned long millis()
@@ -70,7 +148,22 @@ unsigned long millis()
 	// disable interrupts while we read timer0_millis or we might get an
 	// inconsistent value (e.g. in the middle of a write to timer0_millis)
 	cli();
-	m = timer0_millis;
+	m = timer0_overflow_count*MILLIS_INC + correction_millis +
+			(timer0_overflow_count*FRACT_INC) / 1000;
+
+	if (previous_prescaler != getPrescaler()){
+		// prescaler is changed since last call. Correct increment values
+		previous_prescaler = getPrescaler();
+
+		// recalc correction factors per timer0_overflow_count overflow.
+		calc_incrementfactors();
+
+		// and start counting from 0 with the new valuse
+		correction_millis = m;
+		correction_frac += (timer0_overflow_count*FRACT_INC) % 1000;
+		timer0_overflow_count = 0;
+	}
+
 	SREG = oldSREG;
 
 	return m;
@@ -79,7 +172,7 @@ unsigned long millis()
 unsigned long micros() {
 	unsigned long m;
 	uint8_t oldSREG = SREG, t;
-	
+
 	cli();
 	m = timer0_overflow_count;
 #if defined(TCNT0)
@@ -98,9 +191,10 @@ unsigned long micros() {
 		m++;
 #endif
 
+	m = (m*MICROSECONDS_PER_TIMER0_OVERFLOW)+clockCyclesToMicroseconds(t)*getPrescaler();
 	SREG = oldSREG;
-	
-	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
+	return m;
+//	return (((m << 8) + t) * getPrescaler()) / clockCyclesPerMicrosecond();
 }
 
 void delay(unsigned long ms)
@@ -226,7 +320,7 @@ void delayMicroseconds(unsigned int us)
 	// per iteration, so execute it us/4 times
 	// us is at least 4, divided by 4 gives us 1 (no zero delay bug)
 	us >>= 2; // us div 4, = 4 cycles
-	
+
 
 #endif
 
@@ -243,7 +337,7 @@ void init()
 	// this needs to be called before setup() or some functions won't
 	// work there
 	sei();
-	
+
 	// on the ATmega168, timer 0 is also used for fast hardware pwm
 	// (using phase-correct PWM would mean that timer 0 overflowed half as often
 	// resulting in different millis() behavior on the ATmega8 and ATmega168)
@@ -271,6 +365,8 @@ void init()
 #else
 	#error Timer 0 prescale factor 64 not set correctly
 #endif
+previous_prescaler = 64;
+calc_incrementfactors();
 
 	// enable timer 0 overflow interrupt
 #if defined(TIMSK) && defined(TOIE0)
@@ -333,7 +429,7 @@ void init()
 	sbi(TCCR4B, CS42);		// set timer4 prescale factor to 64
 	sbi(TCCR4B, CS41);
 	sbi(TCCR4B, CS40);
-	sbi(TCCR4D, WGM40);		// put timer 4 in phase- and frequency-correct PWM mode	
+	sbi(TCCR4D, WGM40);		// put timer 4 in phase- and frequency-correct PWM mode
 	sbi(TCCR4A, PWM4A);		// enable PWM mode for comparator OCR4A
 	sbi(TCCR4C, PWM4D);		// enable PWM mode for comparator OCR4D
 #else /* beginning of timer4 block for ATMEGA1280 and ATMEGA2560 */
@@ -342,7 +438,7 @@ void init()
 	sbi(TCCR4B, CS40);
 	sbi(TCCR4A, WGM40);		// put timer 4 in 8-bit phase correct pwm mode
 #endif
-#endif /* end timer4 block for ATMEGA1280/2560 and similar */	
+#endif /* end timer4 block for ATMEGA1280/2560 and similar */
 
 #if defined(TCCR5B) && defined(CS51) && defined(WGM50)
 	sbi(TCCR5B, CS51);		// set timer 5 prescale factor to 64
