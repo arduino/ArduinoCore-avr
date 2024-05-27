@@ -133,12 +133,39 @@ struct EEPROMClass{
         for( int count = sizeof(T) ; count ; --count, ++e )  *ptr++ = *e;
         return t;
     }
-    
+
+    String& get(int idx, String& data) {
+      data = "";
+      char c;
+      for (size_t i = idx; (c = get(i, c)); i++) {
+        data += c;
+      }
+      return data;
+    }
+
     template< typename T > const T &put( int idx, const T &t ){
         EEPtr e = idx;
         const uint8_t *ptr = (const uint8_t*) &t;
         for( int count = sizeof(T) ; count ; --count, ++e )  (*e).update( *ptr++ );
         return t;
+    }
+
+    char* put(int idx, char* data) {
+      size_t i;
+      for (i = 0; data[i]; i++) {
+        put(idx + i, data[i]);
+      }
+      put (idx + i, '\x00');
+      return data;
+    }
+
+    char const* put(int idx, char const* data) {
+      return put(idx, const_cast<char*>(data));
+    }
+
+    String& put(int idx, String& data) {
+      put(idx, data.c_str());
+      return data;
     }
 };
 
