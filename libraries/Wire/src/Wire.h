@@ -30,6 +30,13 @@
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
+// WIRE_HAS_TIMEOUT means Wire has setWireTimeout(), getWireTimeoutFlag
+// and clearWireTimeoutFlag()
+#define WIRE_HAS_TIMEOUT 1
+
+// When not configured, these settings are used for the timeout
+#define WIRE_DEFAULT_TIMEOUT 25000
+#define WIRE_DEFAULT_RESET_WITH_TIMEOUT true
 
 class TwoWire : public Stream
 {
