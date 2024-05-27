@@ -255,6 +255,30 @@ public:
     while (!(SPSR & _BV(SPIF))) ;
     *p = SPDR;
   }
+  inline static void transferOut(void *bufOut, size_t count) {
+    if (count == 0) return;
+    uint8_t *p = (uint8_t *)bufOut;
+    SPDR = *p;
+    while (--count > 0) {
+      uint8_t out = *(p++ + 1);
+      while (!(SPSR & _BV(SPIF))) ;
+      SPDR = out;
+    }
+    while (!(SPSR & _BV(SPIF))) ;
+  }
+  inline static void transferIn(void *bufIn, size_t count, uint8_t junk) {
+    if (count == 0) return;
+    uint8_t *p = (uint8_t *)bufIn;
+    SPDR = junk;
+    while (--count > 0) {
+      while (!(SPSR & _BV(SPIF))) ;
+      uint8_t in = SPDR;
+      SPDR = junk;
+      *p++ = in;
+    }
+    while (!(SPSR & _BV(SPIF))) ;
+    *p = SPDR;
+  }
   // After performing a group of transfers and releasing the chip select
   // signal, this function allows others to access the SPI bus
   inline static void endTransaction(void) {
