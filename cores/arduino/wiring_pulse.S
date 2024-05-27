@@ -2,7 +2,7 @@
   wiring_pulse.s - pulseInASM() function in different flavours
   Part of Arduino - http://www.arduino.cc/
 
-  Copyright (c) 2014 Martino Facchin
+  Copyright (c) 2014 Martino Facchin, 2020 Spence Konde
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -47,6 +47,14 @@
  * }
  *
  * some compiler outputs were removed but the rest of the code is untouched
+ *
+ * Spence feb 2020: not untouched anymore! The first two loops ran in 11 cycles instead
+ * of 16, so if no pulse was detected, the timeout would be reached when
+ * 11/16ths of the requested timeout had elapsed. This was fixed by the addition
+ * of 2 rjmps to the next line (a 2 cycle nop that uses only 1 word) and 1 nop
+ * to each of these loops before they decrement maxloops.
+ * Additionally, removed duplication of return sequence to save 12b flash
+ * which is conveniently exactly how much the other fix cost.
  */
 
 #include <avr/io.h>
@@ -80,6 +88,11 @@ countPulseASM:
 .L4:
 /*         if (--maxloops == 0) */
 .LM2:
+    rjmp .LM2A ; waste an extra 5 cycles
+.LM2A:
+    rjmp .LM2B ;
+.LM2B:
+    nop ;
     subi r16,1   ;  maxloops,  ;  17  addsi3/2  [length = 4]
     sbc r17, r1   ;  maxloops
     sbc r18, r1   ;  maxloops
@@ -101,6 +114,11 @@ countPulseASM:
 ***         if (--maxloops == 0)
 */
 .LM4:
+    rjmp .LM4A ; waste an extra 5 cycles
+.LM4A:
+    rjmp .LM4B ;
+.LM4B:
+    nop ;
     subi r16,1   ;  maxloops,  ;  31  addsi3/2  [length = 4]
     sbc r17, r1   ;  maxloops
     sbc r18, r1   ;  maxloops
@@ -152,15 +170,8 @@ countPulseASM:
     mov r23,r13  ;  D.1553, width  ;  109 movqi_insn/1  [length = 1]
     mov r24,r14  ;  D.1553, width  ;  110 movqi_insn/1  [length = 1]
     mov r25,r15  ;  D.1553, width  ;  111 movqi_insn/1  [length = 1]
+    rjmp .LM11 ;
 /* epilogue start */
-.LM9:
-    pop r17  ;   ;  171 popqi [length = 1]
-    pop r16  ;   ;  172 popqi [length = 1]
-    pop r15  ;   ;  173 popqi [length = 1]
-    pop r14  ;   ;  174 popqi [length = 1]
-    pop r13  ;   ;  175 popqi [length = 1]
-    pop r12  ;   ;  176 popqi [length = 1]
-    ret  ;  177 return_from_epilogue  [length = 1]
 .L13:
 .LM10:
     ldi r22,0  ;  D.1553   ;  120 movqi_insn/1  [length = 1]
