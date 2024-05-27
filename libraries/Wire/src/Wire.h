@@ -25,11 +25,19 @@
 
 #include <inttypes.h>
 #include "Stream.h"
+#include "utility/twi.h"
 
 #define BUFFER_LENGTH 32
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
+// WIRE_HAS_TIMEOUT means Wire has setWireTimeout(), getWireTimeoutFlag
+// and clearWireTimeoutFlag()
+#define WIRE_HAS_TIMEOUT 1
+
+// When not configured, these settings are used for the timeout
+#define WIRE_DEFAULT_TIMEOUT TWI_DEFAULT_TIMEOUT
+#define WIRE_DEFAULT_RESET_ON_TIMEOUT TWI_DEFAULT_RESET_ON_TIMEOUT
 
 class TwoWire : public Stream
 {
@@ -55,7 +63,7 @@ class TwoWire : public Stream
     void begin(int);
     void end();
     void setClock(uint32_t);
-    void setWireTimeout(uint32_t timeout = 25000, bool reset_with_timeout = false);
+    void setWireTimeout(uint32_t timeout = 25000, bool reset_on_timeout = false);
     bool getWireTimeoutFlag(void);
     void clearWireTimeoutFlag(void);
     void beginTransmission(uint8_t);
