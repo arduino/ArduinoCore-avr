@@ -26,6 +26,8 @@
 #include "wiring_private.h"
 #include "pins_arduino.h"
 
+const uint8_t digital_pin_count = sizeof(digital_pin_to_port_PGM) / sizeof(digital_pin_to_port_PGM[0]);
+
 void pinMode(uint8_t pin, uint8_t mode)
 {
 	uint8_t bit = digitalPinToBitMask(pin);
