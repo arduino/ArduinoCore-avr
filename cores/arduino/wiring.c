@@ -24,6 +24,7 @@
 
 // the prescaler is set so that timer0 ticks every 64 clock cycles, and the
 // the overflow handler is called every 256 ticks.
+#define MICROSECONDS_PER_TIMER0_TICK     (clockCyclesToMicroseconds(64))
 #define MICROSECONDS_PER_TIMER0_OVERFLOW (clockCyclesToMicroseconds(64 * 256))
 
 // the whole number of milliseconds per timer0 overflow
@@ -34,8 +35,16 @@
 // about - 8 and 16 MHz - this doesn't lose precision.)
 #define FRACT_INC ((MICROSECONDS_PER_TIMER0_OVERFLOW % 1000) >> 3)
 #define FRACT_MAX (1000 >> 3)
-
-volatile unsigned long timer0_overflow_count = 0;
+//
+// previously, a 32-bit count of timer0 overflow events was kept, 
+// then multiplied by number of microseconds per overflow when micros() 
+// was called. This multiply is a full 32-bit multiply and is pretty expensive.
+// Instead, timer0_micros is now a count of overflows in microseconds directly
+// so there is no need for a 32-bti multiply when micros() is called.
+// It costs no more in code space or execution time to increment the counter
+// by a value greater than one (e.g. 4 with 16MHz system clock).
+//
+volatile unsigned long timer0_micros = 0;
 volatile unsigned long timer0_millis = 0;
 static unsigned char timer0_fract = 0;
 
@@ -59,7 +68,7 @@ ISR(TIMER0_OVF_vect)
 
 	timer0_fract = f;
 	timer0_millis = m;
-	timer0_overflow_count++;
+	timer0_micros += MICROSECONDS_PER_TIMER0_OVERFLOW;
 }
 
 unsigned long millis()
@@ -77,11 +86,25 @@ unsigned long millis()
 }
 
 unsigned long micros() {
-	unsigned long m;
-	uint8_t oldSREG = SREG, t;
-	
+    //
+    // variables to hold local copies of volatile data
+    //
+	unsigned long m;            // microsecond counter
+    uint8_t t;                  // timer0 count
+    uint8_t f;                  // timer0 interrupt flags
+	//
+    // disable interrupts while acquiring volatile data
+    //
+	uint8_t oldSREG = SREG;
 	cli();
-	m = timer0_overflow_count;
+    //
+    // once interrupts are disabled, acquire all of the volatile data as 
+    // fast as possible to minimize overall system interrupt latency.
+    // there are three pieces of data to get: 
+    // 1) 32-bit microsecond counter, 2) timer0 count, 3) timer0 interrupt flags
+    //
+	m = timer0_micros;
+
 #if defined(TCNT0)
 	t = TCNT0;
 #elif defined(TCNT0L)
@@ -89,18 +112,35 @@ unsigned long micros() {
 #else
 	#error TIMER 0 not defined
 #endif
-
+    //
+    // there's a very small chance an interrupt will occur exactly here,
+    // after reading timer0 count but before reading the interrupt flags.
+    // this situation is detectable because timer0 count will be 255.
+    //
 #ifdef TIFR0
-	if ((TIFR0 & _BV(TOV0)) && (t < 255))
-		m++;
+	f = TIFR0;
 #else
-	if ((TIFR & _BV(TOV0)) && (t < 255))
-		m++;
+	f = TIFR;
 #endif
 
 	SREG = oldSREG;
-	
-	return ((m << 8) + t) * (64 / clockCyclesPerMicrosecond());
+
+    if ((f & _BV(TOV0)) && (t < 255)) 
+    {
+        // 
+        // if there's an un-serviced interrupt, then increment the microsecond
+        // counter as if it had been serviced -- unless the special case mentioned
+        // above has occurred.
+        //
+        m += MICROSECONDS_PER_TIMER0_OVERFLOW;
+    }
+    //
+    // this is quite a bit faster than the previous code for two reasons:
+    // 1) there's no need to shift m left 8 bits before the addition
+    // 2) there's no call to the 32-bit multiply routine -- that takes
+    //    about 22 cycles plus the overhead of two nested call/return instructions.
+    //
+    return m + ((uint16_t)t * MICROSECONDS_PER_TIMER0_TICK);
 }
 
 void delay(unsigned long ms)
