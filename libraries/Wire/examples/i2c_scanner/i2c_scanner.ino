@@ -21,6 +21,8 @@
 //    A sensor seems to use address 120.
 // Version 6, November 27, 2015.
 //    Added waiting for the Leonardo serial communication.
+// Version 6, July 10, 2020 by G. Frank Paynter
+//    Demonstrates the use of the new Wire library timeout feature
 //
 //
 // This sketch tests the standard 7-bit addresses
@@ -29,8 +31,16 @@
 
 #include <Wire.h>
 
+uint16_t wireTimeoutCount; //capture I2C bus timeout events
+
 void setup() {
   Wire.begin();
+
+  #if defined(WIRE_HAS_TIMEOUT)
+  // Prevent lockups on bus problems by aborting after a timeout
+  Wire.setWireTimeout(3000, true); //timeout value in uSec, true to reset I2C bus on timeout
+  wireTimeoutCount = 0;
+  #endif
 
   Serial.begin(9600);
   while (!Serial); // Leonardo: wait for Serial Monitor
@@ -38,6 +48,15 @@ void setup() {
 }
 
 void loop() {
+  #if defined(WIRE_HAS_TIMEOUT)
+  if (Wire.getWireTimeoutFlag())
+  {
+      wireTimeoutCount++;
+      Wire.clearWireTimeoutFlag();
+      Serial.print("Wire timeout detected; count now "); Serial.println(wireTimeoutCount);
+  }
+  #endif
+
   int nDevices = 0;
 
   Serial.println("Scanning...");
