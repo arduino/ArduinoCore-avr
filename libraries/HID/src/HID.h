@@ -110,7 +110,7 @@ private:
   uint16_t descriptorSize = 0;
 
   uint8_t protocol;
-  uint8_t idle;
+  uint8_t idle = 1;
 };
 
 // Replacement for global singleton.
