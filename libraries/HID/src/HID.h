@@ -106,7 +106,7 @@ protected:
 private:
   uint8_t epType[1];
 
-  HIDSubDescriptor* rootNode;
+  HIDSubDescriptor* rootNode = NULL;
   uint16_t descriptorSize = 0;
 
   uint8_t protocol = HID_REPORT_PROTOCOL;
