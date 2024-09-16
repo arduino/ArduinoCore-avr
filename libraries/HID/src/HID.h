@@ -109,7 +109,7 @@ private:
   HIDSubDescriptor* rootNode;
   uint16_t descriptorSize = 0;
 
-  uint8_t protocol;
+  uint8_t protocol = HID_REPORT_PROTOCOL;
   uint8_t idle = 1;
 };
 
