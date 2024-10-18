@@ -35,117 +35,155 @@ jobs:
       matrix:
         board:
           - fqbn: arduino:avr:yun
+            artifact-name-suffix: arduino-avr-yun
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:uno
+            artifact-name-suffix: arduino-avr-uno
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:diecimila:cpu=atmega328
+            artifact-name-suffix: arduino-avr-diecimila-cpu-atmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:diecimila:cpu=atmega168
+            artifact-name-suffix: arduino-avr-diecimila-cpu-atmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:nano:cpu=atmega328
+            artifact-name-suffix: arduino-avr-nano-cpu-atmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:nano:cpu=atmega328old
+            artifact-name-suffix: arduino-avr-nano-cpu-atmega328old
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:nano:cpu=atmega168
+            artifact-name-suffix: arduino-avr-nano-cpu-atmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:mega:cpu=atmega2560
+            artifact-name-suffix: arduino-avr-mega-cpu-atmega2560
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:mega:cpu=atmega1280
+            artifact-name-suffix: arduino-avr-mega-cpu-atmega1280
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:megaADK
+            artifact-name-suffix: arduino-avr-megaADK
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:leonardo
+            artifact-name-suffix: arduino-avr-leonardo
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:leonardoeth
+            artifact-name-suffix: arduino-avr-leonardoeth
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:micro
+            artifact-name-suffix: arduino-avr-micro
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:esplora
+            artifact-name-suffix: arduino-avr-esplora
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:mini:cpu=atmega328
+            artifact-name-suffix: arduino-avr-mini-cpu-atmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:mini:cpu=atmega168
+            artifact-name-suffix: arduino-avr-mini-cpu-atmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:ethernet
+            artifact-name-suffix: arduino-avr-ethernet
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:fio
+            artifact-name-suffix: arduino-avr-fio
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:bt:cpu=atmega328
+            artifact-name-suffix: arduino-avr-bt-cpu-atmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:bt:cpu=atmega168
+            artifact-name-suffix: arduino-avr-bt-cpu-atmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:LilyPadUSB
+            artifact-name-suffix: arduino-avr-LilyPadUSB
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:lilypad:cpu=atmega328
+            artifact-name-suffix: arduino-avr-lilypad-cpu-atmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:lilypad:cpu=atmega168
+            artifact-name-suffix: arduino-avr-lilypad-cpu-atmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:pro:cpu=16MHzatmega328
+            artifact-name-suffix: arduino-avr-pro-cpu-16MHzatmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:pro:cpu=8MHzatmega328
+            artifact-name-suffix: arduino-avr-pro-cpu-8MHzatmega328
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:pro:cpu=16MHzatmega168
+            artifact-name-suffix: arduino-avr-pro-cpu-16MHzatmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:pro:cpu=8MHzatmega168
+            artifact-name-suffix: arduino-avr-pro-cpu-8MHzatmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:atmegang:cpu=atmega168
+            artifact-name-suffix: arduino-avr-atmegang-cpu-atmega168
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:atmegang:cpu=atmega8
+            artifact-name-suffix: arduino-avr-atmegang-cpu-atmega8
             serial: true
             softwareserial: false
           - fqbn: arduino:avr:robotControl
+            artifact-name-suffix: arduino-avr-robotControl
             serial: true
             softwareserial: false
           - fqbn: arduino:avr:robotMotor
+            artifact-name-suffix: arduino-avr-robotMotor
             serial: true
             softwareserial: false
           - fqbn: arduino:avr:gemma
+            artifact-name-suffix: arduino-avr-gemma
             serial: false
             softwareserial: false
           - fqbn: arduino:avr:circuitplay32u4cat
+            artifact-name-suffix: arduino-avr-circuitplay32u4cat
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:yunmini
+            artifact-name-suffix: arduino-avr-yunmini
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:chiwawa
+            artifact-name-suffix: arduino-avr-chiwawa
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:one
+            artifact-name-suffix: arduino-avr-one
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:unowifi
+            artifact-name-suffix: arduino-avr-unowifi
             serial: true
             softwareserial: true
           - fqbn: arduino:avr:unomini
+            artifact-name-suffix: arduino-avr-unomini
             serial: true
             softwareserial: true
 
@@ -206,4 +244,4 @@ jobs:
         with:
           if-no-files-found: error
           path: ${{ env.SKETCHES_REPORTS_PATH }}
-          name: ${{ env.SKETCHES_REPORTS_PATH }}
+          name: sketches-report-${{ matrix.board.artifact-name-suffix }}
