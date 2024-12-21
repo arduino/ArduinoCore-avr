@@ -44,21 +44,33 @@
 #if defined(HAVE_HWSERIAL0)
   void serialEvent() __attribute__((weak));
   bool Serial0_available() __attribute__((weak));
+
+  void serialEvent() { }
+  bool Serial0_available() { return false; }
 #endif
 
 #if defined(HAVE_HWSERIAL1)
   void serialEvent1() __attribute__((weak));
   bool Serial1_available() __attribute__((weak));
+
+  void serialEvent1() { }
+  bool Serial1_available() { return false; }
 #endif
 
 #if defined(HAVE_HWSERIAL2)
   void serialEvent2() __attribute__((weak));
   bool Serial2_available() __attribute__((weak));
+
+  void serialEvent2() { }
+  bool Serial2_available() { return false; }
 #endif
 
 #if defined(HAVE_HWSERIAL3)
   void serialEvent3() __attribute__((weak));
   bool Serial3_available() __attribute__((weak));
+
+  void serialEvent3() { }
+  bool Serial3_available() { return false; }
 #endif
 
 void serialEventRun(void)
