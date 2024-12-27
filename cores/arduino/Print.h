@@ -86,6 +86,8 @@ class Print
     size_t println(double, int = 2);
     size_t println(const Printable&);
     size_t println(void);
+    String base64_encode(const String &input);
+    String base64_decode(const String &input);
 
     virtual void flush() { /* Empty implementation for backward compatibility */ }
 };
