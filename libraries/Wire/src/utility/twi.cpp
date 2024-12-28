@@ -40,6 +40,22 @@
 #include "pins_arduino.h"
 #include "twi.h"
 
+#ifndef TWI_FREQ
+#define TWI_FREQ 100000L
+#endif
+
+#ifndef TWI_BUFFER_LENGTH
+#define TWI_BUFFER_LENGTH 32
+#endif
+
+enum TWI_STATE {
+  TWI_READY = 0,
+  TWI_MRX   = 1,
+  TWI_MTX   = 2,
+  TWI_SRX   = 3,
+  TWI_STX   = 4,
+};
+
 static volatile uint8_t twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
