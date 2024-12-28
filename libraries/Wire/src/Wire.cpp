@@ -28,24 +28,18 @@
 
 #include "Wire.h"
 
-// Initialize Class Variables //////////////////////////////////////////////////
-
-uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
-uint8_t TwoWire::rxBufferIndex = 0;
-uint8_t TwoWire::rxBufferLength = 0;
-
-uint8_t TwoWire::txAddress = 0;
-uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
-uint8_t TwoWire::txBufferIndex = 0;
-uint8_t TwoWire::txBufferLength = 0;
-
-uint8_t TwoWire::transmitting = 0;
-void (*TwoWire::user_onRequest)(void);
-void (*TwoWire::user_onReceive)(int);
 
 // Constructors ////////////////////////////////////////////////////////////////
 
 TwoWire::TwoWire()
+  : rxBufferIndex(0)
+  , rxBufferLength(0)
+  , txAddress(0)
+  , txBufferIndex(0)
+  , txBufferLength(0)
+  , transmitting(0)
+  , user_onRequest(nullptr)
+  , user_onReceive(nullptr)
 {
 }
 
@@ -60,19 +54,14 @@ void TwoWire::begin(void)
   txBufferLength = 0;
 
   twi_init();
-  twi_attachSlaveTxEvent(onRequestService); // default callback must exist
-  twi_attachSlaveRxEvent(onReceiveService); // default callback must exist
+  twi_attachSlaveTxEvent(onRequestService_); // default callback must exist
+  twi_attachSlaveRxEvent(onReceiveService_); // default callback must exist
 }
 
 void TwoWire::begin(uint8_t address)
 {
   begin();
   twi_setAddress(address);
-}
-
-void TwoWire::begin(int address)
-{
-  begin((uint8_t)address);
 }
 
 void TwoWire::end(void)
@@ -164,25 +153,6 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
   return read;
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
-	return requestFrom((uint8_t)address, (uint8_t)quantity, (uint32_t)0, (uint8_t)0, (uint8_t)sendStop);
-}
-
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity)
-{
-  return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true);
-}
-
-uint8_t TwoWire::requestFrom(int address, int quantity)
-{
-  return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)true);
-}
-
-uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop)
-{
-  return requestFrom((uint8_t)address, (uint8_t)quantity, (uint8_t)sendStop);
-}
-
 void TwoWire::beginTransmission(uint8_t address)
 {
   // indicate that we are transmitting
@@ -192,11 +162,6 @@ void TwoWire::beginTransmission(uint8_t address)
   // reset tx buffer iterator vars
   txBufferIndex = 0;
   txBufferLength = 0;
-}
-
-void TwoWire::beginTransmission(int address)
-{
-  beginTransmission((uint8_t)address);
 }
 
 //
@@ -318,6 +283,11 @@ void TwoWire::flush(void)
   // XXX: to be implemented.
 }
 
+void TwoWire::onReceiveService_(uint8_t* inBytes, int numBytes)
+{
+  Wire.onReceiveService(inBytes, numBytes);
+}
+
 // behind the scenes function that is called when data is received
 void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
 {
@@ -341,6 +311,11 @@ void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
   rxBufferLength = numBytes;
   // alert user program
   user_onReceive(numBytes);
+}
+
+void TwoWire::onRequestService_()
+{
+  Wire.onRequestService();
 }
 
 // behind the scenes function that is called when data is requested
