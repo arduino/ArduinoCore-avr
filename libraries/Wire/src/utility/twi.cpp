@@ -27,6 +27,9 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <compat/twi.h>
+
+#include "../TwoWireBuffers.h"
+
 #include "Arduino.h" // for digitalWrite and micros
 
 #ifndef cbi
@@ -44,11 +47,7 @@
 #define TWI_FREQ 100000L
 #endif
 
-#ifndef TWI_BUFFER_LENGTH
-#define TWI_BUFFER_LENGTH 32
-#endif
-
-enum TWI_STATE {
+enum TWI_STATE : uint8_t {
   TWI_READY = 0,
   TWI_MRX   = 1,
   TWI_MTX   = 2,
@@ -56,7 +55,7 @@ enum TWI_STATE {
   TWI_STX   = 4,
 };
 
-static volatile uint8_t twi_state;
+static volatile TWI_STATE twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
@@ -71,19 +70,24 @@ static volatile uint32_t twi_timeout_us = 0ul;
 static volatile bool twi_timed_out_flag = false;  // a timeout has been seen
 static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI registers on timeout
 
+
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
 
-static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_masterBufferIndex;
 static volatile uint8_t twi_masterBufferLength;
+static inline uint8_t* twi_masterBuffer() {return WireBuffers<0>::instance().twi_masterBuffer();}
+static inline size_t twi_masterBufferCapacity() {return WireBuffers<0>::instance().twi_masterBufferCapacity();}
 
-static uint8_t twi_txBuffer[TWI_BUFFER_LENGTH];
+
 static volatile uint8_t twi_txBufferIndex;
 static volatile uint8_t twi_txBufferLength;
+static inline uint8_t* twi_txBuffer() {return WireBuffers<0>::instance().twi_txBuffer();}
+static inline size_t twi_txBufferCapacity() {return WireBuffers<0>::instance().twi_txBufferCapacity();}
 
-static uint8_t twi_rxBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_rxBufferIndex;
+static inline uint8_t* twi_rxBuffer() {return WireBuffers<0>::instance().twi_rxBuffer();}
+static inline size_t twi_rxBufferCapacity() {return WireBuffers<0>::instance().twi_rxBufferCapacity();}
 
 static volatile uint8_t twi_error;
 
@@ -93,7 +97,7 @@ static volatile uint8_t twi_error;
  * Input    none
  * Output   none
  */
-void twi_init(void)
+void twi_init()
 {
   // initialize state
   twi_state = TWI_READY;
@@ -174,12 +178,11 @@ void twi_setFrequency(uint32_t frequency)
  */
 uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sendStop)
 {
-  uint8_t i;
-
   // ensure data will fit into buffer
-  if(TWI_BUFFER_LENGTH < length){
+  if(twi_masterBufferCapacity() < length){
     return 0;
   }
+
 
   // wait until twi is ready, become master receiver
   uint32_t startMicros = micros();
@@ -243,10 +246,12 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   }
 
   // copy twi buffer to data
-  for(i = 0; i < length; ++i){
-    data[i] = twi_masterBuffer[i];
+  {
+    uint8_t* const masterBuffer = twi_masterBuffer();
+    for(size_t i = 0; i < length; ++i){
+      data[i] = masterBuffer[i];
+    }
   }
-
   return length;
 }
 
@@ -268,10 +273,8 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
  */
 uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
 {
-  uint8_t i;
-
   // ensure data will fit into buffer
-  if(TWI_BUFFER_LENGTH < length){
+  if(twi_masterBufferCapacity() < length){
     return 1;
   }
 
@@ -293,8 +296,11 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   twi_masterBufferLength = length;
   
   // copy data to twi buffer
-  for(i = 0; i < length; ++i){
-    twi_masterBuffer[i] = data[i];
+  {
+    uint8_t* const masterBuffer = twi_masterBuffer();
+    for(size_t i = 0; i < length; ++i){
+      masterBuffer[i] = data[i];
+    }
   }
   
   // build sla+w, slave device address + w bit
@@ -357,10 +363,8 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
  */
 uint8_t twi_transmit(const uint8_t* data, uint8_t length)
 {
-  uint8_t i;
-
   // ensure data will fit into buffer
-  if(TWI_BUFFER_LENGTH < (twi_txBufferLength+length)){
+  if(twi_txBufferCapacity() < (twi_txBufferLength+length)){
     return 1;
   }
   
@@ -370,8 +374,11 @@ uint8_t twi_transmit(const uint8_t* data, uint8_t length)
   }
   
   // set length and copy data into tx buffer
-  for(i = 0; i < length; ++i){
-    twi_txBuffer[twi_txBufferLength+i] = data[i];
+  {
+    uint8_t* const txBuffer = twi_txBuffer();
+    for(size_t i = 0; i < length; ++i){
+      txBuffer[twi_txBufferLength+i] = data[i];
+    }
   }
   twi_txBufferLength += length;
   
@@ -509,7 +516,7 @@ void twi_handleTimeout(bool reset){
  * Output   the value of twi_timed_out_flag when the function was called
  */
 bool twi_manageTimeoutFlag(bool clear_flag){
-  bool flag = twi_timed_out_flag;
+  const bool flag = twi_timed_out_flag;
   if (clear_flag){
     twi_timed_out_flag = false;
   }
@@ -533,7 +540,8 @@ ISR(TWI_vect)
       // if there is data to send, send it, otherwise stop 
       if(twi_masterBufferIndex < twi_masterBufferLength){
         // copy data to output register and ack
-        TWDR = twi_masterBuffer[twi_masterBufferIndex++];
+        uint8_t* const masterBuffer = twi_masterBuffer();
+        TWDR = masterBuffer[twi_masterBufferIndex++];
         twi_reply(1);
       }else{
         if (twi_sendStop){
@@ -563,8 +571,11 @@ ISR(TWI_vect)
 
     // Master Receiver
     case TW_MR_DATA_ACK: // data received, ack sent
-      // put byte into buffer
-      twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
+      {
+        // put byte into buffer
+        uint8_t* const masterBuffer = twi_masterBuffer();
+        masterBuffer[twi_masterBufferIndex++] = TWDR;
+      }
       __attribute__ ((fallthrough));
     case TW_MR_SLA_ACK:  // address sent, ack received
       // ack if more bytes are expected, otherwise nack
@@ -575,8 +586,10 @@ ISR(TWI_vect)
       }
       break;
     case TW_MR_DATA_NACK: // data received, nack sent
+    {
       // put final byte into buffer
-      twi_masterBuffer[twi_masterBufferIndex++] = TWDR;
+      uint8_t* const masterBuffer = twi_masterBuffer();
+      masterBuffer[twi_masterBufferIndex++] = TWDR;
       if (twi_sendStop){
         twi_stop();
       } else {
@@ -588,6 +601,7 @@ ISR(TWI_vect)
         twi_state = TWI_READY;
       }
       break;
+    }
     case TW_MR_SLA_NACK: // address sent, nack received
       twi_stop();
       break;
@@ -607,9 +621,10 @@ ISR(TWI_vect)
     case TW_SR_DATA_ACK:       // data received, returned ack
     case TW_SR_GCALL_DATA_ACK: // data received generally, returned ack
       // if there is still room in the rx buffer
-      if(twi_rxBufferIndex < TWI_BUFFER_LENGTH){
+      if(twi_rxBufferIndex < twi_rxBufferCapacity()){
         // put byte in buffer and ack
-        twi_rxBuffer[twi_rxBufferIndex++] = TWDR;
+        uint8_t* const rxBuffer = twi_rxBuffer();
+        rxBuffer[twi_rxBufferIndex++] = TWDR;
         twi_reply(1);
       }else{
         // otherwise nack
@@ -620,11 +635,15 @@ ISR(TWI_vect)
       // ack future responses and leave slave receiver state
       twi_releaseBus();
       // put a null char after data if there's room
-      if(twi_rxBufferIndex < TWI_BUFFER_LENGTH){
-        twi_rxBuffer[twi_rxBufferIndex] = '\0';
+      if(twi_rxBufferIndex < twi_rxBufferCapacity()){
+        uint8_t* const rxBuffer = twi_rxBuffer();
+        rxBuffer[twi_rxBufferIndex] = '\0';
       }
       // callback to user defined callback
-      twi_onSlaveReceive(twi_rxBuffer, twi_rxBufferIndex);
+      {
+        uint8_t* const rxBuffer = twi_rxBuffer();
+        twi_onSlaveReceive(rxBuffer, twi_rxBufferIndex);
+      }
       // since we submit rx buffer to "wire" library, we can reset it
       twi_rxBufferIndex = 0;
       break;
@@ -648,14 +667,17 @@ ISR(TWI_vect)
       twi_onSlaveTransmit();
       // if they didn't change buffer & length, initialize it
       if(0 == twi_txBufferLength){
+        uint8_t* const txBuffer = twi_txBuffer();
         twi_txBufferLength = 1;
-        twi_txBuffer[0] = 0x00;
+        txBuffer[0] = 0x00;
       }
       __attribute__ ((fallthrough));		  
       // transmit first byte from buffer, fall
     case TW_ST_DATA_ACK: // byte sent, ack returned
+    {
       // copy data to output register
-      TWDR = twi_txBuffer[twi_txBufferIndex++];
+      uint8_t* const txBuffer = twi_txBuffer();
+      TWDR = txBuffer[twi_txBufferIndex++];
       // if there is more to send, ack, otherwise nack
       if(twi_txBufferIndex < twi_txBufferLength){
         twi_reply(1);
@@ -663,6 +685,7 @@ ISR(TWI_vect)
         twi_reply(0);
       }
       break;
+    }
     case TW_ST_DATA_NACK: // received nack, we are done 
     case TW_ST_LAST_DATA: // received ack, but we are done already!
       // ack future responses
