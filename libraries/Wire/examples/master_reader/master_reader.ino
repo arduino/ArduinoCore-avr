@@ -24,6 +24,7 @@ void loop() {
     char c = Wire.read(); // receive a byte as character
     Serial.print(c);         // print the character
   }
+  Serial.println();
 
   delay(500);
 }

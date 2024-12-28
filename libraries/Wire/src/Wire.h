@@ -29,20 +29,21 @@
 #include <inttypes.h>
 #include "Stream.h"
 
-#define BUFFER_LENGTH 32
-
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
+
+// Forward declaration of Twi::IStaticBuffer
+namespace TwoWireBuffers {
+  class IStaticBuffer;
+}
 
 class TwoWire : public Stream
 {
   private:
-    uint8_t rxBuffer[BUFFER_LENGTH];
     uint8_t rxBufferIndex;
     uint8_t rxBufferLength;
 
     uint8_t txAddress;
-    uint8_t txBuffer[BUFFER_LENGTH];
     uint8_t txBufferIndex;
     uint8_t txBufferLength;
 
@@ -50,6 +51,8 @@ class TwoWire : public Stream
     void (*user_onRequest)(void);
     void (*user_onReceive)(int);
 
+    static inline uint8_t* rxBuffer();
+    static inline uint8_t* txBuffer();
     static void onRequestService_(void);
     static void onReceiveService_(uint8_t*, int);
 
@@ -85,6 +88,7 @@ class TwoWire : public Stream
       return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity)
           , static_cast<uint8_t>(sendStop));
     }
+
     virtual size_t write(uint8_t) override;
     virtual size_t write(const uint8_t *, size_t) override;
     virtual int available(void) override;
@@ -99,6 +103,9 @@ class TwoWire : public Stream
     inline size_t write(unsigned int n) { return write(static_cast<uint8_t>(n)); }
     inline size_t write(int n) { return write(static_cast<uint8_t>(n)); }
     using Print::write;
+
+    static inline size_t rxBufferCapacity();
+    static inline size_t txBufferCapacity();
 };
 
 extern TwoWire Wire;

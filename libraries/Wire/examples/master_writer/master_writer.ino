@@ -16,7 +16,7 @@ void setup() {
   Wire.begin(); // join I2C bus (address optional for master)
 }
 
-byte x = 0;
+static byte x = 0;
 
 void loop() {
   Wire.beginTransmission(8); // transmit to device #8
