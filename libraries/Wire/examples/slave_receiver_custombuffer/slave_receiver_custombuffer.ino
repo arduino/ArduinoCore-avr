@@ -13,8 +13,8 @@
 #include <TwoWireBuffers.h>
 #include "Arduino.h"
 
-size_t constexpr RECEIVE_BUFFER_SIZE  = 42; // Be able receive up to 42 characters in one message.
-size_t constexpr TRANSMIT_BUFFER_SIZE = 0;  // There is no transmit in this sketch.
+constexpr size_t RECEIVE_BUFFER_SIZE  = 42; // Be able receive up to 42 characters in one message.
+constexpr size_t TRANSMIT_BUFFER_SIZE = 0;  // There is no transmit in this sketch.
 
 SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
     true /* master buffers needed */, false /* no slave buffers needed */ );
@@ -36,10 +36,10 @@ void loop() {
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany) {
   while (1 < Wire.available()) { // loop through all but the last
-    char c = Wire.read(); // receive byte as a character
+    const char c = Wire.read(); // receive byte as a character
     Serial.print(c);         // print the character
   }
-  int x = Wire.read();    // receive byte as an integer
+  const int x = Wire.read();    // receive byte as an integer
   Serial.println(x);         // print the integer
 }
 

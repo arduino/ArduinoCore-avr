@@ -15,8 +15,8 @@
 
 static const char text[] = "hello "; // respond with message of 6 bytes
 
-size_t constexpr RECEIVE_BUFFER_SIZE  = 0; // There is no receive in this sketch.
-size_t constexpr TRANSMIT_BUFFER_SIZE = sizeof(text)-1; // Don't need a byte for the \0
+constexpr size_t RECEIVE_BUFFER_SIZE  = 0; // There is no receive in this sketch.
+constexpr size_t TRANSMIT_BUFFER_SIZE = sizeof(text)-1; // Don't need a byte for the \0
 
 SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
     true /* master buffers needed */, false /* no slave buffers needed */ );

@@ -16,8 +16,8 @@
 // The following text will not fit into the default buffer of 32 bytes.
 static const char text[] = "You really won't believe it, but x is ";
 
-size_t constexpr RECEIVE_BUFFER_SIZE  = 0;  // There is no receive in this sketch.
-size_t constexpr TRANSMIT_BUFFER_SIZE = 42; // Enhance the buffer to 42 characters.
+constexpr size_t RECEIVE_BUFFER_SIZE  = 0;  // There is no receive in this sketch.
+constexpr size_t TRANSMIT_BUFFER_SIZE = 42; // Enhance the buffer to 42 characters.
 
 SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
     true /* master buffers needed */, false /* no slave buffers needed */ );
@@ -34,8 +34,8 @@ static byte x = 0;
 
 void loop() {
   Wire.beginTransmission(8); // transmit to device #8
-  Wire.write(text);        // sends five bytes
-  Wire.write(x);              // sends one byte
+  Wire.write(text);          // sends multiple bytes
+  Wire.write(x);             // sends one byte
   Wire.endTransmission();    // stop transmitting
 
   x++;
