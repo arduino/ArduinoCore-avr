@@ -26,7 +26,7 @@ void setup() {
   Wire.begin();        // join I2C bus (address optional for master)
   Serial.begin(9600);  // start serial for output
 
-  // This is just for curiosity and can be removed
+  // This is just for curiosity and could be removed
   printWireBuffersCapacity(Serial);
 }
 

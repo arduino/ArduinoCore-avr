@@ -25,7 +25,7 @@ SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
 void setup() {
   Wire.begin(); // join I2C bus (address optional for master)
 
-  // This is just for curiosity and can be removed
+  // This is just for curiosity and could be removed
   Serial.begin(9600);   // start serial for output
   printWireBuffersCapacity(Serial);
 }

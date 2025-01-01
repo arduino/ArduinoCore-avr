@@ -17,14 +17,14 @@ constexpr size_t RECEIVE_BUFFER_SIZE  = 42; // Be able receive up to 42 characte
 constexpr size_t TRANSMIT_BUFFER_SIZE = 0;  // There is no transmit in this sketch.
 
 SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
-    true /* master buffers needed */, false /* no slave buffers needed */ );
+    false /* no master buffers needed */, true /* slave buffers needed */ );
 
 void setup() {
   Wire.begin(8);                // join I2C bus with address #8
   Wire.onReceive(receiveEvent); // register event
   Serial.begin(9600);           // start serial for output
 
-  // This is just for curiosity and can be removed
+  // This is just for curiosity and could be removed
   printWireBuffersCapacity(Serial);
 }
 
