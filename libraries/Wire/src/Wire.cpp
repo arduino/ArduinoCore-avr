@@ -21,12 +21,10 @@
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
-extern "C" {
-  #include <stdlib.h>
-  #include <string.h>
-  #include <inttypes.h>
-  #include "utility/twi.h"
-}
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+#include "utility/twi.h"
 
 #include "Wire.h"
 
