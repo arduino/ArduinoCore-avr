@@ -20,7 +20,6 @@
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
-
 #pragma once
 
 #ifndef TwoWire_h
@@ -88,7 +87,6 @@ class TwoWire : public Stream
       return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity)
           , static_cast<uint8_t>(sendStop));
     }
-
     virtual size_t write(uint8_t) override;
     virtual size_t write(const uint8_t *, size_t) override;
     virtual int available(void) override;

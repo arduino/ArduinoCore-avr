@@ -15,8 +15,6 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-  Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
 #pragma once
@@ -30,7 +28,7 @@
 
 namespace TwoWireBuffers {
 
-/* Template class that implements an compile time fixed size array. */
+/* Template class that implements a compile time fixed size array. */
 template<unsigned CAPACITY>
 class StaticBuffer {
   uint8_t mByteArray[CAPACITY];
