@@ -16,7 +16,7 @@
 constexpr size_t RECEIVE_BUFFER_SIZE  = 42; // Be able receive up to 42 characters in one message.
 constexpr size_t TRANSMIT_BUFFER_SIZE = 0;  // There is no transmit in this sketch.
 
-SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
+SET_Wire_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
     false /* no master buffers needed */, true /* slave buffers needed */ );
 
 void setup() {
@@ -49,7 +49,7 @@ void receiveEvent(int howMany) {
 }
 
 void printWireBuffersCapacity(Stream& stream) {
-  const auto& buffers = GET_WIRE_BUFFERS();
+  const auto& buffers = GET_Wire_BUFFERS();
 
   stream.print("Wire transmit buffer size is ");
   stream.println(buffers.txWireBufferCapacity());

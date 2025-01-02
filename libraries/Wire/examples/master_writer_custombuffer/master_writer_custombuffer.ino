@@ -19,7 +19,7 @@ static const char text[] = "You really won't believe it, but x is ";
 constexpr size_t RECEIVE_BUFFER_SIZE  = 0;  // There is no receive in this sketch.
 constexpr size_t TRANSMIT_BUFFER_SIZE = 42; // Enhance the buffer to 42 characters.
 
-SET_WIRE_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
+SET_Wire_BUFFERS(RECEIVE_BUFFER_SIZE, TRANSMIT_BUFFER_SIZE,
     true /* master buffers needed */, false /* no slave buffers needed */ );
 
 void setup() {
@@ -43,7 +43,7 @@ void loop() {
 }
 
 void printWireBuffersCapacity(Stream& stream) {
-  const auto& buffers = GET_WIRE_BUFFERS();
+  const auto& buffers = GET_Wire_BUFFERS();
 
   stream.print("Wire transmit buffer size is ");
   stream.println(buffers.txWireBufferCapacity());

@@ -116,13 +116,13 @@ template<size_t wireNum> struct WireBuffers { // The buffers for the Wire object
   static TwoWireBuffers::Interface& instance();
 };
 
-#define SET_WIRE_BUFFERS(rxBufferCapacity, txBufferCapacity, enableMaster, enableSlave) \
+#define SET_Wire_BUFFERS(rxBufferCapacity, txBufferCapacity, enableMaster, enableSlave) \
     template<> TwoWireBuffers::Interface& WireBuffers<0>::instance() { \
       static TwoWireBuffers::Impl<rxBufferCapacity, txBufferCapacity, enableMaster, enableSlave> buffers; \
       return buffers; \
     }
 
-#define GET_WIRE_BUFFERS() \
+#define GET_Wire_BUFFERS() \
     WireBuffers<0>::instance();
 
 #endif /* TwiBuffers_h */
