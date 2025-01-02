@@ -1,6 +1,6 @@
 // Wire Slave Receiver Custom Buffer
 
-// Demonstrates use of the Wire library
+// Demonstrates use of the Wire library with customized buffers
 // Receives data as an I2C/TWI slave device
 // Refer to the "Wire Master Writer Custom Buffer" example for use with this
 
