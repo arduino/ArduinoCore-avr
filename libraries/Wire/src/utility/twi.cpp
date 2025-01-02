@@ -27,6 +27,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 #include <compat/twi.h>
+#include "twiBuffer.h"
 #include "Arduino.h" // for digitalWrite and micros
 
 #ifndef cbi
@@ -58,18 +59,17 @@ static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI register
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
 
-static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_masterBufferIndex;
 static volatile uint8_t twi_masterBufferLength;
 
-static uint8_t twi_txBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_txBufferIndex;
 static volatile uint8_t twi_txBufferLength;
 
-static uint8_t twi_rxBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_rxBufferIndex;
 
 static volatile uint8_t twi_error;
+
+using namespace twiBuffer;
 
 /* 
  * Function twi_init
@@ -161,7 +161,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   uint8_t i;
 
   // ensure data will fit into buffer
-  if(TWI_BUFFER_LENGTH < length){
+  if(TWI_MASTER_BUFFER_SIZE < length){
     return 0;
   }
 
@@ -255,7 +255,7 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   uint8_t i;
 
   // ensure data will fit into buffer
-  if(TWI_BUFFER_LENGTH < length){
+  if(TWI_MASTER_BUFFER_SIZE < length){
     return 1;
   }
 
@@ -344,7 +344,7 @@ uint8_t twi_transmit(const uint8_t* data, uint8_t length)
   uint8_t i;
 
   // ensure data will fit into buffer
-  if(TWI_BUFFER_LENGTH < (twi_txBufferLength+length)){
+  if(TWI_TX_BUFFER_SIZE < (twi_txBufferLength+length)){
     return 1;
   }
   
@@ -591,7 +591,7 @@ ISR(TWI_vect)
     case TW_SR_DATA_ACK:       // data received, returned ack
     case TW_SR_GCALL_DATA_ACK: // data received generally, returned ack
       // if there is still room in the rx buffer
-      if(twi_rxBufferIndex < TWI_BUFFER_LENGTH){
+      if(twi_rxBufferIndex < TWI_RX_BUFFER_SIZE){
         // put byte in buffer and ack
         twi_rxBuffer[twi_rxBufferIndex++] = TWDR;
         twi_reply(1);
@@ -604,7 +604,7 @@ ISR(TWI_vect)
       // ack future responses and leave slave receiver state
       twi_releaseBus();
       // put a null char after data if there's room
-      if(twi_rxBufferIndex < TWI_BUFFER_LENGTH){
+      if(twi_rxBufferIndex < TWI_RX_BUFFER_SIZE){
         twi_rxBuffer[twi_rxBufferIndex] = '\0';
       }
       // callback to user defined callback

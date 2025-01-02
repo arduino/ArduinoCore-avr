@@ -1,5 +1,5 @@
 /*
-  TwoWire.h - TWI/I2C library for Arduino & Wiring
+  Wire.h - TWI/I2C library for Arduino & Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
+#pragma once
+
 #ifndef TwoWire_h
 #define TwoWire_h
 
 #include <inttypes.h>
 #include "Stream.h"
-
-#define BUFFER_LENGTH 32
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
@@ -34,12 +34,10 @@
 class TwoWire : public Stream
 {
   private:
-    static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
 
     static uint8_t txAddress;
-    static uint8_t txBuffer[];
     static uint8_t txBufferIndex;
     static uint8_t txBufferLength;
 

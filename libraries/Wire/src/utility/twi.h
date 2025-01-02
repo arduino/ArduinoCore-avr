@@ -19,19 +19,16 @@
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
+#pragma once
+
 #ifndef twi_h
 #define twi_h
 
   #include <inttypes.h>
-
   //#define ATMEGA8
 
   #ifndef TWI_FREQ
   #define TWI_FREQ 100000L
-  #endif
-
-  #ifndef TWI_BUFFER_LENGTH
-  #define TWI_BUFFER_LENGTH 32
   #endif
 
   #define TWI_READY 0
@@ -39,7 +36,8 @@
   #define TWI_MTX   2
   #define TWI_SRX   3
   #define TWI_STX   4
-  
+
+
   void twi_init(void);
   void twi_disable(void);
   void twi_setAddress(uint8_t);
@@ -55,5 +53,14 @@
   void twi_setTimeoutInMicros(uint32_t, bool);
   void twi_handleTimeout(bool);
   bool twi_manageTimeoutFlag(bool);
+
+#if DEBUG_TWI_BUFFER
+  size_t twi_getMasterBufferSize();
+  size_t twi_getMasterBuffer();
+  size_t twi_getRxBufferSize();
+  size_t twi_getRxBuffer();
+  size_t twi_getTxBufferSize();
+  size_t twi_getTxBuffer();
+#endif
 
 #endif
