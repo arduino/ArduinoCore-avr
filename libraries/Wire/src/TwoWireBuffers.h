@@ -1,5 +1,5 @@
 /*
-  twi.h - TWI/I2C library for Wiring & Arduino
+  TwoWireBuffers.h - TWI/I2C library for Wiring & Arduino
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
