@@ -34,12 +34,17 @@ void loop() {
 
 // function that executes whenever data is received from master
 // this function is registered as an event, see setup()
+//
+// Hint: This function is called within an interrupt context.
+// That means, that there must be enough space in the Serial output
+// buffer for the characters to be printed. Otherwise the
+// Serial.print() call will lock up.
 void receiveEvent(int howMany) {
   while (1 < Wire.available()) { // loop through all but the last
-    const char c = Wire.read(); // receive byte as a character
-    Serial.print(c);         // print the character
+    const char c = Wire.read();  // receive byte as a character
+    Serial.print(c);             // print the character
   }
-  const int x = Wire.read();    // receive byte as an integer
+  const int x = Wire.read(); // receive byte as an integer
   Serial.println(x);         // print the integer
 }
 
@@ -60,4 +65,5 @@ void printWireBuffersCapacity(Stream& stream) {
 
   stream.print("twi_txBuffer size is ");
   stream.println(buffers.twi_txBufferCapacity());
+  delay(250); // Give time to free up Serial output buffer.
 }

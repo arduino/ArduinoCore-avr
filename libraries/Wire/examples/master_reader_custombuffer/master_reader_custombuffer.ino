@@ -34,7 +34,7 @@ void loop() {
   Wire.requestFrom(8, REQUESTED_BYTE_COUNT);
 
   while (Wire.available()) { // slave may send less than requested
-    char c = Wire.read(); // receive a byte as character
+    char c = Wire.read();    // receive a byte as character
     Serial.print(c);         // print the character
   }
   Serial.println();
