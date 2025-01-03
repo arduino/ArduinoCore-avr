@@ -41,7 +41,17 @@
 #include "pins_arduino.h"
 #include "twi.h"
 
-static volatile uint8_t twi_state;
+constexpr uint32_t TWI_FREQ = 100000L;
+
+enum TWI_STATE : uint8_t {
+  TWI_READY = 0,
+  TWI_MRX   = 1,
+  TWI_MTX   = 2,
+  TWI_SRX   = 3,
+  TWI_STX   = 4,
+};
+
+static volatile TWI_STATE twi_state;
 static volatile uint8_t twi_slarw;
 static volatile uint8_t twi_sendStop;			// should the transaction end with a stop
 static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
