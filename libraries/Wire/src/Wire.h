@@ -77,12 +77,12 @@ class TwoWire : public Stream
       return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
           static_cast<uint8_t>(sendStop));
     }
-    virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *, size_t);
-    virtual int available(void);
-    virtual int read(void);
-    virtual int peek(void);
-    virtual void flush(void);
+    size_t write(uint8_t) override;
+    size_t write(const uint8_t *, size_t) override;
+    int available(void) override;
+    int read(void) override;
+    int peek(void) override;
+    void flush(void) override;
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
 
