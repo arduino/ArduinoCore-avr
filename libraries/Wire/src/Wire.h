@@ -57,14 +57,26 @@ class TwoWire : public Stream
     bool getWireTimeoutFlag(void);
     void clearWireTimeoutFlag(void);
     void beginTransmission(uint8_t);
-    void beginTransmission(int);
+    void beginTransmission(int address) {beginTransmission((uint8_t) (address));}
     uint8_t endTransmission(void);
     uint8_t endTransmission(uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
     uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
-    uint8_t requestFrom(int, int);
-    uint8_t requestFrom(int, int, int);
+    uint8_t requestFrom(uint8_t address, uint8_t quantity) {
+      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
+          (uint8_t) (true));
+    }
+    uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
+      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
+          (uint32_t) (0), (uint8_t) (0), (uint8_t) (sendStop));
+    }
+    uint8_t requestFrom(int address, int quantity) {
+      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
+          (uint8_t) (true));
+    }
+    uint8_t requestFrom(int address, int quantity, int sendStop) {
+      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
+          (uint8_t) (sendStop));
+    }
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *, size_t);
     virtual int available(void);
