@@ -57,25 +57,25 @@ class TwoWire : public Stream
     bool getWireTimeoutFlag(void);
     void clearWireTimeoutFlag(void);
     void beginTransmission(uint8_t);
-    void beginTransmission(int address) {beginTransmission((uint8_t) (address));}
+    inline void beginTransmission(int address) {beginTransmission(static_cast<uint8_t> (address));}
     uint8_t endTransmission(void);
     uint8_t endTransmission(uint8_t);
     uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
-    uint8_t requestFrom(uint8_t address, uint8_t quantity) {
-      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
-          (uint8_t) (true));
+    inline uint8_t requestFrom(uint8_t address, uint8_t quantity) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint8_t> (true));
     }
-    uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
-      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
-          (uint32_t) (0), (uint8_t) (0), (uint8_t) (sendStop));
+    inline uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint32_t>(0), static_cast<uint8_t>(0), static_cast<uint8_t>(sendStop));
     }
-    uint8_t requestFrom(int address, int quantity) {
-      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
-          (uint8_t) (true));
+    inline uint8_t requestFrom(int address, int quantity) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint8_t>(true));
     }
-    uint8_t requestFrom(int address, int quantity, int sendStop) {
-      return requestFrom((uint8_t) (address), (uint8_t) (quantity),
-          (uint8_t) (sendStop));
+    inline uint8_t requestFrom(int address, int quantity, int sendStop) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint8_t>(sendStop));
     }
     virtual size_t write(uint8_t);
     virtual size_t write(const uint8_t *, size_t);
