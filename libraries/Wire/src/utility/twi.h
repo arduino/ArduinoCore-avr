@@ -43,13 +43,4 @@
   void twi_handleTimeout(bool);
   bool twi_manageTimeoutFlag(bool);
 
-#if DEBUG_TWI_BUFFER
-  size_t twi_getMasterBufferSize();
-  size_t twi_getMasterBuffer();
-  size_t twi_getRxBufferSize();
-  size_t twi_getRxBuffer();
-  size_t twi_getTxBufferSize();
-  size_t twi_getTxBuffer();
-#endif
-
 #endif
