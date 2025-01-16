@@ -266,7 +266,7 @@ unsigned char String::concat(const char *cstr, unsigned int length)
 	if (!cstr) return 0;
 	if (length == 0) return 1;
 	if (!reserve(newlen)) return 0;
-	strlcpy(buffer + len, cstr, length);
+	memcpy(buffer + len, cstr, length);
 	len = newlen;
 	return 1;
 }
