@@ -58,7 +58,7 @@ yun.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-uno.name=Arduino UNO
+uno.name = Joy's_Playground
 
 uno.vid.0=0x2341
 uno.pid.0=0x0043
@@ -101,7 +101,7 @@ uno.bootloader.file=optiboot/optiboot_atmega328.hex
 
 uno.build.mcu=atmega328p
 uno.build.f_cpu=16000000L
-uno.build.board=AVR_UNO
+uno.build.board=Joyrc_ek
 uno.build.core=arduino
 uno.build.variant=standard
 
