@@ -1,0 +1,40 @@
+{
+  "packages": [
+    {
+      "name": "joyrc",
+      "maintainer": "bro u know me",
+      "websiteURL": "https://www.linkedin.com/in/jrc1203/",
+      "email": "jrc123official@gmail.com",
+      "platforms": [
+        {
+          "name": "Joy's_Playground",
+          "architecture": "avr",
+          "version": "1.0.0",
+          "category": "Contributed",
+          "url": "https://github.com/jrc1203/ArduinoCore-avr-joyrc/releases/download/v1.0.0/Joy.s_Playground-1.0.0.zip",
+          "archiveFileName": "Joy.s_Playground-1.0.0.zip",
+          "checksum": "sha256:862c77327192e7c0a40deb11966619696b2d80dcc29f4bc527f48eac373a3669",
+          "size": "8409719",
+          "boards": [
+            {
+              "name": "Joy's_Playground"
+            }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "avr-gcc",
+              "version": "7.3.0-atmel3.6.1-arduino7"
+            },
+            {
+              "packager": "arduino",
+              "name": "avrdude",
+              "version": "6.3.0-arduino17"
+            }
+          ]
+        }
+      ],
+      "tools": []
+    }
+  ]
+}
