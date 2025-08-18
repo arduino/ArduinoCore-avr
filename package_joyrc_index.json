@@ -13,7 +13,7 @@
           "category": "Contributed",
           "url": "https://github.com/jrc1203/ArduinoCore-avr-joyrc/releases/download/v1.0.0/Joy.s_Playground-1.0.0.zip",
           "archiveFileName": "Joy.s_Playground-1.0.0.zip",
-          "checksum": "sha256:862c77327192e7c0a40deb11966619696b2d80dcc29f4bc527f48eac373a3669",
+          "checksum": "SHA-256:862c77327192e7c0a40deb11966619696b2d80dcc29f4bc527f48eac373a3669",
           "size": "8409719",
           "boards": [
             {
