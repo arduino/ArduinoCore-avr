@@ -49,7 +49,7 @@ const u8 USB_ConfigDescriptor[] = {
 	// Configuration Descriptor
 	0x09,        // bLength
 	0x02,        // bDescriptorType (CONFIGURATION)
-	0x0029,      // wTotalLength (41)
+	0x29, 0x00   // wTotalLength (41)
 	0x01,        // bNumInterfaces
 	0x01,        // bConfigurationValue
 	0x00,        // iConfiguration
@@ -71,18 +71,18 @@ const u8 USB_ConfigDescriptor[] = {
 	// Human Interface Device (HID) Descriptor
 	0x11,        // bLength
 	0x21,        // bDescriptorType
-	0x0111,      // bcdHID 1.17
+	0x11, 0x01,  // bcdHID 1.17
 	0x00,        // bCountryCode
 	0x01,        // bNumDescriptors
 	0x22,        // bDescriptorType
-	0x01D3,        // DescriptorLength
+	0xD3, 0x01,  // DescriptorLength
 
 	// Endpoint 1: Control Surface Send
 	0x07,        // bLength
 	0x05,        // bDescriptorType (ENDPOINT)
 	0x84,        // bEndpointAddress (IN, 1)
 	0x03,        // bmAttributes
-	0x0040,  // wMaxPacketSize
+	0x40, 0x00,  // wMaxPacketSize
 	0x05,        // bInterval
 
 	// Endpoint 1: Control Surface Receive
@@ -90,7 +90,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x05,        // bDescriptorType (ENDPOINT)
 	0x03,        // bEndpointAddress (OUT, 2)
 	0x03,        // bmAttributes
-	0x0040,  // wMaxPacketSize
+	0x40, 0x00,  // wMaxPacketSize
 	0x05,        // bInterval
 };
 
