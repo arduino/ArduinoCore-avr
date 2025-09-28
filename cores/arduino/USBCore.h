@@ -53,16 +53,6 @@
 #define REQUEST_HOSTTODEVICE_CLASS_INTERFACE    (REQUEST_HOSTTODEVICE | REQUEST_CLASS | REQUEST_INTERFACE)
 #define REQUEST_DEVICETOHOST_STANDARD_INTERFACE (REQUEST_DEVICETOHOST | REQUEST_STANDARD | REQUEST_INTERFACE)
 
-//	Class requests
-
-#define CDC_SET_LINE_CODING			0x20
-#define CDC_GET_LINE_CODING			0x21
-#define CDC_SET_CONTROL_LINE_STATE	0x22
-#define CDC_SEND_BREAK				0x23
-
-#define MSC_RESET					0xFF
-#define MSC_GET_MAX_LUN				0xFE
-
 //	Descriptors
 
 #define USB_DEVICE_DESC_SIZE 18
@@ -113,21 +103,6 @@
 #define USB_ENDPOINT_TYPE_INTERRUPT            0x03
 
 #define TOBYTES(x) ((x) & 0xFF),(((x) >> 8) & 0xFF)
-
-#define CDC_V1_10                               0x0110
-#define CDC_COMMUNICATION_INTERFACE_CLASS       0x02
-
-#define CDC_CALL_MANAGEMENT                     0x01
-#define CDC_ABSTRACT_CONTROL_MODEL              0x02
-#define CDC_HEADER                              0x00
-#define CDC_ABSTRACT_CONTROL_MANAGEMENT         0x02
-#define CDC_UNION                               0x06
-#define CDC_CS_INTERFACE                        0x24
-#define CDC_CS_ENDPOINT                         0x25
-#define CDC_DATA_INTERFACE_CLASS                0x0A
-
-#define MSC_SUBCLASS_SCSI						0x06 
-#define MSC_PROTOCOL_BULK_ONLY					0x50 
 
 #ifndef USB_VERSION
 #define USB_VERSION 0x200
@@ -190,82 +165,6 @@ typedef struct
 	u8 interval;
 } EndpointDescriptor;
 
-// Interface Association Descriptor
-// Used to bind 2 interfaces together in CDC composite device
-typedef struct
-{
-	u8 len;				// 8
-	u8 dtype;			// 11
-	u8 firstInterface;
-	u8 interfaceCount;
-	u8 functionClass;
-	u8 funtionSubClass;
-	u8 functionProtocol;
-	u8 iInterface;
-} IADDescriptor;
-
-//	CDC CS interface descriptor
-typedef struct
-{
-	u8 len;		// 5
-	u8 dtype;	// 0x24
-	u8 subtype;
-	u8 d0;
-	u8 d1;
-} CDCCSInterfaceDescriptor;
-
-typedef struct
-{
-	u8 len;		// 4
-	u8 dtype;	// 0x24
-	u8 subtype;
-	u8 d0;
-} CDCCSInterfaceDescriptor4;
-
-typedef struct 
-{
-    u8	len;
-    u8 	dtype;		// 0x24
-    u8 	subtype;	// 1
-    u8 	bmCapabilities;
-    u8 	bDataInterface;
-} CMFunctionalDescriptor;
-	
-typedef struct 
-{
-    u8	len;
-    u8 	dtype;		// 0x24
-    u8 	subtype;	// 1
-    u8 	bmCapabilities;
-} ACMFunctionalDescriptor;
-
-typedef struct 
-{
-	//	IAD
-	IADDescriptor				iad;	// Only needed on compound device
-
-	//	Control
-	InterfaceDescriptor			cif;	// 
-	CDCCSInterfaceDescriptor	header;
-	CMFunctionalDescriptor		callManagement;			// Call Management
-	ACMFunctionalDescriptor		controlManagement;		// ACM
-	CDCCSInterfaceDescriptor	functionalDescriptor;	// CDC_UNION
-	EndpointDescriptor			cifin;
-
-	//	Data
-	InterfaceDescriptor			dif;
-	EndpointDescriptor			in;
-	EndpointDescriptor			out;
-} CDCDescriptor;
-
-typedef struct 
-{
-	InterfaceDescriptor			msc;
-	EndpointDescriptor			in;
-	EndpointDescriptor			out;
-} MSCDescriptor;
-
-
 #define D_DEVICE(_class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs) \
 	{ 18, 1, USB_VERSION, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
 
@@ -277,12 +176,6 @@ typedef struct
 
 #define D_ENDPOINT(_addr,_attr,_packetSize, _interval) \
 	{ 7, 5, _addr,_attr,_packetSize, _interval }
-
-#define D_IAD(_firstInterface, _count, _class, _subClass, _protocol) \
-	{ 8, 11, _firstInterface, _count, _class, _subClass, _protocol, 0 }
-
-#define D_CDCCS(_subtype,_d0,_d1)	{ 5, 0x24, _subtype, _d0, _d1 }
-#define D_CDCCS4(_subtype,_d0)		{ 4, 0x24, _subtype, _d0 }
 
 // Bootloader related fields
 // Old Caterina bootloader places the MAGIC key into unsafe RAM locations (it can be rewritten
