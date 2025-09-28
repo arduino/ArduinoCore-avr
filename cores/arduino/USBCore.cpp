@@ -34,7 +34,6 @@ volatile u8 RxLEDPulse; /**< Milliseconds remaining for data Rx LED pulse */
 extern const u16 STRING_LANGUAGE[] PROGMEM;
 extern const u8 STRING_PRODUCT[] PROGMEM;
 extern const u8 STRING_MANUFACTURER[] PROGMEM;
-extern const DeviceDescriptor USB_DeviceDescriptorIAD PROGMEM;
 
 const u16 STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
@@ -65,22 +64,6 @@ const u8 STRING_PRODUCT[] PROGMEM = USB_PRODUCT;
 
 const u8 STRING_MANUFACTURER[] PROGMEM = USB_MANUFACTURER;
 
-
-#define DEVICE_CLASS 0x02
-
-//	DEVICE DESCRIPTOR
-
-#ifdef CDC_ENABLED
-const DeviceDescriptor USB_DeviceDescriptorIAD =
-	D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
-#else // CDC_DISABLED
-// The default descriptor uses USB class OxEF, subclass 0x02 with protocol 1
-// which means "Interface Association Descriptor" - that's needed for the CDC,
-// but doesn't make much sense as a default for custom devices when CDC is disabled.
-// (0x00 means "Use class information in the Interface Descriptors" which should be generally ok)
-const DeviceDescriptor USB_DeviceDescriptorIAD =
-	D_DEVICE(0x00,0x00,0x00,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,ISERIAL,1);
-#endif
 
 //==================================================================
 //==================================================================
@@ -335,24 +318,21 @@ int USB_Send(u8 ep, const void* d, int len)
 	return r;
 }
 
-u8 _initEndpoints[USB_ENDPOINTS] =
-{
-	0,                      // Control Endpoint
-
-#ifdef CDC_ENABLED
-	EP_TYPE_INTERRUPT_IN,   // CDC_ENDPOINT_ACM
-	EP_TYPE_BULK_OUT,       // CDC_ENDPOINT_OUT
-	EP_TYPE_BULK_IN,        // CDC_ENDPOINT_IN
-#endif
-
-	// Following endpoints are automatically initialized to 0
-};
-
 #define EP_SINGLE_64 0x32	// EP0
 #define EP_DOUBLE_64 0x36	// Other endpoints
 #define EP_SINGLE_16 0x12
 
-static
+static inline
+u8 BankSizeMask(const uint8_t nbytes) {
+	uint8_t mask = 0;
+	for (uint8_t size = 8; size < 64; size <<= 1) {
+		if (nbytes <= size) break;
+		mask++;
+	}
+	return (mask << EPSIZE0);
+}
+static inline
+
 void InitEP(u8 index, u8 type, u8 size)
 {
 	UENUM = index;
@@ -361,41 +341,24 @@ void InitEP(u8 index, u8 type, u8 size)
 	UECFG1X = size;
 }
 
-static
-void InitEndpoints()
-{
-	for (u8 i = 1; i < sizeof(_initEndpoints) && _initEndpoints[i] != 0; i++)
-	{
-		UENUM = i;
-		UECONX = (1<<EPEN);
-		UECFG0X = _initEndpoints[i];
-#if USB_EP_SIZE == 16
-		UECFG1X = EP_SINGLE_16;
-#elif USB_EP_SIZE == 64
-		UECFG1X = EP_DOUBLE_64;
-#else
-#error Unsupported value for USB_EP_SIZE
-#endif
-	}
-	UERST = 0x7E;	// And reset them
-	UERST = 0;
+static inline
+bool InitEPSize(const u8 index, const u8 type, const u8 nbanks, const u8 banksize){
+	if (index >= USB_ENDPOINTS) return false;
+	uint8_t size = ((1 << ALLOC) | ((nbanks > 1) ? (1 << EPBK0) : 0) | BankSizeMask(banksize));
+	InitEP(index, type, size);
+	return UESTA0X & (1 << CFGOK);  // Success
 }
-
-//	Handle CLASS_INTERFACE requests
 static
-bool ClassInterfaceRequest(USBSetup& setup)
-{
-#ifdef CDC_ENABLED
-	u8 i = setup.wIndex;
+void InitEndpoints() {
+	InitEPSize(ARDUINODS4_TX_ENDPOINT, EP_TYPE_INTERRUPT_IN,  1, 32);  // Control Data Send
+	InitEPSize(ARDUINODS4_RX_ENDPOINT, EP_TYPE_INTERRUPT_OUT, 2, 32);  // Control Data Receive
+	InitEPSize(5, EP_TYPE_INTERRUPT_IN,  1, 32);  // Expansion Interface NACK (avoid config reset)
 
-	if (CDC_ACM_INTERFACE == i)
-		return CDC_Setup(setup);
-#endif
+	UERST = 0x7E;  // Reset endpoints
+	UERST = 0;     // End reset
 
-#ifdef PLUGGABLE_USB_ENABLED
-	return PluggableUSB().setup(setup);
-#endif
-	return false;
+	SetEP(ARDUINODS4_RX_ENDPOINT);  // Select XInput RX endpoint (OUT)
+	UEIENX |= (1 << RXOUTE);  // Enable received "OUT" interrupt
 }
 
 static int _cmark;
@@ -476,36 +439,14 @@ int USB_RecvControl(void* d, int len)
 	return len;
 }
 
-static u8 SendInterfaces()
-{
-	u8 interfaces = 0;
-
-#ifdef CDC_ENABLED
-	CDC_GetInterface(&interfaces);
-#endif
-
-#ifdef PLUGGABLE_USB_ENABLED
-	PluggableUSB().getInterface(&interfaces);
-#endif
-
-	return interfaces;
-}
-
 //	Construct a dynamic configuration descriptor
 //	This really needs dynamic endpoint allocation etc
 //	TODO
 static
 bool SendConfiguration(int maxlen)
 {
-	//	Count and measure interfaces
-	InitControl(0);
-	u8 interfaces = SendInterfaces();
-	ConfigDescriptor config = D_CONFIG(_cmark + sizeof(ConfigDescriptor),interfaces);
-
-	//	Now send them
 	InitControl(maxlen);
-	USB_SendControl(0,&config,sizeof(ConfigDescriptor));
-	SendInterfaces();
+	USB_SendControl(TRANSFER_PGM, &USB_ConfigDescriptor, USB_ConfigDescriptorSize);
 	return true;
 }
 
@@ -527,7 +468,7 @@ bool SendDescriptor(USBSetup& setup)
 	const u8* desc_addr = 0;
 	if (USB_DEVICE_DESCRIPTOR_TYPE == t)
 	{
-		desc_addr = (const u8*)&USB_DeviceDescriptorIAD;
+		desc_addr = (const u8*) &USB_DeviceDescriptor;
 	}
 	else if (USB_STRING_DESCRIPTOR_TYPE == t)
 	{
@@ -545,7 +486,12 @@ bool SendDescriptor(USBSetup& setup)
 			char name[ISERIAL_MAX_LEN];
 			PluggableUSB().getShortName(name);
 			return USB_SendStringDescriptor((uint8_t*)name, strlen(name), 0);
+#else
+			return USB_SendStringDescriptor(STRING_SERIAL, strlen((char*)STRING_SERIAL), TRANSFER_PGM);
 #endif
+		}
+		else if (setup.wValueL == ISECURITY) {
+			return USB_SendStringDescriptor(STRING_SECURITY, strlen((char*)STRING_SECURITY), TRANSFER_PGM);
 		}
 		else
 			return false;
@@ -559,9 +505,16 @@ bool SendDescriptor(USBSetup& setup)
 	return true;
 }
 
-//	Endpoint 0 interrupt
+//	Endpoint interrupt
 ISR(USB_COM_vect)
 {
+	SetEP(ARDUINODS4_RX_ENDPOINT);  // Select XInput RX endpoint (OUT)
+	if (UEINTX & (1 << RXOUTI)) {  // If data received...
+		UEINTX &= ~(1 << RXOUTI);  // Clear interrupt flag
+		if (ArduinoDS4USB::RecvCallback != nullptr) {
+			ArduinoDS4USB::RecvCallback();  // Call callback function if it exists
+		}
+	}
     SetEP(0);
 	if (!ReceivedSetupInt())
 		return;
@@ -648,8 +601,7 @@ ISR(USB_COM_vect)
 	}
 	else
 	{
-		InitControl(setup.wLength);		//	Max length of transfer
-		ok = ClassInterfaceRequest(setup);
+		ok = true;
 	}
 
 	if (ok)
@@ -770,7 +722,6 @@ ISR(USB_GEN_vect)
 	//	Start of Frame - happens every millisecond so we use it for TX and RX LED one-shot timing, too
 	if (udint & (1<<SOFI))
 	{
-		USB_Flush(CDC_TX);				// Send a tx frame if found
 		
 		// check whether the one-shot period has elapsed.  if so, turn off the LED
 		if (TxLEDPulse && !(--TxLEDPulse))
