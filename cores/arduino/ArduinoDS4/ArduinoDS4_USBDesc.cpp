@@ -49,7 +49,7 @@ const u8 USB_ConfigDescriptor[] = {
 	// Configuration Descriptor
 	0x09,        // bLength
 	0x02,        // bDescriptorType (CONFIGURATION)
-	0x29, 0x00   // wTotalLength (41)
+	0x29, 0x00,   // wTotalLength (41)
 	0x01,        // bNumInterfaces
 	0x01,        // bConfigurationValue
 	0x00,        // iConfiguration
@@ -69,7 +69,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x00,        // iInterface
 
 	// Human Interface Device (HID) Descriptor
-	0x11,        // bLength
+	0x09,        // bLength
 	0x21,        // bDescriptorType
 	0x11, 0x01,  // bcdHID 1.17
 	0x00,        // bCountryCode
