@@ -330,7 +330,7 @@ const u8 hidDescriptor[] = {
 0x95, 0x3F,        //   Report Count (63)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0xC0,              // End Collection
-}
+};
 
 const u16 hidDescriptorSize = sizeof(hidDescriptor);
 
