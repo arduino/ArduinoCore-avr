@@ -332,4 +332,6 @@ const USB_Descriptor_HIDReport_Datatype_t hidDescriptor[] = {
 0xC0,              // End Collection
 }
 
+const u16 hidDescriptorSize = sizeof(hidDescriptor);
+
 #endif
