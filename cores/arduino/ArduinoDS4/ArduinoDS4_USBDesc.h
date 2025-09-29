@@ -33,7 +33,7 @@
 
 extern const DeviceDescriptor USB_DeviceDescriptor PROGMEM;
 
-extern const USB_Descriptor_HIDReport_Datatype_t hidDescriptor[] PROGMEM;
+extern const u8 hidDescriptor[] PROGMEM;
 extern const u16 hidDescriptorSize PROGMEM;
 
 extern const u8  USB_ConfigDescriptor[] PROGMEM;
