@@ -99,7 +99,7 @@ const u16 USB_ConfigDescriptorSize = sizeof(USB_ConfigDescriptor);
 const u8 STRING_SERIAL[] = "Arduino DS4 AVR";
 const u8 STRING_SECURITY[] = "PS4 protocol";
 
-const USB_Descriptor_HIDReport_Datatype_t hidDescriptor[] = {
+const u8 hidDescriptor[] = {
 0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 0x09, 0x05,        // Usage (Game Pad)
 0xA1, 0x01,        // Collection (Application)
