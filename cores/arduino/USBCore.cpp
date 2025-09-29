@@ -466,7 +466,7 @@ bool SendDescriptor(USBSetup& setup)
 #endif
 
 	if (t == 0x22) { // HID Report descriptor request
-        return USB_SendControl(TRANSFER_PGM, hidDescriptor, hidDescriptor_len) > 0;
+        return USB_SendControl(TRANSFER_PGM, hidDescriptor, hidDescriptorSize) > 0;
     }
 
 	const u8* desc_addr = 0;
