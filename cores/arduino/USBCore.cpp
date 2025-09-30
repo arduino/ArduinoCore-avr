@@ -350,9 +350,9 @@ bool InitEPSize(const u8 index, const u8 type, const u8 nbanks, const u8 banksiz
 }
 static
 void InitEndpoints() {
-	InitEPSize(ARDUINODS4_TX_ENDPOINT, EP_TYPE_INTERRUPT_IN,  1, 64);  // Control Data Send
+	InitEPSize(ARDUINODS4_TX_ENDPOINT, EP_TYPE_INTERRUPT_IN,  2, 64);  // Control Data Send
 	InitEPSize(ARDUINODS4_RX_ENDPOINT, EP_TYPE_INTERRUPT_OUT, 2, 64);  // Control Data Receive
-	InitEPSize(5, EP_TYPE_INTERRUPT_IN,  1, 64);  // Expansion Interface NACK (avoid config reset)
+	InitEPSize(5, EP_TYPE_INTERRUPT_IN,  2, 64);  // Expansion Interface NACK (avoid config reset)
 
 	UERST = 0x7E;  // Reset endpoints
 	UERST = 0;     // End reset
