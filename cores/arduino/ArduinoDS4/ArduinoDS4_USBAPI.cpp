@@ -54,4 +54,8 @@ void ArduinoDS4USB::setRecvCallback(void(*callback)(void)) {
 	ArduinoDS4USB::RecvCallback = callback;
 }
 
+void ArduinoDS4USB::setSendCallback(void(*callback)(void)) {
+	ArduinoDS4USB::SendCallback = callback;
+}
+
 #endif
