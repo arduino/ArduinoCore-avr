@@ -40,8 +40,10 @@ public:
 	static int send(const void *buffer, uint8_t nbytes);
 	static int recv(void *buffer, uint8_t nbytes);
 	static void setRecvCallback(void(*callback)(void));
+	static void setSendCallback(void(*callback)(void));
 
 	static void (*RecvCallback)(void);
+	static void (*SendCallback)(void);
 };
 
 #endif
