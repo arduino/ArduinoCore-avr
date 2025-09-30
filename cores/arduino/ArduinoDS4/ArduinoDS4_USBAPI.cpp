@@ -29,6 +29,7 @@
 #ifdef ARDUINODS4_USB
 
 void (*ArduinoDS4USB::RecvCallback)(void) = nullptr;
+void (*ArduinoDS4USB::SendCallback)(void) = nullptr;
 
 boolean ArduinoDS4USB::connected() {
 	return USBDevice.configured();
