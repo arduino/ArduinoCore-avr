@@ -101,9 +101,9 @@ void HardwareSerial::_tx_udr_empty_irq(void)
   // written to the rest.
 
 #ifdef MPCM0
-  *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0);
+  *_ucsra = (1 << TXC0) | ((*_ucsra) & ((1 << U2X0) | (1 << MPCM0)));
 #else
-  *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << TXC0)));
+  *_ucsra = (1 << TXC0) | ((*_ucsra) & ((1 << U2X0)));
 #endif
 
   if (_tx_buffer_head == _tx_buffer_tail) {
@@ -241,9 +241,9 @@ size_t HardwareSerial::write(uint8_t c)
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       *_udr = c;
 #ifdef MPCM0
-      *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0);
+      *_ucsra = (1 << TXC0) | ((*_ucsra) & ((1 << U2X0) | (1 << MPCM0)));
 #else
-      *_ucsra = ((*_ucsra) & ((1 << U2X0) | (1 << TXC0)));
+      *_ucsra = (1 << TXC0) | ((*_ucsra) & ((1 << U2X0)));
 #endif
     }
     return 1;
