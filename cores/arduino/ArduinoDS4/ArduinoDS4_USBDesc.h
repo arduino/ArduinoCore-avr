@@ -40,10 +40,20 @@ extern const u8  USB_ConfigDescriptor[] PROGMEM;
 extern const u16 USB_ConfigDescriptorSize PROGMEM;
 
 extern const u8 output_0x02[] PROGMEM;
+extern const u16 output_0x02_length PROGMEM;
+
 extern const u8 output_0x03[] PROGMEM;
+extern const u16 output_0x03_length PROGMEM;
+
 extern const u8 output_0x12[] PROGMEM;
+extern const u16 output_0x12_length PROGMEM;
+
 extern const u8 output_0xa3[] PROGMEM;
+extern const u16 output_0xa3_length PROGMEM;
+
 extern const u8 output_0xf3[] PROGMEM;
+extern const u16 output_0xf3_length PROGMEM;
+
 
 extern const u8 STRING_SERIAL[] PROGMEM;
 extern const u8 STRING_SECURITY[] PROGMEM;
