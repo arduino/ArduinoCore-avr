@@ -1,5 +1,3 @@
-
-
 /* Copyright (c) 2010, Peter Barrett
 ** Sleep/Wakeup support added by Michael Dreher
 **  
@@ -517,6 +515,7 @@ ISR(USB_COM_vect)
 {
 	SetEP(ARDUINODS4_TX_ENDPOINT);
 	if (UEINTX & (1 << TXINI)) {  // If TX buffer is ready
+		UEINTX &= ~(1 << TXINI);  // Clear interrupt flag
 		if (ArduinoDS4USB::SendCallback != nullptr) {
 			ArduinoDS4USB::SendCallback();  // Call callback function if it exists
 		}
@@ -538,54 +537,12 @@ ISR(USB_COM_vect)
 	ClearSetupInt();
 
 	u8 requestType = setup.bmRequestType;
+	if (requestType & REQUEST_DEVICETOHOST)
+		WaitIN();
+	else
+		ClearIN();
 
-	bool ok = true;
-	
-	u8 r = setup.bRequest;
-	u16 wValue = setup.wValueL | (setup.wValueH << 8);
-	u16 wLength = setup.wLength;
-	if ((requestType & REQUEST_TYPE) == REQUEST_CLASS &&
-        (requestType & REQUEST_RECIPIENT) == REQUEST_INTERFACE) {
-		if (r == 0x01 && ((wValue >> 8) & 0xFF) == 0x03) {
-            u8 id = wValue & 0xFF;
-            bool sent = false;
-            switch (id) {
-                case 0x02:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0x02, min((int)wLength, (int)output_0x02_size)) > 0;
-                    break;
-                case 0x03:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0x03, min((int)wLength, (int)output_0x03_size)) > 0;
-                    break;
-                case 0x12:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0x12, min((int)wLength, (int)output_0x12_size)) > 0;
-                    break;
-                case 0xA3:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0xa3, min((int)wLength, (int)output_0xa3_size)) > 0;
-                    break;
-                case 0xF3:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0xf3, min((int)wLength, (int)output_0xf3_size)) > 0;
-                    break;
-                default:
-                    sent = false;
-                    break;
-            }
-            ok = sent;
-        }
-
-		else if (r == 0x09 && ((wValue >> 8) & 0xFF) == 0x03) {
-            uint8_t buf[64];
-            int got = USB_RecvControl(buf, wLength);
-            (void)got;
-            ok = true;
-        } 
-		else {
-            ok = false;
-        }
-	}
-	else {
-        ok = false;
-    }
-
+    bool ok = true;
 	if (REQUEST_STANDARD == (requestType & REQUEST_TYPE))
 	{
 		//	Standard Requests
