@@ -547,7 +547,7 @@ ISR(USB_COM_vect)
 	
 	u8 r = setup.bRequest;
 	u16 wValue = setup.wValueL | (setup.wValueH << 8);
-	u16 wLength = setup.wLengthL | (setup.wLengthH << 8);
+	u16 wLength = setup.wLength;
 	if ((requestType & REQUEST_TYPE) == REQUEST_CLASS &&
         (requestType & REQUEST_RECIPIENT) == REQUEST_INTERFACE) {
 		if (r == 0x01 && ((wValue >> 8) & 0xFF) == 0x03) {
