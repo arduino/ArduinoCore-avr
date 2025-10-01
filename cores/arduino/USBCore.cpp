@@ -555,19 +555,19 @@ ISR(USB_COM_vect)
             bool sent = false;
             switch (id) {
                 case 0x02:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0x02, min((int)wLength, (int)sizeof(output_0x02))) > 0;
+                    sent = USB_SendControl(TRANSFER_PGM, output_0x02, min((int)wLength, (int)output_0x02_size)) > 0;
                     break;
                 case 0x03:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0x03, min((int)wLength, (int)sizeof(output_0x03))) > 0;
+                    sent = USB_SendControl(TRANSFER_PGM, output_0x03, min((int)wLength, (int)output_0x03_size)) > 0;
                     break;
                 case 0x12:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0x12, min((int)wLength, (int)sizeof(output_0x12))) > 0;
+                    sent = USB_SendControl(TRANSFER_PGM, output_0x12, min((int)wLength, (int)output_0x12_size)) > 0;
                     break;
                 case 0xA3:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0xa3, min((int)wLength, (int)sizeof(output_0xa3))) > 0;
+                    sent = USB_SendControl(TRANSFER_PGM, output_0xa3, min((int)wLength, (int)output_0xa3_size)) > 0;
                     break;
                 case 0xF3:
-                    sent = USB_SendControl(TRANSFER_PGM, output_0xf3, min((int)wLength, (int)sizeof(output_0xf3))) > 0;
+                    sent = USB_SendControl(TRANSFER_PGM, output_0xf3, min((int)wLength, (int)output_0xf3_size)) > 0;
                     break;
                 default:
                     sent = false;
