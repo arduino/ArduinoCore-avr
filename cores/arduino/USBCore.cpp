@@ -538,10 +538,6 @@ ISR(USB_COM_vect)
 	ClearSetupInt();
 
 	u8 requestType = setup.bmRequestType;
-	if (requestType & REQUEST_DEVICETOHOST)
-		WaitIN();
-	else
-		ClearIN();
 
 	bool ok = true;
 	
