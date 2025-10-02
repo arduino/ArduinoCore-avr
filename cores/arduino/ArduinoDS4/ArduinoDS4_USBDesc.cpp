@@ -277,18 +277,6 @@ const u8 hidDescriptor[] = {
 0x09, 0x46,        //   Usage (0x46)
 0x95, 0x15,        //   Report Count (21)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0xF0,        //   Report ID (240)
-0x09, 0x47,        //   Usage (0x47)
-0x95, 0x3F,        //   Report Count (63)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0xF1,        //   Report ID (241)
-0x09, 0x48,        //   Usage (0x48)
-0x95, 0x3F,        //   Report Count (63)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0xF2,        //   Report ID (242)
-0x09, 0x49,        //   Usage (0x49)
-0x95, 0x0F,        //   Report Count (15)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0x85, 0xA7,        //   Report ID (167)
 0x09, 0x4A,        //   Usage (0x4A)
 0x95, 0x01,        //   Report Count (1)
@@ -330,6 +318,26 @@ const u8 hidDescriptor[] = {
 0x95, 0x3F,        //   Report Count (63)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0xC0,              // End Collection
+0x06, 0xF0, 0xFF,
+0x09, 0x40,
+0xA1, 0x01,
+0x85, 0xF0,        //   Report ID (240)
+0x09, 0x47,        //   Usage (0x47)
+0x95, 0x3F,        //   Report Count (63)
+0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0x85, 0xF1,        //   Report ID (241)
+0x09, 0x48,        //   Usage (0x48)
+0x95, 0x3F,        //   Report Count (63)
+0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0x85, 0xF2,        //   Report ID (242)
+0x09, 0x49,        //   Usage (0x49)
+0x95, 0x0F,        //   Report Count (15)
+0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0x85, 0xF3, 
+0x0A, 0x01, 0x47, 
+0x95, 0x07, 
+0xB1, 0x02, 
+0xC0
 };
 
 const u16 hidDescriptorSize = sizeof(hidDescriptor);
