@@ -1,3 +1,5 @@
+
+
 /* Copyright (c) 2010, Peter Barrett
 ** Sleep/Wakeup support added by Michael Dreher
 **  
@@ -515,7 +517,6 @@ ISR(USB_COM_vect)
 {
 	SetEP(ARDUINODS4_TX_ENDPOINT);
 	if (UEINTX & (1 << TXINI)) {  // If TX buffer is ready
-		UEINTX &= ~(1 << TXINI);  // Clear interrupt flag
 		if (ArduinoDS4USB::SendCallback != nullptr) {
 			ArduinoDS4USB::SendCallback();  // Call callback function if it exists
 		}
@@ -614,75 +615,7 @@ ISR(USB_COM_vect)
 	}
 	else
 	{
-	    // Handle HID class requests
-	    if ((requestType & REQUEST_TYPE) == REQUEST_CLASS)
-	    {
-	        // HID class requests (0x01 = GET_REPORT, 0x09 = SET_REPORT)
-	        if (setup.bRequest == 0x01)  // HID_GET_REPORT
-	        {
-	            if (setup.wValueH == 0x03)  // Feature report type
-	            {
-	                uint8_t reportId = setup.wValueL;
-	                const u8* featureData = nullptr;
-	                u16 featureLen = 0;
-	                
-	                // Handle different report IDs
-	                switch(reportId) {
-	                    case 0x02:  // Calibration
-	                        featureData = output_0x02;
-	                        featureLen = output_0x02_size;
-	                        break;
-	                    case 0x03:  // Controller descriptor  
-	                        featureData = output_0x03;
-	                        featureLen = output_0x03_size;
-	                        break;
-	                    case 0x12:  // MAC address
-	                        featureData = output_0x12;
-	                        featureLen = output_0x12_size;
-	                        break;
-	                    case 0xA3:  // Version/date
-	                        featureData = output_0xa3;
-	                        featureLen = output_0xa3_size;
-	                        break;
-	                    case 0xF3:  // Reset auth
-	                        featureData = output_0xf3;
-	                        featureLen = output_0xf3_size;
-	                        break;
-	                    default:
-	                        ok = false;
-	                        break;
-	                }
-	                
-	                if (featureData && featureLen > 0) {
-	                    InitControl(min(featureLen, setup.wLength));
-	                    USB_SendControl(TRANSFER_PGM, featureData, min(featureLen, setup.wLength));
-	                    ok = true;
-	                }
-	            }
-	        }
-	        else if (setup.bRequest == 0x09)  // HID_SET_REPORT
-	        {
-	            if (setup.wValueH == 0x03)  // Feature report type
-	            {
-	                // For basic PS4 support, we can mostly ignore SET_REPORT
-	                // Just acknowledge it was received
-	                uint8_t buffer[64];
-	                int len = USB_RecvControl(buffer, min(sizeof(buffer), setup.wLength));
-	                ok = (len >= 0);
-	            }
-	            else if (setup.wValueH == 0x02)  // Output report type
-	            {
-	                // Handle rumble/LED data if needed
-	                uint8_t buffer[64];
-	                int len = USB_RecvControl(buffer, min(sizeof(buffer), setup.wLength));
-	                ok = (len >= 0);
-	            }
-	        }
-	    }
-	    else
-	    {
-	        ok = true;  // Default behavior for vendor requests etc
-	    }
+		ok = true;
 	}
 
 	if (ok)
