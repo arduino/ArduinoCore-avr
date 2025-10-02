@@ -36,8 +36,8 @@ const DeviceDescriptor USB_DeviceDescriptor = {
 	0x00,           // bDeviceSubClass
 	0x00,           // bDeviceProtocol
 	0x40,           // bMaxPacketSize0
-	0x1532,        // idEVendor
-	0x0401,        // idProduct
+	0x146B,        // idEVendor
+	0x0603,        // idProduct
 	0x0100,          // bcdDevice
 	0x01,  // iManufacturer
 	0x02,       // iProduct
