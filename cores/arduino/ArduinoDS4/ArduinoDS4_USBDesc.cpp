@@ -75,7 +75,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x00,        // bCountryCode
 	0x01,        // bNumDescriptors
 	0x22,        // bDescriptorType
-	0xE1, 0x01,  // DescriptorLength
+	0xE0, 0x01,  // DescriptorLength
 
 	// Endpoint 1: Control Surface Send
 	0x07,        // bLength
