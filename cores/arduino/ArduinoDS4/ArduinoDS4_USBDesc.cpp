@@ -53,7 +53,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x01,        // bNumInterfaces
 	0x01,        // bConfigurationValue
 	0x00,        // iConfiguration
-	0xC0,        // bmAttributes
+	0x80,        // bmAttributes
 	0xFA,        // bMaxPower
 
 	/* ---------------------------------------------------- */
@@ -75,7 +75,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x00,        // bCountryCode
 	0x01,        // bNumDescriptors
 	0x22,        // bDescriptorType
-	0xE0, 0x01,  // DescriptorLength
+	0xE1, 0x01,  // DescriptorLength
 
 	// Endpoint 1: Control Surface Send
 	0x07,        // bLength
@@ -157,8 +157,8 @@ const u8 hidDescriptor[] = {
 0x95, 0x1F,        //   Report Count (31)
 0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0x85, 0x03,        //   Report ID (4)
-0x09, 0x23,        //   Usage (0x23)
-0x95, 0x2f,        //   Report Count (36)
+0x0A, 0x21, 0x27,        //   Usage (0x23)
+0x95, 0x2F,        //   Report Count (36)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0x85, 0x02,        //   Report ID (2)
 0x09, 0x24,        //   Usage (0x24)
@@ -339,7 +339,7 @@ const u8 hidDescriptor[] = {
 0x0A, 0x01, 0x47, 
 0x95, 0x07, 
 0xB1, 0x02, 
-0xC0
+0xC0,
 };
 
 const u16 hidDescriptorSize = sizeof(hidDescriptor);
