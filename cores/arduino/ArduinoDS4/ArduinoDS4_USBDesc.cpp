@@ -36,8 +36,8 @@ const DeviceDescriptor USB_DeviceDescriptor = {
 	0x00,           // bDeviceSubClass
 	0x00,           // bDeviceProtocol
 	0x40,           // bMaxPacketSize0
-	0x146B,        // idEVendor
-	0x0603,        // idProduct
+	0x054C,        // idEVendor
+	0x05C4,        // idProduct
 	0x0100,          // bcdDevice
 	0x01,  // iManufacturer
 	0x02,       // iProduct
@@ -53,7 +53,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x01,        // bNumInterfaces
 	0x01,        // bConfigurationValue
 	0x00,        // iConfiguration
-	0x80,        // bmAttributes
+	0xC0,        // bmAttributes
 	0xFA,        // bMaxPower
 
 	/* ---------------------------------------------------- */
@@ -75,7 +75,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x00,        // bCountryCode
 	0x01,        // bNumDescriptors
 	0x22,        // bDescriptorType
-	0xE1, 0x01,  // DescriptorLength
+	0xD3, 0x01,  // DescriptorLength
 
 	// Endpoint 1: Control Surface Send
 	0x07,        // bLength
@@ -135,10 +135,8 @@ const u8 hidDescriptor[] = {
 0x09, 0x20,        //   Usage (0x20)
 0x75, 0x06,        //   Report Size (6)
 0x95, 0x01,        //   Report Count (1)
-/*
 0x15, 0x00,        //   Logical Minimum (0)
 0x25, 0x7F,        //   Logical Maximum (127)
-*/
 0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
 0x05, 0x01,        //   Usage Page (Generic Desktop Ctrls)
 0x09, 0x33,        //   Usage (Rx)
@@ -156,9 +154,9 @@ const u8 hidDescriptor[] = {
 0x09, 0x22,        //   Usage (0x22)
 0x95, 0x1F,        //   Report Count (31)
 0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0x03,        //   Report ID (4)
-0x0A, 0x21, 0x27,        //   Usage (0x23)
-0x95, 0x2F,        //   Report Count (36)
+0x85, 0x04,        //   Report ID (4)
+0x09, 0x23,        //   Usage (0x23)
+0x95, 0x24,        //   Report Count (36)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0x85, 0x02,        //   Report ID (2)
 0x09, 0x24,        //   Usage (0x24)
@@ -279,6 +277,18 @@ const u8 hidDescriptor[] = {
 0x09, 0x46,        //   Usage (0x46)
 0x95, 0x15,        //   Report Count (21)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0x85, 0xF0,        //   Report ID (240)
+0x09, 0x47,        //   Usage (0x47)
+0x95, 0x3F,        //   Report Count (63)
+0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0x85, 0xF1,        //   Report ID (241)
+0x09, 0x48,        //   Usage (0x48)
+0x95, 0x3F,        //   Report Count (63)
+0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+0x85, 0xF2,        //   Report ID (242)
+0x09, 0x49,        //   Usage (0x49)
+0x95, 0x0F,        //   Report Count (15)
+0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0x85, 0xA7,        //   Report ID (167)
 0x09, 0x4A,        //   Usage (0x4A)
 0x95, 0x01,        //   Report Count (1)
@@ -320,26 +330,6 @@ const u8 hidDescriptor[] = {
 0x95, 0x3F,        //   Report Count (63)
 0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 0xC0,              // End Collection
-0x06, 0xF0, 0xFF,
-0x09, 0x40,
-0xA1, 0x01,
-0x85, 0xF0,        //   Report ID (240)
-0x09, 0x47,        //   Usage (0x47)
-0x95, 0x3F,        //   Report Count (63)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0xF1,        //   Report ID (241)
-0x09, 0x48,        //   Usage (0x48)
-0x95, 0x3F,        //   Report Count (63)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0xF2,        //   Report ID (242)
-0x09, 0x49,        //   Usage (0x49)
-0x95, 0x0F,        //   Report Count (15)
-0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-0x85, 0xF3, 
-0x0A, 0x01, 0x47, 
-0x95, 0x07, 
-0xB1, 0x02, 
-0xC0,
 };
 
 const u16 hidDescriptorSize = sizeof(hidDescriptor);
