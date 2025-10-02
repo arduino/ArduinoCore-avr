@@ -648,6 +648,10 @@ ISR(USB_COM_vect)
 	                        featureData = output_0xf3;
 	                        featureLen = output_0xf3_size;
 	                        break;
+						case 0xF1: // Auth nonce response
+                		case 0xF2: // Auth status
+                    		ok = false;
+                    		break;
 	                    default:
 	                        ok = false;
 	                        break;
