@@ -687,7 +687,6 @@ ISR(USB_COM_vect)
 			else if (setup.bRequest == 0x0A || setup.bRequest == 0x0B){
   				ClearIN();
   				ok = true;
-  				break;
 			}
 	    }
 	    else
