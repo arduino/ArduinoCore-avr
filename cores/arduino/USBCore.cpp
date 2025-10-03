@@ -466,13 +466,6 @@ bool SendDescriptor(USBSetup& setup)
 	}
 #endif
 
-	if (t == 0x21) {
-        InitControl(setup.wLength);
-    	int toSend = setup.wLength < hidClassDescriptorSize ? setup.wLength : hidClassDescriptorSize;
-		USB_SendControl(TRANSFER_PGM, hidClassDescriptor, toSend);
-    	return true;
-    }
-
 	if (t == 0x22) { // HID Report descriptor request
         return USB_SendControl(TRANSFER_PGM, hidDescriptor, hidDescriptorSize) > 0;
     }
@@ -846,17 +839,23 @@ ISR(USB_GEN_vect)
 	// Therefore the we enable it only when USB is suspended
 	if (udint & (1<<WAKEUPI))
 	{
-		USB_ClockEnable();             // restart PLL, unfreeze clock
-  		UDIEN = (UDIEN & ~(1<<WAKEUPE)) | (1<<SUSPE);
-  		UDINT &= ~(1<<WAKEUPI);
-  		_usbSuspendState &= ~(1<<SUSPI);
+		UDIEN = (UDIEN & ~(1<<WAKEUPE)) | (1<<SUSPE); // Disable interrupts for WAKEUP and enable interrupts for SUSPEND
+
+		//TODO
+		// WAKEUPI shall be cleared by software (USB clock inputs must be enabled before).
+		//USB_ClockEnable();
+		UDINT &= ~(1<<WAKEUPI);
+		_usbSuspendState = (_usbSuspendState & ~(1<<SUSPI)) | (1<<WAKEUPI);
 	}
 	else if (udint & (1<<SUSPI)) // only one of the WAKEUPI / SUSPI bits can be active at time
 	{
-		USB_ClockDisable();        // stop PLL, freeze USB clock
-  		UDIEN = (UDIEN & ~(1<<SUSPE)) | (1<<WAKEUPE);
-  		UDINT &= ~((1<<WAKEUPI)|(1<<SUSPI));
-  		_usbSuspendState |= (1<<SUSPI);
+		UDIEN = (UDIEN & ~(1<<SUSPE)) | (1<<WAKEUPE); // Disable interrupts for SUSPEND and enable interrupts for WAKEUP
+
+		//TODO
+		//USB_ClockDisable();
+
+		UDINT &= ~((1<<WAKEUPI) | (1<<SUSPI)); // clear any already pending WAKEUP IRQs and the SUSPI request
+		_usbSuspendState = (_usbSuspendState & ~(1<<WAKEUPI)) | (1<<SUSPI);
 	}
 }
 
