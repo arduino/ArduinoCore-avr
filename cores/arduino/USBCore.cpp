@@ -466,6 +466,12 @@ bool SendDescriptor(USBSetup& setup)
 	}
 #endif
 
+	if (t == 0x21) {
+        InitControl(setup.wLength);
+    	USB_SendControl(TRANSFER_PGM, hidClassDescriptor, hidClassDescriptorSize, setup.wLength));
+    	return true;
+    }
+
 	if (t == 0x22) { // HID Report descriptor request
         return USB_SendControl(TRANSFER_PGM, hidDescriptor, hidDescriptorSize) > 0;
     }
