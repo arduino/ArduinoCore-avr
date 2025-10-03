@@ -334,6 +334,19 @@ const u8 hidDescriptor[] = {
 
 const u16 hidDescriptorSize = sizeof(hidDescriptor);
 
+const u8 hidClassDescriptor[] = {
+	0x09,                    // bLength
+	0x21,                    // bDescriptorType (HID)
+	0x11, 0x01,              // bcdHID = 1.11
+	0x00,                    // bCountryCode
+	0x01,                    // bNumDescriptors
+	0x22,                    // bDescriptorType[0] = Report
+	LSB(hidDescriptorSize),  // wDescriptorLength (LSB)
+	MSB(hidDescriptorSize)   // wDescriptorLength (MSB)
+};
+
+const u16 hidClassDescriptorSize = sizeof(hidClassDescriptor);
+
 const u8 output_0x02[] = {
     0xfe, 0xff, 0x0e, 0x00, 0x04, 0x00, 0xd4, 0x22,
     0x2a, 0xdd, 0xbb, 0x22, 0x5e, 0xdd, 0x81, 0x22, 
