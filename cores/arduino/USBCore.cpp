@@ -648,8 +648,8 @@ ISR(USB_COM_vect)
 	                        featureData = output_0xf3;
 	                        featureLen = output_0xf3_size;
 	                        break;
-						case 0xF1: // Auth nonce response
-                		case 0xF2: // Auth status
+						case 0xF1:
+                		case 0xF2:
                     		ok = false;
                     		break;
 	                    default:
@@ -681,8 +681,10 @@ ISR(USB_COM_vect)
 	                int len = USB_RecvControl(buffer, min(sizeof(buffer), setup.wLength));
 	                ok = (len >= 0);
 	            }
-			    ClearIN();
-			    ok = true;
+				else {
+			    	ok = true;
+				}
+				ClearIN();
 	        }
 			else if (setup.bRequest == 0x0A || setup.bRequest == 0x0B){
   				ClearIN();
