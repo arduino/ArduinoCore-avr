@@ -54,12 +54,6 @@ extern const u16 output_0xa3_size PROGMEM;
 extern const u8 output_0xf3[] PROGMEM;
 extern const u16 output_0xf3_size PROGMEM;
 
-extern const u8 output_0xf1[] PROGMEM;
-extern const u16 output_0xf1_size PROGMEM;
-
-extern const u8 output_0xf2[] PROGMEM;
-extern const u16 output_0xf2_size PROGMEM;
-
 
 extern const u8 STRING_SERIAL[] PROGMEM;
 extern const u8 STRING_SECURITY[] PROGMEM;
