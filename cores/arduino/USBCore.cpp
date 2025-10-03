@@ -681,6 +681,8 @@ ISR(USB_COM_vect)
 	                int len = USB_RecvControl(buffer, min(sizeof(buffer), setup.wLength));
 	                ok = (len >= 0);
 	            }
+			    ClearIN();
+			    ok = true;
 	        }
 	    }
 	    else
