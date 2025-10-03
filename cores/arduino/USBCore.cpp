@@ -650,8 +650,7 @@ ISR(USB_COM_vect)
 	                        break;
 						case 0xF1:
                 		case 0xF2:
-							InitControl(0);
-                    		ok = true;
+                    		ok = false;
                     		break;
 	                    default:
 	                        ok = false;
