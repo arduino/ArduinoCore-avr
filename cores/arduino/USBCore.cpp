@@ -468,7 +468,8 @@ bool SendDescriptor(USBSetup& setup)
 
 	if (t == 0x21) {
         InitControl(setup.wLength);
-    	USB_SendControl(TRANSFER_PGM, hidClassDescriptor, hidClassDescriptorSize, setup.wLength));
+    	int toSend = setup.wLength < sizeof(hidClassDescriptor) ? setup.wLength : sizeof(hidClassDescriptor);
+		USB_SendControl(TRANSFER_PGM, hidClassDescriptor, toSend);
     	return true;
     }
 
