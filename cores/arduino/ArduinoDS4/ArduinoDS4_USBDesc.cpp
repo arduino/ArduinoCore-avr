@@ -341,8 +341,8 @@ const u8 hidClassDescriptor[] = {
 	0x00,                    // bCountryCode
 	0x01,                    // bNumDescriptors
 	0x22,                    // bDescriptorType[0] = Report
-	LSB(hidDescriptorSize),  // wDescriptorLength (LSB)
-	MSB(hidDescriptorSize)   // wDescriptorLength (MSB)
+	(uint8_t)(hidDescriptorSize & 0xFF),  // wDescriptorLength (LSB)
+	(uint8_t)((hidDescriptorSize >> 8) & 0xFF)   // wDescriptorLength (MSB)
 };
 
 const u16 hidClassDescriptorSize = sizeof(hidClassDescriptor);
