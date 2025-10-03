@@ -691,6 +691,16 @@ ISR(USB_COM_vect)
   				ClearIN();
   				ok = true;
 			}
+			else if (setup.bRequest == 0x02)  // HID_GET_IDLE
+			{
+  				Send8(0);
+  				ok = true;
+			}
+			else if (setup.bRequest == 0x03)  // HID_GET_PROTOCOL
+			{
+  				Send8(0);
+  				ok = true;
+			}
 	    }
 	    else
 	    {
