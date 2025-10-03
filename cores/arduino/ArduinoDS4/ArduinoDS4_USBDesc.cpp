@@ -53,7 +53,7 @@ const u8 USB_ConfigDescriptor[] = {
 	0x01,        // bNumInterfaces
 	0x01,        // bConfigurationValue
 	0x00,        // iConfiguration
-	0xC0,        // bmAttributes
+	0xA0,        // bmAttributes
 	0xFA,        // bMaxPower
 
 	/* ---------------------------------------------------- */
