@@ -36,12 +36,12 @@ const DeviceDescriptor USB_DeviceDescriptor = {
 	0x00,           // bDeviceSubClass
 	0x00,           // bDeviceProtocol
 	0x40,           // bMaxPacketSize0
-	0x054C,         // idVendor
-	0x05C4,         // idProduct
-	0x0100,         // bcdDevice
-	0x01,           // iManufacturer
-	0x02,           // iProduct
-	0x00,           // iSerialNumber
+	0x1532,        // idEVendor
+	0x0401,        // idProduct
+	0x0100,          // bcdDevice
+	0x01,  // iManufacturer
+	0x02,       // iProduct
+	0x00,        // iSerialNumber
 	0x01,           // bNumConfigurations
 };
 
@@ -80,7 +80,7 @@ const u8 USB_ConfigDescriptor[] = {
 	// Endpoint 1: Control Surface Send
 	0x07,        // bLength
 	0x05,        // bDescriptorType (ENDPOINT)
-	0x84,        // bEndpointAddress (IN, 1)
+	0x81,        // bEndpointAddress (IN, 1)
 	0x03,        // bmAttributes
 	0x40, 0x00,  // wMaxPacketSize
 	0x05,        // bInterval
@@ -100,7 +100,7 @@ const u8 STRING_SERIAL[] = "Arduino DS4 AVR";
 const u8 STRING_SECURITY[] = "PS4 protocol";
 
 const u8 hidDescriptor[] = {
-	0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 	0x09, 0x05,        // Usage (Game Pad)
 	0xA1, 0x01,        // Collection (Application)
 	0x85, 0x01,        //   Report ID (1)
