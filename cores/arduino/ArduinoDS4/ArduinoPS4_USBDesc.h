@@ -1,7 +1,7 @@
 /*
- *  Project     ArduinoDS4 AVR core
+ *  Project     ArduinoPS4 AVR core
  *  @author     Flamethrower
- *  @link       github.com/Flamethr0wer/ArduinoDS4_AVR
+ *  @link       github.com/Flamethr0wer/ArduinoPS4_AVR
  *  @license    MIT - Copyright (c) 2019 Flamethrower
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,8 +26,8 @@
 
 #include "USBAPI.h"
 
-#ifndef ARDUINODS4_USBDESC_H
-#define ARDUINODS4_USBDESC_H
+#ifndef ARDUINOPS4_USBDESC_H
+#define ARDUINOPS4_USBDESC_H
 
 #if defined(USBCON)
 
@@ -60,8 +60,8 @@ extern const u8 STRING_SECURITY[] PROGMEM;
 
 #define ISECURITY 4
 
-#define ARDUINODS4_TX_ENDPOINT	1
-#define ARDUINODS4_RX_ENDPOINT	3
+#define ARDUINOPS4_TX_ENDPOINT	1
+#define ARDUINOPS4_RX_ENDPOINT	3
 
 #endif
 
