@@ -658,7 +658,8 @@ ISR(USB_COM_vect)
 	                }
 	                
 	                if (featureData && featureLen > 0) {
-	                    InitControl(min(featureLen, setup.wLength));
+	                    InitControl(min(featureLen + 1, setup.wLength));
+						SendControl(reportId);
 	                    USB_SendControl(TRANSFER_PGM, featureData, min(featureLen, setup.wLength));
 	                    ok = true;
 	                }
