@@ -1,7 +1,7 @@
 /*
- *  Project     ArduinoDS4 AVR core
+ *  Project     ArduinoPS4 AVR core
  *  @author     Flamethrower
- *  @link       github.com/Flamethr0wer/ArduinoDS4_AVR
+ *  @link       github.com/Flamethr0wer/ArduinoPS4_AVR
  *  @license    MIT - Copyright (c) 2019 Flamethrower
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,39 +24,39 @@
  *
  */
 
-#include "ArduinoDS4_USBAPI.h"
+#include "ArduinoPS4_USBAPI.h"
 
-#ifdef ARDUINODS4_USB
+#ifdef ARDUINOPS4_USB
 
-void (*ArduinoDS4USB::RecvCallback)(void) = nullptr;
-void (*ArduinoDS4USB::SendCallback)(void) = nullptr;
+void (*ArduinoPS4USB::RecvCallback)(void) = nullptr;
+void (*ArduinoPS4USB::SendCallback)(void) = nullptr;
 
-boolean ArduinoDS4USB::connected() {
+boolean ArduinoPS4USB::connected() {
 	return USBDevice.configured();
 }
 
-uint8_t ArduinoDS4USB::available() {
-	return USB_Available(ARDUINODS4_RX_ENDPOINT);
+uint8_t ArduinoPS4USB::available() {
+	return USB_Available(ARDUINOPS4_RX_ENDPOINT);
 }
 
-int ArduinoDS4USB::recv(void *buffer, uint8_t nbytes) {
-	return USB_Recv(ARDUINODS4_RX_ENDPOINT, buffer, nbytes);
+int ArduinoPS4USB::recv(void *buffer, uint8_t nbytes) {
+	return USB_Recv(ARDUINOPS4_RX_ENDPOINT, buffer, nbytes);
 }
 
-int ArduinoDS4USB::send(const void *buffer, uint8_t nbytes) {
-	int result = USB_Send(ARDUINODS4_TX_ENDPOINT, buffer, nbytes);
+int ArduinoPS4USB::send(const void *buffer, uint8_t nbytes) {
+	int result = USB_Send(ARDUINOPS4_TX_ENDPOINT, buffer, nbytes);
 	if (result > 0) {
-		USB_Flush(ARDUINODS4_TX_ENDPOINT);
+		USB_Flush(ARDUINOPS4_TX_ENDPOINT);
 	}
 	return result;
 }
 
-void ArduinoDS4USB::setRecvCallback(void(*callback)(void)) {
-	ArduinoDS4USB::RecvCallback = callback;
+void ArduinoPS4USB::setRecvCallback(void(*callback)(void)) {
+	ArduinoPS4USB::RecvCallback = callback;
 }
 
-void ArduinoDS4USB::setSendCallback(void(*callback)(void)) {
-	ArduinoDS4USB::SendCallback = callback;
+void ArduinoPS4USB::setSendCallback(void(*callback)(void)) {
+	ArduinoPS4USB::SendCallback = callback;
 }
 
 #endif
