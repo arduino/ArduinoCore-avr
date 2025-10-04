@@ -1,7 +1,7 @@
 /*
- *  Project     ArduinoDS4 AVR core
+ *  Project     ArduinoPS4 AVR core
  *  @author     Flamethrower
- *  @link       github.com/Flamethr0wer/ArduinoDS4_AVR
+ *  @link       github.com/Flamethr0wer/ArduinoPS4_AVR
  *  @license    MIT - Copyright (c) 2019 Flamethrower
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,7 +24,7 @@
  *
  */
 
-#include "ArduinoDS4_USBDesc.h"
+#include "ArduinoPS4_USBDesc.h"
 
 #if defined(USBCON)
 
@@ -96,7 +96,7 @@ const u8 USB_ConfigDescriptor[] = {
 
 const u16 USB_ConfigDescriptorSize = sizeof(USB_ConfigDescriptor);
 
-const u8 STRING_SERIAL[] = "Arduino DS4 AVR";
+const u8 STRING_SERIAL[] = "Arduino PS4 AVR";
 const u8 STRING_SECURITY[] = "PS4 protocol";
 
 const u8 hidDescriptor[] = {
