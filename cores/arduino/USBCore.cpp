@@ -348,17 +348,17 @@ bool InitEPSize(const u8 index, const u8 type, const u8 nbanks, const u8 banksiz
 }
 static
 void InitEndpoints() {
-	InitEPSize(ARDUINODS4_TX_ENDPOINT, EP_TYPE_INTERRUPT_IN,  2, 64);  // Control Data Send
-	InitEPSize(ARDUINODS4_RX_ENDPOINT, EP_TYPE_INTERRUPT_OUT, 2, 64);  // Control Data Receive
+	InitEPSize(ARDUINOPS4_TX_ENDPOINT, EP_TYPE_INTERRUPT_IN,  2, 64);  // Control Data Send
+	InitEPSize(ARDUINOPS4_RX_ENDPOINT, EP_TYPE_INTERRUPT_OUT, 2, 64);  // Control Data Receive
 	InitEPSize(5, EP_TYPE_INTERRUPT_IN,  2, 64);  // Expansion Interface NACK (avoid config reset)
 
 	UERST = 0x7E;  // Reset endpoints
 	UERST = 0;     // End reset
 
-	SetEP(ARDUINODS4_TX_ENDPOINT);
+	SetEP(ARDUINOPS4_TX_ENDPOINT);
 	UEIENX |= (1 << TXINE);
 
-	SetEP(ARDUINODS4_RX_ENDPOINT);
+	SetEP(ARDUINOPS4_RX_ENDPOINT);
 	UEIENX |= (1 << RXOUTE);
 }
 
@@ -513,19 +513,19 @@ bool SendDescriptor(USBSetup& setup)
 //	Endpoint interrupt
 ISR(USB_COM_vect)
 {
-	SetEP(ARDUINODS4_TX_ENDPOINT);
+	SetEP(ARDUINOPS4_TX_ENDPOINT);
 	if (UEINTX & (1 << TXINI)) {  // If TX buffer is ready
 		UEINTX &= ~(1 << TXINI);  // Clear interrupt flag
-		if (ArduinoDS4USB::SendCallback != nullptr) {
-			ArduinoDS4USB::SendCallback();  // Call callback function if it exists
+		if (ArduinoPS4USB::SendCallback != nullptr) {
+			ArduinoPS4USB::SendCallback();  // Call callback function if it exists
 		}
 	}
 	
-	SetEP(ARDUINODS4_RX_ENDPOINT);
+	SetEP(ARDUINOPS4_RX_ENDPOINT);
 	if (UEINTX & (1 << RXOUTI)) {  // If data received...
 		UEINTX &= ~(1 << RXOUTI);  // Clear interrupt flag
-		if (ArduinoDS4USB::RecvCallback != nullptr) {
-			ArduinoDS4USB::RecvCallback();  // Call callback function if it exists
+		if (ArduinoPS4USB::RecvCallback != nullptr) {
+			ArduinoPS4USB::RecvCallback();  // Call callback function if it exists
 		}
 	}
     SetEP(0);
