@@ -36,12 +36,12 @@ const DeviceDescriptor USB_DeviceDescriptor = {
 	0x00,           // bDeviceSubClass
 	0x00,           // bDeviceProtocol
 	0x40,           // bMaxPacketSize0
-	0x1532,        // idEVendor
-	0x0401,        // idProduct
-	0x0100,          // bcdDevice
-	0x01,  // iManufacturer
-	0x02,       // iProduct
-	0x00,        // iSerialNumber
+	0x054C,         // idVendor
+	0x05C4,         // idProduct
+	0x0100,         // bcdDevice
+	0x01,           // iManufacturer
+	0x02,           // iProduct
+	0x00,           // iSerialNumber
 	0x01,           // bNumConfigurations
 };
 
@@ -75,12 +75,12 @@ const u8 USB_ConfigDescriptor[] = {
 	0x00,        // bCountryCode
 	0x01,        // bNumDescriptors
 	0x22,        // bDescriptorType
-	0xE1, 0x01,  // DescriptorLength
+	0xD3, 0x01,  // DescriptorLength
 
 	// Endpoint 1: Control Surface Send
 	0x07,        // bLength
 	0x05,        // bDescriptorType (ENDPOINT)
-	0x81,        // bEndpointAddress (IN, 1)
+	0x84,        // bEndpointAddress (IN, 1)
 	0x03,        // bmAttributes
 	0x40, 0x00,  // wMaxPacketSize
 	0x05,        // bInterval
@@ -100,7 +100,7 @@ const u8 STRING_SERIAL[] = "Arduino DS4 AVR";
 const u8 STRING_SECURITY[] = "PS4 protocol";
 
 const u8 hidDescriptor[] = {
-0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+	0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
 	0x09, 0x05,        // Usage (Game Pad)
 	0xA1, 0x01,        // Collection (Application)
 	0x85, 0x01,        //   Report ID (1)
@@ -113,7 +113,6 @@ const u8 hidDescriptor[] = {
 	0x75, 0x08,        //   Report Size (8)
 	0x95, 0x04,        //   Report Count (4)
 	0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-
 	0x09, 0x39,        //   Usage (Hat switch)
 	0x15, 0x00,        //   Logical Minimum (0)
 	0x25, 0x07,        //   Logical Maximum (7)
@@ -123,7 +122,6 @@ const u8 hidDescriptor[] = {
 	0x75, 0x04,        //   Report Size (4)
 	0x95, 0x01,        //   Report Count (1)
 	0x81, 0x42,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,Null State)
-
 	0x65, 0x00,        //   Unit (None)
 	0x05, 0x09,        //   Usage Page (Button)
 	0x19, 0x01,        //   Usage Minimum (0x01)
@@ -133,13 +131,13 @@ const u8 hidDescriptor[] = {
 	0x75, 0x01,        //   Report Size (1)
 	0x95, 0x0E,        //   Report Count (14)
 	0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-
 	0x06, 0x00, 0xFF,  //   Usage Page (Vendor Defined 0xFF00)
 	0x09, 0x20,        //   Usage (0x20)
 	0x75, 0x06,        //   Report Size (6)
 	0x95, 0x01,        //   Report Count (1)
+	0x15, 0x00,        //   Logical Minimum (0)
+	0x25, 0x7F,        //   Logical Maximum (127)
 	0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-
 	0x05, 0x01,        //   Usage Page (Generic Desktop Ctrls)
 	0x09, 0x33,        //   Usage (Rx)
 	0x09, 0x34,        //   Usage (Ry)
@@ -148,22 +146,18 @@ const u8 hidDescriptor[] = {
 	0x75, 0x08,        //   Report Size (8)
 	0x95, 0x02,        //   Report Count (2)
 	0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-
 	0x06, 0x00, 0xFF,  //   Usage Page (Vendor Defined 0xFF00)
 	0x09, 0x21,        //   Usage (0x21)
 	0x95, 0x36,        //   Report Count (54)
 	0x81, 0x02,        //   Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-
 	0x85, 0x05,        //   Report ID (5)
 	0x09, 0x22,        //   Usage (0x22)
 	0x95, 0x1F,        //   Report Count (31)
 	0x91, 0x02,        //   Output (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-
-	0x85, 0x03,        //   Report ID (3)
-	0x0A, 0x21, 0x27,  //   Usage (0x2721)
-	0x95, 0x2F,        //   Report Count (47)
+	0x85, 0x04,        //   Report ID (4)
+	0x09, 0x23,        //   Usage (0x23)
+	0x95, 0x24,        //   Report Count (36)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-
 	0x85, 0x02,        //   Report ID (2)
 	0x09, 0x24,        //   Usage (0x24)
 	0x95, 0x24,        //   Report Count (36)
@@ -283,35 +277,47 @@ const u8 hidDescriptor[] = {
 	0x09, 0x46,        //   Usage (0x46)
 	0x95, 0x15,        //   Report Count (21)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xA7,        //   Report ID (247)
+	0x85, 0xF0,        //   Report ID (240)
+	0x09, 0x47,        //   Usage (0x47)
+	0x95, 0x3F,        //   Report Count (63)
+	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+	0x85, 0xF1,        //   Report ID (241)
+	0x09, 0x48,        //   Usage (0x48)
+	0x95, 0x3F,        //   Report Count (63)
+	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+	0x85, 0xF2,        //   Report ID (242)
+	0x09, 0x49,        //   Usage (0x49)
+	0x95, 0x0F,        //   Report Count (15)
+	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+	0x85, 0xA7,        //   Report ID (167)
 	0x09, 0x4A,        //   Usage (0x4A)
 	0x95, 0x01,        //   Report Count (1)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xA8,        //   Report ID (250)
+	0x85, 0xA8,        //   Report ID (168)
 	0x09, 0x4B,        //   Usage (0x4B)
 	0x95, 0x01,        //   Report Count (1)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xA9,        //   Report ID (251)
+	0x85, 0xA9,        //   Report ID (169)
 	0x09, 0x4C,        //   Usage (0x4C)
 	0x95, 0x08,        //   Report Count (8)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xAA,        //   Report ID (252)
+	0x85, 0xAA,        //   Report ID (170)
 	0x09, 0x4E,        //   Usage (0x4E)
 	0x95, 0x01,        //   Report Count (1)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xAB,        //   Report ID (253)
+	0x85, 0xAB,        //   Report ID (171)
 	0x09, 0x4F,        //   Usage (0x4F)
 	0x95, 0x39,        //   Report Count (57)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xAC,        //   Report ID (254)
+	0x85, 0xAC,        //   Report ID (172)
 	0x09, 0x50,        //   Usage (0x50)
 	0x95, 0x39,        //   Report Count (57)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xAD,        //   Report ID (255)
+	0x85, 0xAD,        //   Report ID (173)
 	0x09, 0x51,        //   Usage (0x51)
 	0x95, 0x0B,        //   Report Count (11)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xAE,        //   Report ID (256)
+	0x85, 0xAE,        //   Report ID (174)
 	0x09, 0x52,        //   Usage (0x52)
 	0x95, 0x01,        //   Report Count (1)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
@@ -324,43 +330,9 @@ const u8 hidDescriptor[] = {
 	0x95, 0x3F,        //   Report Count (63)
 	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
 	0xC0,              // End Collection
-
-	0x06, 0xF0, 0xFF,  // Usage Page (Vendor Defined 0xFFF0)
-	0x09, 0x40,        // Usage (0x40)
-	0xA1, 0x01,        // Collection (Application)
-	0x85, 0xF0,        //   Report ID (-16) AUTH F0
-	0x09, 0x47,        //   Usage (0x47)
-	0x95, 0x3F,        //   Report Count (63)
-	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xF1,        //   Report ID (-15) AUTH F1
-	0x09, 0x48,        //   Usage (0x48)
-	0x95, 0x3F,        //   Report Count (63)
-	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xF2,        //   Report ID (-14) AUTH F2
-	0x09, 0x49,        //   Usage (0x49)
-	0x95, 0x0F,        //   Report Count (15)
-	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0x85, 0xF3,        //   Report ID (-13) Auth F3 (Reset)
-	0x0A, 0x01, 0x47,  //   Usage (0x4701)
-	0x95, 0x07,        //   Report Count (7)
-	0xB1, 0x02,        //   Feature (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-	0xC0,              // End Collection
 };
 
 const u16 hidDescriptorSize = sizeof(hidDescriptor);
-
-const u8 hidClassDescriptor[] = {
-	0x09,                    // bLength
-	0x21,                    // bDescriptorType (HID)
-	0x11, 0x01,              // bcdHID = 1.11
-	0x00,                    // bCountryCode
-	0x01,                    // bNumDescriptors
-	0x22,                    // bDescriptorType[0] = Report
-	(uint8_t)(hidDescriptorSize & 0xFF),  // wDescriptorLength (LSB)
-	(uint8_t)((hidDescriptorSize >> 8) & 0xFF)   // wDescriptorLength (MSB)
-};
-
-const u16 hidClassDescriptorSize = sizeof(hidClassDescriptor);
 
 const u8 output_0x02[] = {
     0xfe, 0xff, 0x0e, 0x00, 0x04, 0x00, 0xd4, 0x22,
