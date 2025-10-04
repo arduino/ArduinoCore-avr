@@ -4,7 +4,7 @@ menu.cpu=Processor
 
 ##############################################################
 
-leonardo.name=Arduino Leonardo as DS4
+leonardo.name=Arduino Leonardo as PS4 controller
 leonardo.vid.0=0x1532
 leonardo.pid.0=0x0401
 leonardo.vid.1=0x1532
@@ -55,7 +55,7 @@ leonardo.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-leonardoeth.name=Arduino Leonardo ETH as DS4
+leonardoeth.name=Arduino Leonardo ETH as PS4 controller
 leonardoeth.vid.0=0x1532
 leonardoeth.pid.0=0x0401
 leonardoeth.vid.1=0x1532
@@ -98,7 +98,7 @@ leonardoeth.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-micro.name=Arduino Micro as DS4
+micro.name=Arduino Micro as PS4 controller
 
 micro.vid.0=0x1532
 micro.pid.0=0x0401
@@ -158,7 +158,7 @@ micro.build.extra_flags={build.usb_flags}
 
 ##############################################################
 
-esplora.name=Arduino Esplora as DS4
+esplora.name=Arduino Esplora as PS4 controller
 esplora.vid.0=0x1532
 esplora.pid.0=0x0401
 esplora.vid.1=0x1532
