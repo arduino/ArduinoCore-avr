@@ -257,11 +257,11 @@ size_t Serial_::write(const uint8_t *buffer, size_t size)
 // We add a short delay before returning to fix a bug observed by Federico
 // where the port is configured (lineState != 0) but not quite opened.
 Serial_::operator bool() {
-	bool result = false;
-	if (_usbLineInfo.lineState > 0) 
-		result = true;
-	delay(10);
-	return result;
+	if (_usbLineInfo.lineState > 0) {
+		delay(10);
+		return true;
+	}
+	return false;
 }
 
 unsigned long Serial_::baud() {
