@@ -56,6 +56,7 @@ static volatile bool twi_timed_out_flag = false;  // a timeout has been seen
 static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI registers on timeout
 
 static void (*twi_onSlaveTransmit)(void);
+static void (*twi_onSlaveTransmitMore)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
 
 static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
@@ -385,6 +386,17 @@ void twi_attachSlaveTxEvent( void (*function)(void) )
 }
 
 /* 
+ * Function twi_attachSlaveTxMoreEvent
+ * Desc     sets function called before a slave cont'd sequential data write operation
+ * Input    function: callback function to use
+ * Output   none
+ */
+void twi_attachSlaveTxMoreEvent( void (*function)(void) )
+{
+  twi_onSlaveTransmitMore = function;
+}
+
+/* 
  * Function twi_reply
  * Desc     sends byte or readys receive line
  * Input    ack: byte indicating to ack or to nack
@@ -640,6 +652,10 @@ ISR(TWI_vect)
     case TW_ST_DATA_ACK: // byte sent, ack returned
       // copy data to output register
       TWDR = twi_txBuffer[twi_txBufferIndex++];
+	  // if the buffer emptied, request it to be topped up
+	  if (twi_txBufferIndex >= twi_txBufferLength) {
+		twi_onSlaveTransmitMore();
+	  }
       // if there is more to send, ack, otherwise nack
       if(twi_txBufferIndex < twi_txBufferLength){
         twi_reply(1);
