@@ -40,9 +40,9 @@ volatile unsigned long timer0_millis = 0;
 static unsigned char timer0_fract = 0;
 
 #if defined(TIM0_OVF_vect)
-ISR(TIM0_OVF_vect)
+ISR(TIM0_OVF_vect,  __attribute__((weak))))
 #else
-ISR(TIMER0_OVF_vect)
+ISR(TIMER0_OVF_vect,  __attribute__((weak)))
 #endif
 {
 	// copy these to local variables so they can be stored in registers
