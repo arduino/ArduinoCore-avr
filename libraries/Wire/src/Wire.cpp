@@ -264,7 +264,7 @@ size_t TwoWire::write(uint8_t data)
 // or after beginTransmission(address)
 size_t TwoWire::write(const uint8_t *data, size_t quantity)
 {
-  // number of bytes succefully added to the buffer
+  // number of bytes successfully added to the buffer
   uint8_t bytesSent = 0;
   if(transmitting){
   // in master transmitter mode
