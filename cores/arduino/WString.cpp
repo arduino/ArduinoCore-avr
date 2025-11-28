@@ -20,6 +20,7 @@
 */
 
 #include "WString.h"
+#include <float.h>
 
 /*********************************************/
 /*  Static Member Initialisation             */
@@ -114,7 +115,7 @@ String::String(unsigned long value, unsigned char base)
 
 String::String(float value, unsigned char decimalPlaces)
 {
-	static size_t const FLOAT_BUF_SIZE = 38 + FLT_MAX_DECIMAL_PLACES + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
+	static size_t const FLOAT_BUF_SIZE = FLT_MAX_10_EXP + FLT_MAX_DECIMAL_PLACES + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
 	init();
 	char buf[FLOAT_BUF_SIZE];
 	decimalPlaces = decimalPlaces < FLT_MAX_DECIMAL_PLACES ? decimalPlaces : FLT_MAX_DECIMAL_PLACES;
@@ -123,7 +124,7 @@ String::String(float value, unsigned char decimalPlaces)
 
 String::String(double value, unsigned char decimalPlaces)
 {
-	static size_t const DOUBLE_BUF_SIZE = 38 + DBL_MAX_DECIMAL_PLACES + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
+	static size_t const DOUBLE_BUF_SIZE = DBL_MAX_10_EXP + DBL_MAX_DECIMAL_PLACES + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
 	init();
 	char buf[DOUBLE_BUF_SIZE];
 	decimalPlaces = decimalPlaces < DBL_MAX_DECIMAL_PLACES ? decimalPlaces : DBL_MAX_DECIMAL_PLACES;
