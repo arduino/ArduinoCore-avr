@@ -108,11 +108,12 @@ void yield(void);
 #define lowByte(w) ((uint8_t) ((w) & 0xff))
 #define highByte(w) ((uint8_t) ((w) >> 8))
 
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitToggle(value, bit) ((value) ^= (1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
+#define bit(b) (1UL << (b))
+#define bitRead(value, b) (((value) >> (b)) & 0x01)
+#define bitSet(value, b) ((value) |= bit(b))
+#define bitClear(value, b) ((value) &= ~bit(b))
+#define bitToggle(value, b) ((value) ^= bit(b))
+#define bitWrite(value, b, bitvalue) ((bitvalue) ? bitSet(value, b) : bitClear(value, b))
 
 // avr-libc defines _NOP() since 1.6.2
 #ifndef _NOP
@@ -120,8 +121,6 @@ void yield(void);
 #endif
 
 typedef unsigned int word;
-
-#define bit(b) (1UL << (b))
 
 typedef bool boolean;
 typedef uint8_t byte;
