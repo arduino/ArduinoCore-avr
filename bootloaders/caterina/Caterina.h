@@ -86,7 +86,7 @@
 		typedef void (*AppPtr_t)(void) ATTR_NO_RETURN;
 
 	/* Function Prototypes: */
-		void StartSketch(void);
+		void StartSketch(uint8_t mcur_state);
 		void LEDPulse(void);
 	
 		void CDC_Task(void);
