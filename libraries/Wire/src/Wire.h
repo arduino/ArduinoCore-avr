@@ -45,8 +45,10 @@ class TwoWire : public Stream
 
     static uint8_t transmitting;
     static void (*user_onRequest)(void);
+    static void (*user_onRequestMore)(void);
     static void (*user_onReceive)(int);
     static void onRequestService(void);
+    static void onRequestMoreService(void);
     static void onReceiveService(uint8_t*, int);
   public:
     TwoWire();
@@ -75,6 +77,7 @@ class TwoWire : public Stream
     virtual void flush(void);
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
+    void onRequestMore( void (*)(void) );
 
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }
