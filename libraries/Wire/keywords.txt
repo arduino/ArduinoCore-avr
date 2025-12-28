@@ -19,6 +19,7 @@ endTransmission	KEYWORD2
 requestFrom	KEYWORD2
 onReceive	KEYWORD2
 onRequest	KEYWORD2
+disablePullups KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
