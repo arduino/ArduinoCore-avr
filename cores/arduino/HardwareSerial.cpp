@@ -109,6 +109,7 @@ void HardwareSerial::_tx_udr_empty_irq(void)
   if (_tx_buffer_head == _tx_buffer_tail) {
     // Buffer empty, so disable interrupts
     cbi(*_ucsrb, UDRIE0);
+    if (this->EventEndTransmit) this->EventEndTransmit();  
   }
 }
 
