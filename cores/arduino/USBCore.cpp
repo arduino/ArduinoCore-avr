@@ -440,7 +440,7 @@ int USB_SendControl(u8 flags, const void* d, int len)
 // Send a USB descriptor string. The string is stored in PROGMEM as a
 // plain ASCII string but is sent out as UTF-16 with the correct 2-byte
 // prefix
-static bool USB_SendStringDescriptor(const u8*string_P, u8 string_len, uint8_t flags) {
+bool USB_SendStringDescriptor(const u8*string_P, u8 string_len, uint8_t flags) {
         SendControl(2 + string_len * 2);
         SendControl(3);
         bool pgm = flags & TRANSFER_PGM;
