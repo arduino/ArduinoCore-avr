@@ -98,10 +98,10 @@ public:
 
 protected:
   // Implementation of the PluggableUSBModule
-  int getInterface(uint8_t* interfaceCount);
-  int getDescriptor(USBSetup& setup);
-  bool setup(USBSetup& setup);
-  uint8_t getShortName(char* name);
+  int getInterface(uint8_t* interfaceCount) override;
+  int getDescriptor(USBSetup& setup) override;
+  bool setup(USBSetup& setup) override;
+  uint8_t getShortName(char* name) override;
 
 private:
   uint8_t epType[1];
