@@ -349,7 +349,7 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
     // Calculate the toggle count
     if (duration > 0)
     {
-      toggle_count = 2 * frequency * duration / 1000;
+      toggle_count = 2 * (unsigned long)frequency * duration / 1000;
     }
     else
     {
