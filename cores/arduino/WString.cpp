@@ -20,6 +20,14 @@
 */
 
 #include "WString.h"
+#include <float.h>
+
+/*********************************************/
+/*  Static Member Initialisation             */
+/*********************************************/
+
+size_t const String::FLT_MAX_DECIMAL_PLACES = DECIMAL_DIG;
+size_t const String::DBL_MAX_DECIMAL_PLACES = DECIMAL_DIG;
 
 /*********************************************/
 /*  Constructors                             */
@@ -107,15 +115,19 @@ String::String(unsigned long value, unsigned char base)
 
 String::String(float value, unsigned char decimalPlaces)
 {
+	static size_t const FLOAT_BUF_SIZE = (FLT_MAX_10_EXP + 1) + FLT_MAX_DECIMAL_PLACES + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
 	init();
-	char buf[33];
+	char buf[FLOAT_BUF_SIZE];
+	decimalPlaces = decimalPlaces < FLT_MAX_DECIMAL_PLACES ? decimalPlaces : FLT_MAX_DECIMAL_PLACES;
 	*this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
 }
 
 String::String(double value, unsigned char decimalPlaces)
 {
+	static size_t const DOUBLE_BUF_SIZE = (DBL_MAX_10_EXP + 1) + DBL_MAX_DECIMAL_PLACES + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
 	init();
-	char buf[33];
+	char buf[DOUBLE_BUF_SIZE];
+	decimalPlaces = decimalPlaces < DBL_MAX_DECIMAL_PLACES ? decimalPlaces : DBL_MAX_DECIMAL_PLACES;
 	*this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
 }
 

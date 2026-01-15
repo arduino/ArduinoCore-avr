@@ -50,6 +50,9 @@ class String
 	typedef void (String::*StringIfHelperType)() const;
 	void StringIfHelper() const {}
 
+	static size_t const FLT_MAX_DECIMAL_PLACES;
+	static size_t const DBL_MAX_DECIMAL_PLACES;
+
 public:
 	// constructors
 	// creates a copy of the initial value.
