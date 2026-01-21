@@ -107,8 +107,20 @@ public:
   
   using Print::write;
 
-  // public only for easy access by interrupt handlers
-  static inline void handle_interrupt() __attribute__((__always_inline__));
+  static void handle_interrupt();
 };
+
+#if defined(PCINT0_vect)
+void pcint0_isr_wrapper() __attribute__ ((weak));
+#endif
+#if defined(PCINT1_vect)
+void pcint1_isr_wrapper() __attribute__ ((weak));
+#endif
+#if defined(PCINT2_vect)
+void pcint2_isr_wrapper() __attribute__ ((weak));
+#endif
+#if defined(PCINT3_vect)
+void pcint3_isr_wrapper() __attribute__ ((weak));
+#endif
 
 #endif
