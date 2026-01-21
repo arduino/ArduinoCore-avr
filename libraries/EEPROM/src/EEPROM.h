@@ -44,7 +44,7 @@ struct EERef{
     
     //Assignment/write members.
     EERef &operator=( const EERef &ref ) { return *this = *ref; }
-    EERef &operator=( uint8_t in )       { return eeprom_write_byte( (uint8_t*) index, in ), *this;  }
+    EERef &operator=( uint8_t in )       { return do_update ? update( in ) : write( in ); }
     EERef &operator +=( uint8_t in )     { return *this = **this + in; }
     EERef &operator -=( uint8_t in )     { return *this = **this - in; }
     EERef &operator *=( uint8_t in )     { return *this = **this * in; }
@@ -56,7 +56,8 @@ struct EERef{
     EERef &operator <<=( uint8_t in )    { return *this = **this << in; }
     EERef &operator >>=( uint8_t in )    { return *this = **this >> in; }
     
-    EERef &update( uint8_t in )          { return  in != *this ? *this = in : *this; }
+    EERef &update( uint8_t in )          { return  in != *this ? write( in ) : in; }
+    EERef &write( uint8_t in )           { return eeprom_write_byte( (uint8_t*) index, in ), in; }
     
     /** Prefix increment/decrement **/
     EERef& operator++()                  { return *this += 1; }
@@ -74,7 +75,9 @@ struct EERef{
     }
     
     int index; //Index of current EEPROM cell.
+    static bool do_update;
 };
+bool EERef::do_update = true;
 
 /***
     EEPtr class.
@@ -118,7 +121,7 @@ struct EEPROMClass{
     //Basic user access methods.
     EERef operator[]( const int idx )    { return idx; }
     uint8_t read( int idx )              { return EERef( idx ); }
-    void write( int idx, uint8_t val )   { (EERef( idx )) = val; }
+    void write( int idx, uint8_t val )   { EERef( idx ).write( val ); }
     void update( int idx, uint8_t val )  { EERef( idx ).update( val ); }
     
     //STL and C++11 iteration capability.
