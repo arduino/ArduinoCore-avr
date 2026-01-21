@@ -132,7 +132,7 @@ class HardwareSerial : public Stream
     inline size_t write(unsigned int n) { return write((uint8_t)n); }
     inline size_t write(int n) { return write((uint8_t)n); }
     using Print::write; // pull in write(str) and write(buf, size) from Print
-    operator bool() { return true; }
+    explicit constexpr operator bool() { return true; }
 
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
