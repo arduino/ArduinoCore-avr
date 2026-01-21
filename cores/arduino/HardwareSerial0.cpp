@@ -47,6 +47,7 @@
 #endif
   {
     Serial._rx_complete_irq();
+    Serial.onReceiveService();
   }
 
 #if defined(UART0_UDRE_vect)
