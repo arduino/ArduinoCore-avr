@@ -106,11 +106,11 @@ protected:
 private:
   uint8_t epType[1];
 
-  HIDSubDescriptor* rootNode;
-  uint16_t descriptorSize;
+  HIDSubDescriptor* rootNode = NULL;
+  uint16_t descriptorSize = 0;
 
-  uint8_t protocol;
-  uint8_t idle;
+  uint8_t protocol = HID_REPORT_PROTOCOL;
+  uint8_t idle = 1;
 };
 
 // Replacement for global singleton.
