@@ -20,6 +20,7 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 23 November 2019 by Georg Icking-Konert
 */
 
 #include "Arduino.h"
@@ -56,6 +57,17 @@ ISR(USART1_UDRE_vect)
 #endif
 {
   Serial1._tx_udr_empty_irq();
+}
+
+#if defined(UART1_TX_vect)
+ISR(UART1_TX_vect)
+#elif defined(USART1_TX_vect)
+ISR(USART1_TX_vect)
+#else
+  #error "Don't know what the Transmission Complete vector is called for Serial1"
+#endif
+{
+  Serial1._tx_complete_irq();
 }
 
 HardwareSerial Serial1(&UBRR1H, &UBRR1L, &UCSR1A, &UCSR1B, &UCSR1C, &UDR1);
