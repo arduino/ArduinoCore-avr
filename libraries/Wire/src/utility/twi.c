@@ -60,7 +60,7 @@ static void (*twi_onSlaveReceive)(uint8_t*, int);
 
 static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_masterBufferIndex;
-static volatile uint8_t twi_masterBufferLength;
+static volatile int8_t twi_masterBufferLength;
 
 static uint8_t twi_txBuffer[TWI_BUFFER_LENGTH];
 static volatile uint8_t twi_txBufferIndex;
@@ -552,7 +552,16 @@ ISR(TWI_vect)
       __attribute__ ((fallthrough));
     case TW_MR_SLA_ACK:  // address sent, ack received
       // ack if more bytes are expected, otherwise nack
-      if(twi_masterBufferIndex < twi_masterBufferLength){
+      if (twi_masterBufferLength == -1){
+        // required data length 0 bytes, no need to get data
+        if (twi_sendStop){
+          twi_stop();
+        } else {
+          twi_inRepStart = true;
+          TWCR = _BV(TWINT) | _BV(TWSTA)| _BV(TWEN) ;
+          twi_state = TWI_READY;
+        }
+      }else if(twi_masterBufferIndex < twi_masterBufferLength){
         twi_reply(1);
       }else{
         twi_reply(0);
