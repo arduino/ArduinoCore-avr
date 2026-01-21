@@ -242,7 +242,7 @@ static int8_t toneBegin(uint8_t _pin)
 
 void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 {
-  uint8_t prescalarbits = 0b001;
+  uint8_t prescalarbits = 0x01;
   long toggle_count = 0;
   uint32_t ocr = 0;
   int8_t _timer;
@@ -258,38 +258,38 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
     if (_timer == 0 || _timer == 2)
     {
       ocr = F_CPU / frequency / 2 - 1;
-      prescalarbits = 0b001;  // ck/1: same for both timers
+      prescalarbits = 0x01;  // ck/1: same for both timers
       if (ocr > 255)
       {
         ocr = F_CPU / frequency / 2 / 8 - 1;
-        prescalarbits = 0b010;  // ck/8: same for both timers
+        prescalarbits = 0x02;  // ck/8: same for both timers
 
         if (_timer == 2 && ocr > 255)
         {
           ocr = F_CPU / frequency / 2 / 32 - 1;
-          prescalarbits = 0b011;
+          prescalarbits = 0x03;
         }
 
         if (ocr > 255)
         {
           ocr = F_CPU / frequency / 2 / 64 - 1;
-          prescalarbits = _timer == 0 ? 0b011 : 0b100;
+          prescalarbits = _timer == 0 ? 0x03 : 0x04;
 
           if (_timer == 2 && ocr > 255)
           {
             ocr = F_CPU / frequency / 2 / 128 - 1;
-            prescalarbits = 0b101;
+            prescalarbits = 0x05;
           }
 
           if (ocr > 255)
           {
             ocr = F_CPU / frequency / 2 / 256 - 1;
-            prescalarbits = _timer == 0 ? 0b100 : 0b110;
+            prescalarbits = _timer == 0 ? 0x04 : 0x06;
             if (ocr > 255)
             {
               // can't do any better than /1024
               ocr = F_CPU / frequency / 2 / 1024 - 1;
-              prescalarbits = _timer == 0 ? 0b101 : 0b111;
+              prescalarbits = _timer == 0 ? 0x05 : 0x07;
             }
           }
         }
@@ -298,13 +298,13 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 #if defined(TCCR0B)
       if (_timer == 0)
       {
-        TCCR0B = (TCCR0B & 0b11111000) | prescalarbits;
+        TCCR0B = (TCCR0B & 0xf8) | prescalarbits;
       }
       else
 #endif
 #if defined(TCCR2B)
       {
-        TCCR2B = (TCCR2B & 0b11111000) | prescalarbits;
+        TCCR2B = (TCCR2B & 0xf8) | prescalarbits;
       }
 #else
       {
@@ -317,30 +317,30 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
       // two choices for the 16 bit timers: ck/1 or ck/64
       ocr = F_CPU / frequency / 2 - 1;
 
-      prescalarbits = 0b001;
+      prescalarbits = 0x01;
       if (ocr > 0xffff)
       {
         ocr = F_CPU / frequency / 2 / 64 - 1;
-        prescalarbits = 0b011;
+        prescalarbits = 0x03;
       }
 
       if (_timer == 1)
       {
 #if defined(TCCR1B)
-        TCCR1B = (TCCR1B & 0b11111000) | prescalarbits;
+        TCCR1B = (TCCR1B & 0xf8) | prescalarbits;
 #endif
       }
 #if defined(TCCR3B)
       else if (_timer == 3)
-        TCCR3B = (TCCR3B & 0b11111000) | prescalarbits;
+        TCCR3B = (TCCR3B & 0xf8) | prescalarbits;
 #endif
 #if defined(TCCR4B)
       else if (_timer == 4)
-        TCCR4B = (TCCR4B & 0b11111000) | prescalarbits;
+        TCCR4B = (TCCR4B & 0xf8) | prescalarbits;
 #endif
 #if defined(TCCR5B)
       else if (_timer == 5)
-        TCCR5B = (TCCR5B & 0b11111000) | prescalarbits;
+        TCCR5B = (TCCR5B & 0xf8) | prescalarbits;
 #endif
 
     }
@@ -449,7 +449,7 @@ void disableTimer(uint8_t _timer)
         TCCR2A = (1 << WGM20);
       #endif
       #if defined(TCCR2B) && defined(CS22)
-        TCCR2B = (TCCR2B & 0b11111000) | (1 << CS22);
+        TCCR2B = (TCCR2B & 0xf8) | (1 << CS22);
       #endif
       #if defined(OCR2A)
         OCR2A = 0;
