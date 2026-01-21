@@ -1,5 +1,5 @@
 /*
-  TwoWire.h - TWI/I2C library for Arduino & Wiring
+  Wire.h - TWI/I2C library for Arduino & Wiring
   Copyright (c) 2006 Nicholas Zambetti.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
 */
 
+#pragma once
+
 #ifndef TwoWire_h
 #define TwoWire_h
 
 #include <inttypes.h>
 #include "Stream.h"
-
-#define BUFFER_LENGTH 32
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
@@ -34,12 +34,10 @@
 class TwoWire : public Stream
 {
   private:
-    static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
 
     static uint8_t txAddress;
-    static uint8_t txBuffer[];
     static uint8_t txBufferIndex;
     static uint8_t txBufferLength;
 
@@ -59,20 +57,32 @@ class TwoWire : public Stream
     bool getWireTimeoutFlag(void);
     void clearWireTimeoutFlag(void);
     void beginTransmission(uint8_t);
-    void beginTransmission(int);
+    inline void beginTransmission(int address) {beginTransmission(static_cast<uint8_t> (address));}
     uint8_t endTransmission(void);
     uint8_t endTransmission(uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t);
-    uint8_t requestFrom(uint8_t, uint8_t, uint8_t);
     uint8_t requestFrom(uint8_t, uint8_t, uint32_t, uint8_t, uint8_t);
-    uint8_t requestFrom(int, int);
-    uint8_t requestFrom(int, int, int);
-    virtual size_t write(uint8_t);
-    virtual size_t write(const uint8_t *, size_t);
-    virtual int available(void);
-    virtual int read(void);
-    virtual int peek(void);
-    virtual void flush(void);
+    inline uint8_t requestFrom(uint8_t address, uint8_t quantity) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint8_t> (true));
+    }
+    inline uint8_t requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint32_t>(0), static_cast<uint8_t>(0), static_cast<uint8_t>(sendStop));
+    }
+    inline uint8_t requestFrom(int address, int quantity) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint8_t>(true));
+    }
+    inline uint8_t requestFrom(int address, int quantity, int sendStop) {
+      return requestFrom(static_cast<uint8_t>(address), static_cast<uint8_t>(quantity),
+          static_cast<uint8_t>(sendStop));
+    }
+    size_t write(uint8_t) override;
+    size_t write(const uint8_t *, size_t) override;
+    int available(void) override;
+    int read(void) override;
+    int peek(void) override;
+    void flush(void) override;
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
 
