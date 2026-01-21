@@ -35,6 +35,7 @@ extern "C" {
 uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
 uint8_t TwoWire::rxBufferIndex = 0;
 uint8_t TwoWire::rxBufferLength = 0;
+uint8_t TwoWire::rxAddress = 0;
 
 uint8_t TwoWire::txAddress = 0;
 uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
@@ -66,15 +67,15 @@ void TwoWire::begin(void)
   twi_attachSlaveRxEvent(onReceiveService); // default callback must exist
 }
 
-void TwoWire::begin(uint8_t address)
+void TwoWire::begin(uint8_t address, uint8_t mask)
 {
   begin();
-  twi_setAddress(address);
+  twi_setAddress(address, mask);
 }
 
-void TwoWire::begin(int address)
+void TwoWire::begin(int address, int mask)
 {
-  begin((uint8_t)address);
+  begin((uint8_t)address, (uint8_t)mask);
 }
 
 void TwoWire::end(void)
@@ -320,8 +321,13 @@ void TwoWire::flush(void)
   // XXX: to be implemented.
 }
 
+uint8_t TwoWire::getLastAddress()
+{
+  return rxAddress; 
+};
+
 // behind the scenes function that is called when data is received
-void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
+void TwoWire::onReceiveService(uint8_t addr, uint8_t* inBytes, int numBytes)
 {
   // don't bother if user hasn't registered a callback
   if(!user_onReceive){
@@ -341,6 +347,7 @@ void TwoWire::onReceiveService(uint8_t* inBytes, int numBytes)
   // set rx iterator vars
   rxBufferIndex = 0;
   rxBufferLength = numBytes;
+  rxAddress = addr;
   // alert user program
   user_onReceive(numBytes);
 }
