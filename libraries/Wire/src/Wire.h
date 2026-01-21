@@ -18,6 +18,7 @@
 
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
   Modified 2020 by Greyson Christoforo (grey@christoforo.net) to implement timeouts
+  Modified 2021 by Fernando Rubio (frubio@techdev.cl) to support I2C 3v3 devices
 */
 
 #ifndef TwoWire_h
@@ -54,6 +55,7 @@ class TwoWire : public Stream
     void begin(uint8_t);
     void begin(int);
     void end();
+    void disablePullups();
     void setClock(uint32_t);
     void setWireTimeout(uint32_t timeout = 25000, bool reset_with_timeout = false);
     bool getWireTimeoutFlag(void);
