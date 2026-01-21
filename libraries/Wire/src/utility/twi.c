@@ -58,7 +58,7 @@ static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI register
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
 
-static uint8_t twi_masterBuffer[TWI_BUFFER_LENGTH];
+static uint8_t *twi_masterBuffer;
 static volatile uint8_t twi_masterBufferIndex;
 static volatile uint8_t twi_masterBufferLength;
 
@@ -158,8 +158,6 @@ void twi_setFrequency(uint32_t frequency)
  */
 uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sendStop)
 {
-  uint8_t i;
-
   // ensure data will fit into buffer
   if(TWI_BUFFER_LENGTH < length){
     return 0;
@@ -179,6 +177,7 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
   twi_error = 0xFF;
 
   // initialize buffer iteration vars
+  twi_masterBuffer = data;
   twi_masterBufferIndex = 0;
   twi_masterBufferLength = length-1;  // This is not intuitive, read on...
   // On receive, the previously configured ACK/NACK setting is transmitted in
@@ -226,11 +225,6 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
     length = twi_masterBufferIndex;
   }
 
-  // copy twi buffer to data
-  for(i = 0; i < length; ++i){
-    data[i] = twi_masterBuffer[i];
-  }
-
   return length;
 }
 
@@ -252,8 +246,6 @@ uint8_t twi_readFrom(uint8_t address, uint8_t* data, uint8_t length, uint8_t sen
  */
 uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait, uint8_t sendStop)
 {
-  uint8_t i;
-
   // ensure data will fit into buffer
   if(TWI_BUFFER_LENGTH < length){
     return 1;
@@ -273,13 +265,9 @@ uint8_t twi_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait
   twi_error = 0xFF;
 
   // initialize buffer iteration vars
+  twi_masterBuffer = data;
   twi_masterBufferIndex = 0;
   twi_masterBufferLength = length;
-  
-  // copy data to twi buffer
-  for(i = 0; i < length; ++i){
-    twi_masterBuffer[i] = data[i];
-  }
   
   // build sla+w, slave device address + w bit
   twi_slarw = TW_WRITE;
