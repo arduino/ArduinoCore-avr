@@ -372,6 +372,67 @@ void TwoWire::onRequest( void (*function)(void) )
   user_onRequest = function;
 }
 
+/* Register manipulation functions */
+
+// Reading byte from register (both blocking and non-blocking)
+uint8_t TwoWire::registerRead(uint8_t addr, uint8_t reg, const bool blocking) {
+  uint8_t val = 0;
+
+  beginTransmission(addr);
+  write(reg);
+  endTransmission(false);
+  requestFrom((int)addr, (int)1);
+  if (blocking == true) {
+    // blocking until data is received
+    while (available() == 0) {}
+  }
+  val = (uint8_t)read();
+  endTransmission(true);
+
+  return val;
+}
+
+// Writing byte to register
+void TwoWire::registerWrite(uint8_t addr, uint8_t reg, uint8_t val) {
+  beginTransmission(addr);
+  write(reg);
+  write(val);
+  endTransmission(true);
+}
+
+// Writing byte to register with verification
+bool TwoWire::registerWriteVerify(uint8_t addr, uint8_t reg, uint8_t val) {
+  registerWrite(addr, reg, val);
+  return (registerRead(addr, reg) == val) ? true : false;
+}
+
+// Reading data block from registers
+void TwoWire::registerBlockRead(uint8_t addr, uint8_t reg, uint8_t *data, size_t len, const bool blocking) {
+  beginTransmission(addr);
+  write(reg);
+  endTransmission(false);
+  requestFrom((int)addr, (int)len);
+  for (size_t cnt = 0 ; cnt < len ; cnt++) {
+    // If blocking mode is set check if the next byte is ready for reading after each byte
+    // If clock stretching support is not needed this check can be moved before the loop for better performance
+    // by running only once to check if device has started sending the data
+    if (blocking == true) {
+      // blocking until data is received
+      while (available() == 0) {}
+    }
+    data[cnt] = (uint8_t)read();
+  }
+  endTransmission(true);
+}
+
+// Writing data block to registers
+void TwoWire::registerBlockWrite(uint8_t addr, uint8_t reg, uint8_t *data, size_t len) {
+  beginTransmission(addr);
+  write(reg);
+  write(data, len);
+  endTransmission(true);
+}
+
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 TwoWire Wire = TwoWire();
