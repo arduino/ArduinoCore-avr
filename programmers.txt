@@ -102,29 +102,81 @@ stk500.program.tool=avrdude
 stk500.program.tool.default=avrdude
 stk500.program.extra_params=-P{serial.port}
 
-jtag3isp.name=Atmel JTAGICE3 (ISP mode)
-jtag3isp.communication=usb
-jtag3isp.protocol=jtag3isp
-jtag3isp.program.protocol=jtag3isp
-jtag3isp.program.tool=avrdude
-jtag3isp.program.tool.default=avrdude
-jtag3isp.program.extra_params=
-
-jtag3.name=Atmel JTAGICE3 (JTAG mode)
-jtag3.communication=usb
-jtag3.protocol=jtag3
-jtag3.program.protocol=jtag3
-jtag3.program.tool=avrdude
-jtag3.program.tool.default=avrdude
-# Set a bitclock of 0.1us (the fastest supported value). This should
-# work regardless of the crystal used, since JTAG doesn't use the MCU
-# clock but dictates its own clock.
-jtag3.program.extra_params=-B0.1
-
-atmel_ice.name=Atmel-ICE (AVR)
+atmel_ice.name=Atmel-ICE (AVR) ISP
 atmel_ice.communication=usb
 atmel_ice.protocol=atmelice_isp
 atmel_ice.program.protocol=atmelice_isp
 atmel_ice.program.tool=avrdude
-atmel_ice.program.tool.default=avrdude
-atmel_ice.program.extra_params=-Pusb
+atmel_ice.program.extra_params=
+
+atmel_icej.name=Atmel-ICE (AVR) JTAG
+atmel_icej.communication=usb
+atmel_icej.protocol=atmelice_jtag
+atmel_icej.program.protocol=atmelice_jtag
+atmel_icej.program.tool=avrdude
+atmel_icej.program.extra_params=
+
+atmel_powerdebugger.name=Power Debugger (AVR) ISP
+atmel_powerdebugger.communication=usb
+atmel_powerdebugger.protocol=powerdebugger_isp
+atmel_powerdebugger.program.protocol=powerdebugger_isp
+atmel_powerdebugger.program.tool=avrdude
+atmel_powerdebugger.program.extra_params=
+
+atmel_powerdebuggerj.name=Power Debugger (AVR) JTAG
+atmel_powerdebuggerj.communication=usb
+atmel_powerdebuggerj.protocol=powerdebugger_jtag
+atmel_powerdebuggerj.program.protocol=powerdebugger_jtag
+atmel_powerdebuggerj.program.tool=avrdude
+atmel_powerdebuggerj.program.extra_params=
+
+atmel_jtagice3.name=JTAGICE3 ISP
+atmel_jtagice3.communication=usb
+atmel_jtagice3.protocol=jtag3isp
+atmel_jtagice3.program.protocol=jtag3isp
+atmel_jtagice3.program.tool=avrdude
+atmel_jtagice3.program.extra_params=
+
+atmel_jtagice3j.name=JTAGICE3 JTAG
+atmel_jtagice3j.communication=usb
+atmel_jtagice3j.protocol=jtag3
+atmel_jtagice3j.program.protocol=jtag3
+atmel_jtagice3j.program.tool=avrdude
+atmel_jtagice3j.program.extra_params=
+atmel_jtagice3j.program.extra_params=-B0.1
+
+pickit4_isp.name=PICkit4 ISP
+pickit4_isp.communication=usb
+pickit4_isp.protocol=pickit4_isp
+pickit4_isp.program.protocol=pickit4_isp
+pickit4_isp.program.tool=avrdude
+pickit4_isp.program.extra_params=
+
+pickit4_jtag.name=PICkit4 JTAG
+pickit4_jtag.communication=usb
+pickit4_jtag.protocol=pickit4_jtag
+pickit4_jtag.program.protocol=pickit4_jtag
+pickit4_jtag.program.tool=avrdude
+pickit4_jtag.program.extra_params=
+
+snap_isp.name=MPLAB SNAP ISP
+snap_isp.communication=usb
+snap_isp.protocol=snap_isp
+snap_isp.program.protocol=snap_isp
+snap_isp.program.tool=avrdude
+snap_isp.program.extra_params=
+
+snap_jtag.name=MPLAB SNAP JTAG
+snap_jtag.communication=usb
+snap_jtag.protocol=snap_jtag
+snap_jtag.program.protocol=snap_jtag
+snap_jtag.program.tool=avrdude
+snap_jtag.program.extra_params=
+
+simavr.name=Simulator (simavr)
+simavr.debug.cortex-debug.custom.serverArgs.1={debug.toolchain.path}/bin/simavr
+simavr.protocol=This_is_not_a_programmer_but_only_a_flag_to_use_the_simulator_when_debugging
+simavr.upload.protocol=This_is_not_a_programmer_but_only_a_flag_to_use_the_simulator_when_debugging
+simavr.program.protocol=This_is_not_a_programmer_but_only_a_flag_to_use_the_simulator_when_debugging
+simavr.program.tool=avrdude
+simavr.program.extra_params=
