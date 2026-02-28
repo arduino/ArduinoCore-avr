@@ -1,6 +1,8 @@
 # See: https://arduino.github.io/arduino-cli/latest/platform-specification/
 
 menu.cpu=Processor
+menu.jtag=JTAG pins
+menu.lto=Compiler LTO
 
 ##############################################################
 
@@ -36,15 +38,33 @@ yun.upload.disable_flushing=true
 yun.upload.use_1200bps_touch=true
 yun.upload.wait_for_upload_port=true
 
+# JTAG pins
+yun.menu.jtag.disabled=JTAG disabled
+yun.menu.jtag.disabled.bootloader.high_fuses=0xd8
+yun.menu.jtag.enabled=JTAG enabled
+yun.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+yun.menu.lto.Os_flto=LTO enabled
+yun.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+yun.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+yun.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+yun.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+yun.menu.lto.Os=LTO disabled
+yun.menu.lto.Os.compiler.c.extra_flags=
+yun.menu.lto.Os.compiler.c.elf.extra_flags=
+yun.menu.lto.Os.compiler.cpp.extra_flags=
+yun.menu.lto.Os.ltoarcmd=avr-ar
+
 yun.bootloader.tool=avrdude
 yun.bootloader.tool.default=avrdude
 yun.bootloader.low_fuses=0xff
-yun.bootloader.high_fuses=0xd8
+#yun.bootloader.high_fuses=0xd8
 yun.bootloader.extended_fuses=0xfb
 yun.bootloader.file=caterina/Caterina-Yun.hex
 yun.bootloader.noblink=caterina/Caterina-Yun-noblink.hex
-yun.bootloader.unlock_bits=0x3F
-yun.bootloader.lock_bits=0x2F
+yun.bootloader.unlock_bits=0xFF
+yun.bootloader.lock_bits=0xEF
 
 yun.build.mcu=atmega32u4
 yun.build.f_cpu=16000000L
@@ -90,13 +110,25 @@ uno.upload.maximum_size=32256
 uno.upload.maximum_data_size=2048
 uno.upload.speed=115200
 
+# Compiler link time optimization
+uno.menu.lto.Os_flto=LTO enabled
+uno.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+uno.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+uno.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+uno.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+uno.menu.lto.Os=LTO disabled
+uno.menu.lto.Os.compiler.c.extra_flags=
+uno.menu.lto.Os.compiler.c.elf.extra_flags=
+uno.menu.lto.Os.compiler.cpp.extra_flags=
+uno.menu.lto.Os.ltoarcmd=avr-ar
+
 uno.bootloader.tool=avrdude
 uno.bootloader.tool.default=avrdude
 uno.bootloader.low_fuses=0xFF
 uno.bootloader.high_fuses=0xDE
 uno.bootloader.extended_fuses=0xFD
-uno.bootloader.unlock_bits=0x3F
-uno.bootloader.lock_bits=0x0F
+uno.bootloader.unlock_bits=0xFF
+uno.bootloader.lock_bits=0xCF
 uno.bootloader.file=optiboot/optiboot_atmega328.hex
 
 uno.build.mcu=atmega328p
@@ -123,13 +155,25 @@ unomini.upload.maximum_size=32256
 unomini.upload.maximum_data_size=2048
 unomini.upload.speed=115200
 
+# Compiler link time optimization
+unomini.menu.lto.Os_flto=LTO enabled
+unomini.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+unomini.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+unomini.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+unomini.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+unomini.menu.lto.Os=LTO disabled
+unomini.menu.lto.Os.compiler.c.extra_flags=
+unomini.menu.lto.Os.compiler.c.elf.extra_flags=
+unomini.menu.lto.Os.compiler.cpp.extra_flags=
+unomini.menu.lto.Os.ltoarcmd=avr-ar
+
 unomini.bootloader.tool=avrdude
 unomini.bootloader.tool.default=avrdude
 unomini.bootloader.low_fuses=0xFF
 unomini.bootloader.high_fuses=0xDE
 unomini.bootloader.extended_fuses=0xFD
-unomini.bootloader.unlock_bits=0x3F
-unomini.bootloader.lock_bits=0x0F
+unomini.bootloader.unlock_bits=0xFF
+unomini.bootloader.lock_bits=0xCF
 unomini.bootloader.file=optiboot/optiboot_atmega328.hex
 
 unomini.build.mcu=atmega328p
@@ -149,11 +193,24 @@ diecimila.upload.tool.default=avrdude
 diecimila.upload.tool.network=arduino_ota
 diecimila.upload.protocol=arduino
 
+# Compiler link time optimization
+diecimila.menu.lto.Os_flto=LTO enabled
+diecimila.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+diecimila.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+diecimila.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+diecimila.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+diecimila.menu.lto.Os=LTO disabled
+diecimila.menu.lto.Os.compiler.c.extra_flags=
+diecimila.menu.lto.Os.compiler.c.elf.extra_flags=
+diecimila.menu.lto.Os.compiler.cpp.extra_flags=
+diecimila.menu.lto.Os.ltoarcmd=avr-ar
+
+
 diecimila.bootloader.tool=avrdude
 diecimila.bootloader.tool.default=avrdude
 diecimila.bootloader.low_fuses=0xFF
-diecimila.bootloader.unlock_bits=0x3F
-diecimila.bootloader.lock_bits=0x0F
+diecimila.bootloader.unlock_bits=0xFF
+diecimila.bootloader.lock_bits=0xCF
 
 diecimila.build.f_cpu=16000000L
 diecimila.build.board=AVR_DUEMILANOVE
@@ -199,10 +256,22 @@ nano.upload.tool.default=avrdude
 nano.upload.tool.network=arduino_ota
 nano.upload.protocol=arduino
 
+# Compiler link time optimization
+nano.menu.lto.Os_flto=LTO enabled
+nano.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+nano.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+nano.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+nano.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+nano.menu.lto.Os=LTO disabled
+nano.menu.lto.Os.compiler.c.extra_flags=
+nano.menu.lto.Os.compiler.c.elf.extra_flags=
+nano.menu.lto.Os.compiler.cpp.extra_flags=
+nano.menu.lto.Os.ltoarcmd=avr-ar
+
 nano.bootloader.tool=avrdude
 nano.bootloader.tool.default=avrdude
-nano.bootloader.unlock_bits=0x3F
-nano.bootloader.lock_bits=0x0F
+nano.bootloader.unlock_bits=0xFF
+nano.bootloader.lock_bits=0xCF
 
 nano.build.f_cpu=16000000L
 nano.build.board=AVR_NANO
@@ -289,11 +358,29 @@ mega.upload.tool.default=avrdude
 mega.upload.tool.network=arduino_ota
 mega.upload.maximum_data_size=8192
 
+# JTAG pins
+mega.menu.jtag.disabled=JTAG disabled
+mega.menu.jtag.disabled.bootloader.high_fuses_part=d
+mega.menu.jtag.enabled=JTAG enabled
+mega.menu.jtag.enabled.bootloader.high_fuses_part=9
+
+# Compiler link time optimization
+mega.menu.lto.Os_flto=LTO enabled
+mega.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+mega.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+mega.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+mega.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+mega.menu.lto.Os=LTO disabled
+mega.menu.lto.Os.compiler.c.extra_flags=
+mega.menu.lto.Os.compiler.c.elf.extra_flags=
+mega.menu.lto.Os.compiler.cpp.extra_flags=
+mega.menu.lto.Os.ltoarcmd=avr-ar
+
 mega.bootloader.tool=avrdude
 mega.bootloader.tool.default=avrdude
 mega.bootloader.low_fuses=0xFF
-mega.bootloader.unlock_bits=0x3F
-mega.bootloader.lock_bits=0x0F
+mega.bootloader.unlock_bits=0xFF
+mega.bootloader.lock_bits=0xCF
 
 mega.build.f_cpu=16000000L
 mega.build.core=arduino
@@ -309,7 +396,7 @@ mega.menu.cpu.atmega2560.upload.protocol=wiring
 mega.menu.cpu.atmega2560.upload.maximum_size=253952
 mega.menu.cpu.atmega2560.upload.speed=115200
 
-mega.menu.cpu.atmega2560.bootloader.high_fuses=0xD8
+mega.menu.cpu.atmega2560.bootloader.high_fuses=0x{bootloader.high_fuses_part}8
 mega.menu.cpu.atmega2560.bootloader.extended_fuses=0xFD
 mega.menu.cpu.atmega2560.bootloader.file=stk500v2/stk500boot_v2_mega2560.hex
 
@@ -324,7 +411,7 @@ mega.menu.cpu.atmega1280.upload.protocol=arduino
 mega.menu.cpu.atmega1280.upload.maximum_size=126976
 mega.menu.cpu.atmega1280.upload.speed=57600
 
-mega.menu.cpu.atmega1280.bootloader.high_fuses=0xDA
+mega.menu.cpu.atmega1280.bootloader.high_fuses=0x{bootloader.high_fuses_part}A
 mega.menu.cpu.atmega1280.bootloader.extended_fuses=0xF5
 mega.menu.cpu.atmega1280.bootloader.file=atmega/ATmegaBOOT_168_atmega1280.hex
 
@@ -361,14 +448,32 @@ megaADK.upload.maximum_size=253952
 megaADK.upload.maximum_data_size=8192
 megaADK.upload.speed=115200
 
+# JTAG pins
+megaADK.menu.jtag.disabled=JTAG disabled
+megaADK.menu.jtag.disabled.bootloader.high_fuses=0xd8
+megaADK.menu.jtag.enabled=JTAG enabled
+megaADK.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+megaADK.menu.lto.Os_flto=LTO enabled
+megaADK.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+megaADK.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+megaADK.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+megaADK.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+megaADK.menu.lto.Os=LTO disabled
+megaADK.menu.lto.Os.compiler.c.extra_flags=
+megaADK.menu.lto.Os.compiler.c.elf.extra_flags=
+megaADK.menu.lto.Os.compiler.cpp.extra_flags=
+megaADK.menu.lto.Os.ltoarcmd=avr-ar
+
 megaADK.bootloader.tool=avrdude
 megaADK.bootloader.tool.default=avrdude
 megaADK.bootloader.low_fuses=0xFF
-megaADK.bootloader.high_fuses=0xD8
+#megaADK.bootloader.high_fuses=0xD8
 megaADK.bootloader.extended_fuses=0xFD
 megaADK.bootloader.file=stk500v2/stk500boot_v2_mega2560.hex
-megaADK.bootloader.unlock_bits=0x3F
-megaADK.bootloader.lock_bits=0x0F
+megaADK.bootloader.unlock_bits=0xFF
+megaADK.bootloader.lock_bits=0xCF
 
 megaADK.build.mcu=atmega2560
 megaADK.build.f_cpu=16000000L
@@ -408,14 +513,34 @@ leonardo.upload.disable_flushing=true
 leonardo.upload.use_1200bps_touch=true
 leonardo.upload.wait_for_upload_port=true
 
+
+# JTAG pins
+leonardo.menu.jtag.disabled=JTAG disabled
+leonardo.menu.jtag.disabled.bootloader.high_fuses=0xd8
+leonardo.menu.jtag.enabled=JTAG enabled
+leonardo.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+leonardo.menu.lto.Os_flto=LTO enabled
+leonardo.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+leonardo.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+leonardo.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+leonardo.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+leonardo.menu.lto.Os=LTO disabled
+leonardo.menu.lto.Os.compiler.c.extra_flags=
+leonardo.menu.lto.Os.compiler.c.elf.extra_flags=
+leonardo.menu.lto.Os.compiler.cpp.extra_flags=
+leonardo.menu.lto.Os.ltoarcmd=avr-ar
+
+
 leonardo.bootloader.tool=avrdude
 leonardo.bootloader.tool.default=avrdude
 leonardo.bootloader.low_fuses=0xff
-leonardo.bootloader.high_fuses=0xd8
+#leonardo.bootloader.high_fuses=0xd8
 leonardo.bootloader.extended_fuses=0xcb
 leonardo.bootloader.file=caterina/Caterina-Leonardo.hex
-leonardo.bootloader.unlock_bits=0x3F
-leonardo.bootloader.lock_bits=0x2F
+leonardo.bootloader.unlock_bits=0xFF
+leonardo.bootloader.lock_bits=0xEF
 
 leonardo.build.mcu=atmega32u4
 leonardo.build.f_cpu=16000000L
@@ -451,14 +576,32 @@ leonardoeth.upload.disable_flushing=true
 leonardoeth.upload.use_1200bps_touch=true
 leonardoeth.upload.wait_for_upload_port=true
 
+# JTAG pins
+leonardoeth.menu.jtag.disabled=JTAG disabled
+leonardoeth.menu.jtag.disabled.bootloader.high_fuses=0xd8
+leonardoeth.menu.jtag.enabled=JTAG enabled
+leonardoeth.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+leonardoeth.menu.lto.Os_flto=LTO enabled
+leonardoeth.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+leonardoeth.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+leonardoeth.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+leonardoeth.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+leonardoeth.menu.lto.Os=LTO disabled
+leonardoeth.menu.lto.Os.compiler.c.extra_flags=
+leonardoeth.menu.lto.Os.compiler.c.elf.extra_flags=
+leonardoeth.menu.lto.Os.compiler.cpp.extra_flags=
+leonardoeth.menu.lto.Os.ltoarcmd=avr-ar
+
 leonardoeth.bootloader.tool=avrdude
 leonardoeth.bootloader.tool.default=avrdude
 leonardoeth.bootloader.low_fuses=0xff
-leonardoeth.bootloader.high_fuses=0xd8
+#leonardoeth.bootloader.high_fuses=0xd8
 leonardoeth.bootloader.extended_fuses=0xcb
 leonardoeth.bootloader.file=caterina/Caterina-LeonardoEthernet.hex
-leonardoeth.bootloader.unlock_bits=0x3F
-leonardoeth.bootloader.lock_bits=0x2F
+leonardoeth.bootloader.unlock_bits=0xFF
+leonardoeth.bootloader.lock_bits=0xEF
 
 leonardoeth.build.mcu=atmega32u4
 leonardoeth.build.f_cpu=16000000L
@@ -511,14 +654,33 @@ micro.upload.disable_flushing=true
 micro.upload.use_1200bps_touch=true
 micro.upload.wait_for_upload_port=true
 
+# JTAG pins
+micro.menu.jtag.disabled=JTAG disabled
+micro.menu.jtag.disabled.bootloader.high_fuses=0xd8
+micro.menu.jtag.enabled=JTAG enabled
+micro.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+micro.menu.lto.Os_flto=LTO enabled
+micro.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+micro.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+micro.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+micro.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+micro.menu.lto.Os=LTO disabled
+micro.menu.lto.Os.compiler.c.extra_flags=
+micro.menu.lto.Os.compiler.c.elf.extra_flags=
+micro.menu.lto.Os.compiler.cpp.extra_flags=
+micro.menu.lto.Os.ltoarcmd=avr-ar
+
+
 micro.bootloader.tool=avrdude
 micro.bootloader.tool.default=avrdude
 micro.bootloader.low_fuses=0xff
-micro.bootloader.high_fuses=0xd8
+#micro.bootloader.high_fuses=0xd8
 micro.bootloader.extended_fuses=0xcb
 micro.bootloader.file=caterina/Caterina-Micro.hex
-micro.bootloader.unlock_bits=0x3F
-micro.bootloader.lock_bits=0x2F
+micro.bootloader.unlock_bits=0xFF
+micro.bootloader.lock_bits=0xEF
 
 micro.build.mcu=atmega32u4
 micro.build.f_cpu=16000000L
@@ -562,14 +724,32 @@ esplora.upload.disable_flushing=true
 esplora.upload.use_1200bps_touch=true
 esplora.upload.wait_for_upload_port=true
 
+# JTAG pins
+esplora.menu.jtag.disabled=JTAG disabled
+esplora.menu.jtag.disabled.bootloader.high_fuses=0xd8
+esplora.menu.jtag.enabled=JTAG enabled
+esplora.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+esplora.menu.lto.Os_flto=LTO enabled
+esplora.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+esplora.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+esplora.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+esplora.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+esplora.menu.lto.Os=LTO disabled
+esplora.menu.lto.Os.compiler.c.extra_flags=
+esplora.menu.lto.Os.compiler.c.elf.extra_flags=
+esplora.menu.lto.Os.compiler.cpp.extra_flags=
+esplora.menu.lto.Os.ltoarcmd=avr-ar
+
 esplora.bootloader.tool=avrdude
 esplora.bootloader.tool.default=avrdude
 esplora.bootloader.low_fuses=0xff
-esplora.bootloader.high_fuses=0xd8
+#esplora.bootloader.high_fuses=0xd8
 esplora.bootloader.extended_fuses=0xcb
 esplora.bootloader.file=caterina/Caterina-Esplora.hex
-esplora.bootloader.unlock_bits=0x3F
-esplora.bootloader.lock_bits=0x2F
+esplora.bootloader.unlock_bits=0xFF
+esplora.bootloader.lock_bits=0xEF
 
 esplora.build.mcu=atmega32u4
 esplora.build.f_cpu=16000000L
@@ -592,11 +772,23 @@ mini.upload.tool.default=avrdude
 mini.upload.tool.network=arduino_ota
 mini.upload.protocol=arduino
 
+# Compiler link time optimization
+mini.menu.lto.Os_flto=LTO enabled
+mini.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+mini.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+mini.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+mini.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+mini.menu.lto.Os=LTO disabled
+mini.menu.lto.Os.compiler.c.extra_flags=
+mini.menu.lto.Os.compiler.c.elf.extra_flags=
+mini.menu.lto.Os.compiler.cpp.extra_flags=
+mini.menu.lto.Os.ltoarcmd=avr-ar
+
 mini.bootloader.tool=avrdude
 mini.bootloader.tool.default=avrdude
 mini.bootloader.low_fuses=0xff
-mini.bootloader.unlock_bits=0x3F
-mini.bootloader.lock_bits=0x0F
+mini.bootloader.unlock_bits=0xFF
+mini.bootloader.lock_bits=0xCF
 
 mini.build.f_cpu=16000000L
 mini.build.board=AVR_MINI
@@ -645,14 +837,26 @@ ethernet.upload.maximum_size=32256
 ethernet.upload.maximum_data_size=2048
 ethernet.upload.speed=115200
 
+# Compiler link time optimization
+ethernet.menu.lto.Os_flto=LTO enabled
+ethernet.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+ethernet.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+ethernet.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+ethernet.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+ethernet.menu.lto.Os=LTO disabled
+ethernet.menu.lto.Os.compiler.c.extra_flags=
+ethernet.menu.lto.Os.compiler.c.elf.extra_flags=
+ethernet.menu.lto.Os.compiler.cpp.extra_flags=
+ethernet.menu.lto.Os.ltoarcmd=avr-ar
+
 ethernet.bootloader.tool=avrdude
 ethernet.bootloader.tool.default=avrdude
 ethernet.bootloader.low_fuses=0xff
 ethernet.bootloader.high_fuses=0xde
 ethernet.bootloader.extended_fuses=0xFD
 ethernet.bootloader.file=optiboot/optiboot_atmega328.hex
-ethernet.bootloader.unlock_bits=0x3F
-ethernet.bootloader.lock_bits=0x0F
+ethernet.bootloader.unlock_bits=0xFF
+ethernet.bootloader.lock_bits=0xCF
 
 ethernet.build.variant=ethernet
 ethernet.build.mcu=atmega328p
@@ -674,14 +878,26 @@ fio.upload.maximum_size=30720
 fio.upload.maximum_data_size=2048
 fio.upload.speed=57600
 
+# Compiler link time optimization
+fio.menu.lto.Os_flto=LTO enabled
+fio.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+fio.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+fio.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+fio.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+fio.menu.lto.Os=LTO disabled
+fio.menu.lto.Os.compiler.c.extra_flags=
+fio.menu.lto.Os.compiler.c.elf.extra_flags=
+fio.menu.lto.Os.compiler.cpp.extra_flags=
+fio.menu.lto.Os.ltoarcmd=avr-ar
+
 fio.bootloader.tool=avrdude
 fio.bootloader.tool.default=avrdude
 fio.bootloader.low_fuses=0xFF
 fio.bootloader.high_fuses=0xDA
 fio.bootloader.extended_fuses=0xFD
 fio.bootloader.file=atmega/ATmegaBOOT_168_atmega328_pro_8MHz.hex
-fio.bootloader.unlock_bits=0x3F
-fio.bootloader.lock_bits=0x0F
+fio.bootloader.unlock_bits=0xFF
+fio.bootloader.lock_bits=0xCF
 
 fio.build.mcu=atmega328p
 fio.build.f_cpu=8000000L
@@ -702,11 +918,23 @@ bt.upload.protocol=arduino
 bt.upload.speed=19200
 bt.upload.disable_flushing=true
 
+# Compiler link time optimization
+bt.menu.lto.Os_flto=LTO enabled
+bt.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+bt.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+bt.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+bt.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+bt.menu.lto.Os=LTO disabled
+bt.menu.lto.Os.compiler.c.extra_flags=
+bt.menu.lto.Os.compiler.c.elf.extra_flags=
+bt.menu.lto.Os.compiler.cpp.extra_flags=
+bt.menu.lto.Os.ltoarcmd=avr-ar
+
 bt.bootloader.tool=avrdude
 bt.bootloader.tool.default=avrdude
 bt.bootloader.low_fuses=0xff
-bt.bootloader.unlock_bits=0x3F
-bt.bootloader.lock_bits=0x0F
+bt.bootloader.unlock_bits=0xFF
+bt.bootloader.lock_bits=0xCF
 
 bt.build.f_cpu=16000000L
 bt.build.board=AVR_BT
@@ -761,14 +989,32 @@ LilyPadUSB.upload.disable_flushing=true
 LilyPadUSB.upload.use_1200bps_touch=true
 LilyPadUSB.upload.wait_for_upload_port=true
 
+# JTAG pins
+LilyPadUSB.menu.jtag.disabled=JTAG disabled
+LilyPadUSB.menu.jtag.disabled.bootloader.high_fuses=0xd8
+LilyPadUSB.menu.jtag.enabled=JTAG enabled
+LilyPadUSB.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+LilyPadUSB.menu.lto.Os_flto=LTO enabled
+LilyPadUSB.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+LilyPadUSB.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+LilyPadUSB.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+LilyPadUSB.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+LilyPadUSB.menu.lto.Os=LTO disabled
+LilyPadUSB.menu.lto.Os.compiler.c.extra_flags=
+LilyPadUSB.menu.lto.Os.compiler.c.elf.extra_flags=
+LilyPadUSB.menu.lto.Os.compiler.cpp.extra_flags=
+LilyPadUSB.menu.lto.Os.ltoarcmd=avr-ar
+
 LilyPadUSB.bootloader.tool=avrdude
 LilyPadUSB.bootloader.tool.default=avrdude
 LilyPadUSB.bootloader.low_fuses=0xff
-LilyPadUSB.bootloader.high_fuses=0xd8
+#LilyPadUSB.bootloader.high_fuses=0xd8
 LilyPadUSB.bootloader.extended_fuses=0xce
 LilyPadUSB.bootloader.file=caterina-LilyPadUSB/Caterina-LilyPadUSB.hex
-LilyPadUSB.bootloader.unlock_bits=0x3F
-LilyPadUSB.bootloader.lock_bits=0x2F
+LilyPadUSB.bootloader.unlock_bits=0xFF
+LilyPadUSB.bootloader.lock_bits=0xEF
 
 LilyPadUSB.build.mcu=atmega32u4
 LilyPadUSB.build.f_cpu=8000000L
@@ -791,10 +1037,22 @@ lilypad.upload.tool.default=avrdude
 lilypad.upload.tool.network=arduino_ota
 lilypad.upload.protocol=arduino
 
+# Compiler link time optimization
+lilypad.menu.lto.Os_flto=LTO enabled
+lilypad.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+lilypad.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+lilypad.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+lilypad.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+lilypad.menu.lto.Os=LTO disabled
+lilypad.menu.lto.Os.compiler.c.extra_flags=
+lilypad.menu.lto.Os.compiler.c.elf.extra_flags=
+lilypad.menu.lto.Os.compiler.cpp.extra_flags=
+lilypad.menu.lto.Os.ltoarcmd=avr-ar
+
 lilypad.bootloader.tool=avrdude
 lilypad.bootloader.tool.default=avrdude
-lilypad.bootloader.unlock_bits=0x3F
-lilypad.bootloader.lock_bits=0x0F
+lilypad.bootloader.unlock_bits=0xFF
+lilypad.bootloader.lock_bits=0xCF
 
 lilypad.build.f_cpu=8000000L
 lilypad.build.board=AVR_LILYPAD
@@ -844,8 +1102,20 @@ pro.upload.protocol=arduino
 
 pro.bootloader.tool=avrdude
 pro.bootloader.tool.default=avrdude
-pro.bootloader.unlock_bits=0x3F
-pro.bootloader.lock_bits=0x0F
+pro.bootloader.unlock_bits=0xFF
+pro.bootloader.lock_bits=0xCF
+
+# Compiler link time optimization
+pro.menu.lto.Os_flto=LTO enabled
+pro.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+pro.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+pro.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+pro.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+pro.menu.lto.Os=LTO disabled
+pro.menu.lto.Os.compiler.c.extra_flags=
+pro.menu.lto.Os.compiler.c.elf.extra_flags=
+pro.menu.lto.Os.compiler.cpp.extra_flags=
+pro.menu.lto.Os.ltoarcmd=avr-ar
 
 pro.build.board=AVR_PRO
 pro.build.core=arduino
@@ -929,8 +1199,20 @@ atmegang.upload.speed=19200
 
 atmegang.bootloader.tool=avrdude
 atmegang.bootloader.tool.default=avrdude
-atmegang.bootloader.unlock_bits=0x3F
-atmegang.bootloader.lock_bits=0x0F
+atmegang.bootloader.unlock_bits=0xFF
+atmegang.bootloader.lock_bits=0xCF
+
+# Compiler link time optimization
+atmegang.menu.lto.Os_flto=LTO enabled
+atmegang.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+atmegang.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+atmegang.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+atmegang.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+atmegang.menu.lto.Os=LTO disabled
+atmegang.menu.lto.Os.compiler.c.extra_flags=
+atmegang.menu.lto.Os.compiler.c.elf.extra_flags=
+atmegang.menu.lto.Os.compiler.cpp.extra_flags=
+atmegang.menu.lto.Os.ltoarcmd=avr-ar
 
 atmegang.build.mcu=atmegang
 atmegang.build.f_cpu=16000000L
@@ -965,6 +1247,7 @@ atmegang.menu.cpu.atmega8.bootloader.extended_fuses=
 atmegang.menu.cpu.atmega8.bootloader.file=atmega8/ATmegaBOOT-prod-firmware-2009-11-07.hex
 
 atmegang.menu.cpu.atmega8.build.mcu=atmega8
+atmegang.menu.cpu.atmega8.debug.executable=
 
 ##############################################################
 
@@ -998,14 +1281,32 @@ robotControl.upload.disable_flushing=true
 robotControl.upload.use_1200bps_touch=true
 robotControl.upload.wait_for_upload_port=true
 
+# JTAG pins
+robotControl.menu.jtag.disabled=JTAG disabled
+robotControl.menu.jtag.disabled.bootloader.high_fuses=0xd8
+robotControl.menu.jtag.enabled=JTAG enabled
+robotControl.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+robotControl.menu.lto.Os_flto=LTO enabled
+robotControl.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+robotControl.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+robotControl.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+robotControl.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+robotControl.menu.lto.Os=LTO disabled
+robotControl.menu.lto.Os.compiler.c.extra_flags=
+robotControl.menu.lto.Os.compiler.c.elf.extra_flags=
+robotControl.menu.lto.Os.compiler.cpp.extra_flags=
+robotControl.menu.lto.Os.ltoarcmd=avr-ar
+
 robotControl.bootloader.tool=avrdude
 robotControl.bootloader.tool.default=avrdude
 robotControl.bootloader.low_fuses=0xff
-robotControl.bootloader.high_fuses=0xd8
+#robotControl.bootloader.high_fuses=0xd8
 robotControl.bootloader.extended_fuses=0xcb
 robotControl.bootloader.file=caterina-Arduino_Robot/Caterina-Robot-Control.hex
-robotControl.bootloader.unlock_bits=0x3F
-robotControl.bootloader.lock_bits=0x2F
+robotControl.bootloader.unlock_bits=0xFF
+robotControl.bootloader.lock_bits=0xEF
 
 robotControl.build.mcu=atmega32u4
 robotControl.build.f_cpu=16000000L
@@ -1049,14 +1350,32 @@ robotMotor.upload.disable_flushing=true
 robotMotor.upload.use_1200bps_touch=true
 robotMotor.upload.wait_for_upload_port=true
 
+# JTAG pins
+robotMotor.menu.jtag.disabled=JTAG disabled
+robotMotor.menu.jtag.disabled.bootloader.high_fuses=0xd8
+robotMotor.menu.jtag.enabled=JTAG enabled
+robotMotor.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+robotMotor.menu.lto.Os_flto=LTO enabled
+robotMotor.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+robotMotor.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+robotMotor.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+robotMotor.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+robotMotor.menu.lto.Os=LTO disabled
+robotMotor.menu.lto.Os.compiler.c.extra_flags=
+robotMotor.menu.lto.Os.compiler.c.elf.extra_flags=
+robotMotor.menu.lto.Os.compiler.cpp.extra_flags=
+robotMotor.menu.lto.Os.ltoarcmd=avr-ar
+
 robotMotor.bootloader.tool=avrdude
 robotMotor.bootloader.tool.default=avrdude
 robotMotor.bootloader.low_fuses=0xff
-robotMotor.bootloader.high_fuses=0xd8
+#robotMotor.bootloader.high_fuses=0xd8
 robotMotor.bootloader.extended_fuses=0xcb
 robotMotor.bootloader.file=caterina-Arduino_Robot/Caterina-Robot-Motor.hex
-robotMotor.bootloader.unlock_bits=0x3F
-robotMotor.bootloader.lock_bits=0x2F
+robotMotor.bootloader.unlock_bits=0xFF
+robotMotor.bootloader.lock_bits=0xEF
 
 robotMotor.build.mcu=atmega32u4
 robotMotor.build.f_cpu=16000000L
@@ -1087,6 +1406,18 @@ gemma.bootloader.lock_bits=
 gemma.bootloader.unlock_bits=
 gemma.bootloader.file=gemma/gemma_v1.hex
 
+# Compiler link time optimization
+gemma.menu.lto.Os_flto=LTO enabled
+gemma.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+gemma.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+gemma.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+gemma.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+gemma.menu.lto.Os=LTO disabled
+gemma.menu.lto.Os.compiler.c.extra_flags=
+gemma.menu.lto.Os.compiler.c.elf.extra_flags=
+gemma.menu.lto.Os.compiler.cpp.extra_flags=
+gemma.menu.lto.Os.ltoarcmd=avr-ar
+
 gemma.build.mcu=attiny85
 gemma.build.f_cpu=8000000L
 gemma.build.core=arduino
@@ -1103,11 +1434,11 @@ gemma.upload.maximum_size=5310
 # Adafruit Circuit Playground 32u4 w/Caterina Configuration
 circuitplay32u4cat.name=Adafruit Circuit Playground
 circuitplay32u4cat.bootloader.low_fuses=0xff
-circuitplay32u4cat.bootloader.high_fuses=0xd8
+#circuitplay32u4cat.bootloader.high_fuses=0xd8
 circuitplay32u4cat.bootloader.extended_fuses=0xcb
 circuitplay32u4cat.bootloader.file=caterina/Caterina-Circuitplay32u4.hex
-circuitplay32u4cat.bootloader.unlock_bits=0x3F
-circuitplay32u4cat.bootloader.lock_bits=0x2F
+circuitplay32u4cat.bootloader.unlock_bits=0xFF
+circuitplay32u4cat.bootloader.lock_bits=0xEF
 circuitplay32u4cat.bootloader.tool=avrdude
 circuitplay32u4cat.bootloader.tool.default=avrdude
 circuitplay32u4cat.build.mcu=atmega32u4
@@ -1135,6 +1466,24 @@ circuitplay32u4cat.upload_port.0.vid=0x239A
 circuitplay32u4cat.upload_port.0.pid=0x8011
 circuitplay32u4cat.upload_port.1.board=circuitplay32u4cat
 
+# JTAG pins
+circuitplay32u4cat.menu.jtag.disabled=JTAG disabled
+circuitplay32u4cat.menu.jtag.disabled.bootloader.high_fuses=0xd8
+circuitplay32u4cat.menu.jtag.enabled=JTAG enabled
+circuitplay32u4cat.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+circuitplay32u4cat.menu.lto.Os_flto=LTO enabled
+circuitplay32u4cat.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+circuitplay32u4cat.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+circuitplay32u4cat.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+circuitplay32u4cat.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+circuitplay32u4cat.menu.lto.Os=LTO disabled
+circuitplay32u4cat.menu.lto.Os.compiler.c.extra_flags=
+circuitplay32u4cat.menu.lto.Os.compiler.c.elf.extra_flags=
+circuitplay32u4cat.menu.lto.Os.compiler.cpp.extra_flags=
+circuitplay32u4cat.menu.lto.Os.ltoarcmd=avr-ar
+
 ##############################################################
 
 yunmini.name=Arduino Yún Mini
@@ -1161,14 +1510,32 @@ yunmini.upload.disable_flushing=true
 yunmini.upload.use_1200bps_touch=true
 yunmini.upload.wait_for_upload_port=true
 
+# JTAG pins
+yunmini.menu.jtag.disabled=JTAG disabled
+yunmini.menu.jtag.disabled.bootloader.high_fuses=0xd8
+yunmini.menu.jtag.enabled=JTAG enabled
+yunmini.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+yunmini.menu.lto.Os_flto=LTO enabled
+yunmini.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+yunmini.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+yunmini.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+yunmini.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+yunmini.menu.lto.Os=LTO disabled
+yunmini.menu.lto.Os.compiler.c.extra_flags=
+yunmini.menu.lto.Os.compiler.c.elf.extra_flags=
+yunmini.menu.lto.Os.compiler.cpp.extra_flags=
+yunmini.menu.lto.Os.ltoarcmd=avr-ar
+
 yunmini.bootloader.tool=avrdude
 yunmini.bootloader.tool.default=avrdude
 yunmini.bootloader.low_fuses=0xff
-yunmini.bootloader.high_fuses=0xd8
+#yunmini.bootloader.high_fuses=0xd8
 yunmini.bootloader.extended_fuses=0xfb
 yunmini.bootloader.file=caterina/Caterina-YunMini.hex
-yunmini.bootloader.unlock_bits=0x3F
-yunmini.bootloader.lock_bits=0x2F
+yunmini.bootloader.unlock_bits=0xFF
+yunmini.bootloader.lock_bits=0xEF
 
 yunmini.build.mcu=atmega32u4
 yunmini.build.f_cpu=16000000L
@@ -1206,14 +1573,32 @@ chiwawa.upload.disable_flushing=true
 chiwawa.upload.use_1200bps_touch=true
 chiwawa.upload.wait_for_upload_port=true
 
+# JTAG pins
+chiwawa.menu.jtag.disabled=JTAG disabled
+chiwawa.menu.jtag.disabled.bootloader.high_fuses=0xd8
+chiwawa.menu.jtag.enabled=JTAG enabled
+chiwawa.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+chiwawa.menu.lto.Os_flto=LTO enabled
+chiwawa.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+chiwawa.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+chiwawa.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+chiwawa.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+chiwawa.menu.lto.Os=LTO disabled
+chiwawa.menu.lto.Os.compiler.c.extra_flags=
+chiwawa.menu.lto.Os.compiler.c.elf.extra_flags=
+chiwawa.menu.lto.Os.compiler.cpp.extra_flags=
+chiwawa.menu.lto.Os.ltoarcmd=avr-ar
+
 chiwawa.bootloader.tool=avrdude
 chiwawa.bootloader.tool.default=avrdude
 chiwawa.bootloader.low_fuses=0xff
-chiwawa.bootloader.high_fuses=0xd8
+#chiwawa.bootloader.high_fuses=0xd8
 chiwawa.bootloader.extended_fuses=0xfb
 chiwawa.bootloader.file=caterina/Caterina-Industrial101.hex
-chiwawa.bootloader.unlock_bits=0x3F
-chiwawa.bootloader.lock_bits=0x2F
+chiwawa.bootloader.unlock_bits=0xFF
+chiwawa.bootloader.lock_bits=0xEF
 
 chiwawa.build.mcu=atmega32u4
 chiwawa.build.f_cpu=16000000L
@@ -1251,14 +1636,32 @@ one.upload.disable_flushing=true
 one.upload.use_1200bps_touch=true
 one.upload.wait_for_upload_port=true
 
+# JTAG pins
+one.menu.jtag.disabled=JTAG disabled
+one.menu.jtag.disabled.bootloader.high_fuses=0xd8
+one.menu.jtag.enabled=JTAG enabled
+one.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+# Compiler link time optimization
+one.menu.lto.Os_flto=LTO enabled
+one.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+one.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+one.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+one.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+one.menu.lto.Os=LTO disabled
+one.menu.lto.Os.compiler.c.extra_flags=
+one.menu.lto.Os.compiler.c.elf.extra_flags=
+one.menu.lto.Os.compiler.cpp.extra_flags=
+one.menu.lto.Os.ltoarcmd=avr-ar
+
 one.bootloader.tool=avrdude
 one.bootloader.tool.default=avrdude
 one.bootloader.low_fuses=0xff
-one.bootloader.high_fuses=0xd8
+#one.bootloader.high_fuses=0xd8
 one.bootloader.extended_fuses=0xfb
 one.bootloader.file=caterina/Caterina-LininoOne.hex
-one.bootloader.unlock_bits=0x3F
-one.bootloader.lock_bits=0x2F
+one.bootloader.unlock_bits=0xFF
+one.bootloader.lock_bits=0xEF
 
 one.build.mcu=atmega32u4
 one.build.f_cpu=16000000L
@@ -1292,13 +1695,25 @@ unowifi.upload.network.sync_return=204:SYNC
 unowifi.upload.network.endpoint_reset=/log/reset
 unowifi.upload.network.port=80
 
+# Compiler link time optimization
+unowifi.menu.lto.Os_flto=LTO enabled
+unowifi.menu.lto.Os_flto.compiler.c.extra_flags=-Wextra -flto -g
+unowifi.menu.lto.Os_flto.compiler.c.elf.extra_flags=-w -flto -g
+unowifi.menu.lto.Os_flto.compiler.cpp.extra_flags=-Wextra -flto -g
+unowifi.menu.lto.Os_flto.ltoarcmd=avr-gcc-ar
+unowifi.menu.lto.Os=LTO disabled
+unowifi.menu.lto.Os.compiler.c.extra_flags=
+unowifi.menu.lto.Os.compiler.c.elf.extra_flags=
+unowifi.menu.lto.Os.compiler.cpp.extra_flags=
+unowifi.menu.lto.Os.ltoarcmd=avr-ar
+
 unowifi.bootloader.tool=avrdude
 unowifi.bootloader.tool.default=avrdude
 unowifi.bootloader.low_fuses=0xFF
 unowifi.bootloader.high_fuses=0xDE
 unowifi.bootloader.extended_fuses=0x05
-unowifi.bootloader.unlock_bits=0x3F
-unowifi.bootloader.lock_bits=0x0F
+unowifi.bootloader.unlock_bits=0xFF
+unowifi.bootloader.lock_bits=0xCF
 unowifi.bootloader.file=optiboot/optiboot_atmega328.hex
 
 unowifi.build.mcu=atmega328p
