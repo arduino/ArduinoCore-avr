@@ -51,9 +51,9 @@ static volatile uint8_t twi_inRepStart;			// in the middle of a repeated start
 // and twi_do_reset_on_timeout could become true
 // to conform to the SMBus standard
 // http://smbus.org/specs/SMBus_3_1_20180319.pdf
-static volatile uint32_t twi_timeout_us = 0ul;
+static volatile uint32_t twi_timeout_us = TWI_DEFAULT_TIMEOUT;
 static volatile bool twi_timed_out_flag = false;  // a timeout has been seen
-static volatile bool twi_do_reset_on_timeout = false;  // reset the TWI registers on timeout
+static volatile bool twi_do_reset_on_timeout = TWI_DEFAULT_RESET_ON_TIMEOUT;  // reset the TWI registers on timeout
 
 static void (*twi_onSlaveTransmit)(void);
 static void (*twi_onSlaveReceive)(uint8_t*, int);
@@ -451,13 +451,13 @@ void twi_releaseBus(void)
  * Function twi_setTimeoutInMicros
  * Desc     set a timeout for while loops that twi might get stuck in
  * Input    timeout value in microseconds (0 means never time out)
- * Input    reset_with_timeout: true causes timeout events to reset twi
+ * Input    reset_on_timeout: true causes timeout events to reset twi
  * Output   none
  */
-void twi_setTimeoutInMicros(uint32_t timeout, bool reset_with_timeout){
+void twi_setTimeoutInMicros(uint32_t timeout, bool reset_on_timeout){
   twi_timed_out_flag = false;
   twi_timeout_us = timeout;
-  twi_do_reset_on_timeout = reset_with_timeout;
+  twi_do_reset_on_timeout = reset_on_timeout;
 }
 
 /* 

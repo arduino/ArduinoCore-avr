@@ -97,7 +97,7 @@ void TwoWire::setClock(uint32_t clock)
  * master that has claimed the bus).
  *
  * When a timeout is triggered, a flag is set that can be queried with `getWireTimeoutFlag()` and is cleared
- * when `clearWireTimeoutFlag()` or `setWireTimeoutUs()` is called.
+ * when `clearWireTimeoutFlag()` or `setWireTimeout()` is called.
  *
  * Note that this timeout can also trigger while waiting for clock stretching or waiting for a second master
  * to complete its transaction. So make sure to adapt the timeout to accommodate for those cases if needed.
@@ -105,16 +105,15 @@ void TwoWire::setClock(uint32_t clock)
  * but (much) shorter values will usually also work.
  *
  * In the future, a timeout will be enabled by default, so if you require the timeout to be disabled, it is
- * recommended you disable it by default using `setWireTimeoutUs(0)`, even though that is currently
+ * recommended you disable it by default using `setWireTimeout(0)`, even though that is currently
  * the default.
  *
  * @param timeout a timeout value in microseconds, if zero then timeout checking is disabled
- * @param reset_with_timeout if true then TWI interface will be automatically reset on timeout
+ * @param reset_on_timeout if true then TWI interface will be automatically reset on timeout
  *                           if false then TWI interface will not be reset on timeout
-
  */
-void TwoWire::setWireTimeout(uint32_t timeout, bool reset_with_timeout){
-  twi_setTimeoutInMicros(timeout, reset_with_timeout);
+void TwoWire::setWireTimeout(uint32_t timeout, bool reset_on_timeout){
+  twi_setTimeoutInMicros(timeout, reset_on_timeout);
 }
 
 /***
