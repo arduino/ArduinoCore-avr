@@ -264,3 +264,144 @@ size_t Print::printFloat(double number, uint8_t digits)
   
   return n;
 }
+
+String base64_encode(const String &input)
+{
+    String encoded;
+    int input_length = input.length();
+    int i = 0;
+    uint8_t char_array_3[3];
+    uint8_t char_array_4[4];
+
+    const uint8_t* data = (const uint8_t*)input.c_str();
+
+    while (input_length--)
+    {
+        char_array_3[i++] = *(data++);
+        if (i == 3)
+        {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for (i = 0; (i < 4); i++)
+            {
+                char c;
+                memcpy_P(&c, &base64_chars[char_array_4[i]], sizeof(char));
+                encoded += c;
+            }
+            i = 0;
+        }
+    }
+
+    if(i)
+    {
+        for (int j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (int j = 0; (j < i + 1); j++)
+        {
+            char c;
+            memcpy_P(&c, &base64_chars[char_array_4[j]], sizeof(char));
+            encoded += c;
+        }
+
+        while ((i++ < 3))
+            encoded += '=';
+    }
+
+    return encoded;
+}
+
+String base64_decode(const String &input)
+{
+    String decoded;
+    int input_length = input.length();
+    uint8_t char_array_4[4], char_array_3[3];
+    int i = 0, j = 0;
+
+    while (input_length-- && (input[i] != '=') && (isalnum(input[i]) || (input[i] == '+') || (input[i] == '/')))
+    {
+        char_array_4[j++] = input[i]; 
+        i++;
+        if (j == 4)
+        {
+            for (j = 0; j < 4; j++)
+            {
+                if (char_array_4[j] >= 'A' && char_array_4[j] <= 'Z')
+                {
+                    char_array_4[j] -= 'A';
+                } else if (char_array_4[j] >= 'a' && char_array_4[j] <= 'z')
+               {
+                    char_array_4[j] -= 'a' - 26;
+                } else if (char_array_4[j] >= '0' && char_array_4[j] <= '9') {
+                    char_array_4[j] -= '0' - 52;
+                } else if (char_array_4[j] == '+') {
+                    char_array_4[j] = 62;
+                } else if (char_array_4[j] == '/') {
+                    char_array_4[j] = 63;
+                } else {
+                    char_array_4[j] = 0; // Invalid character
+                }
+            }
+
+            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+            for (j = 0; (j < 3); j++)
+            {
+                decoded += (char)char_array_3[j];
+            }
+            j = 0;
+        }
+    }
+
+    if(j)
+    {
+        for (int k = j; k < 4; k++)
+        {
+            char_array_4[k] = 0;
+        }
+
+        for (int k = 0; k < 4; k++)
+        {
+            if (char_array_4[k] >= 'A' && char_array_4[k] <= 'Z')
+           {
+                char_array_4[k] -= 'A';
+            } else if (char_array_4[k] >= 'a' && char_array_4[k] <= 'z')
+            {
+                char_array_4[k] -= 'a' - 26;
+            } else if (char_array_4[k] >= '0' && char_array_4[k] <= '9')
+          {
+                char_array_4[k] -= '0' - 52;
+            } else if (char_array_4[k] == '+')
+           {
+                char_array_4[k] = 62;
+            } else if (char_array_4[k] == '/')
+           {
+                char_array_4[k] = 63;
+            } else {
+                char_array_4[k] = 0; // Invalid character
+            }
+        }
+
+        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+        for(int k = 0; (k < j - 1); k++)
+        {
+            decoded += (char)char_array_3[k];
+        }
+    }
+
+    return decoded;
+}
+
