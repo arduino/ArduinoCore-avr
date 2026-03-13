@@ -186,7 +186,7 @@ String & String::copy(const char *cstr, unsigned int length)
 		return *this;
 	}
 	len = length;
-	strcpy(buffer, cstr);
+	memcpy(buffer, cstr, length + 1);
 	return *this;
 }
 
@@ -197,7 +197,7 @@ String & String::copy(const __FlashStringHelper *pstr, unsigned int length)
 		return *this;
 	}
 	len = length;
-	strcpy_P(buffer, (PGM_P)pstr);
+	memcpy_P(buffer, (PGM_P)pstr, length + 1);
 	return *this;
 }
 
@@ -206,7 +206,7 @@ void String::move(String &rhs)
 {
 	if (buffer) {
 		if (rhs && capacity >= rhs.len) {
-			strcpy(buffer, rhs.buffer);
+			memcpy(buffer, rhs.buffer, rhs.len + 1);
 			len = rhs.len;
 			rhs.len = 0;
 			return;
@@ -278,8 +278,9 @@ unsigned char String::concat(const char *cstr, unsigned int length)
 	if (!cstr) return 0;
 	if (length == 0) return 1;
 	if (!reserve(newlen)) return 0;
-	strcpy(buffer + len, cstr);
+	memcpy(buffer + len, cstr, length);
 	len = newlen;
+	buffer[len] = 0;
 	return 1;
 }
 
@@ -353,7 +354,7 @@ unsigned char String::concat(const __FlashStringHelper * str)
 	if (length == 0) return 1;
 	unsigned int newlen = len + length;
 	if (!reserve(newlen)) return 0;
-	strcpy_P(buffer + len, (const char *) str);
+	memcpy_P(buffer + len, (const char *) str, length + 1);
 	len = newlen;
 	return 1;
 }
@@ -665,6 +666,7 @@ void String::replace(const String& find, const String& replace)
 		}
 	} else if (diff < 0) {
 		char *writeTo = buffer;
+		char *end = buffer + len;
 		while ((foundAt = strstr(readFrom, find.buffer)) != NULL) {
 			unsigned int n = foundAt - readFrom;
 			memcpy(writeTo, readFrom, n);
@@ -674,7 +676,7 @@ void String::replace(const String& find, const String& replace)
 			readFrom = foundAt + find.len;
 			len += diff;
 		}
-		strcpy(writeTo, readFrom);
+		memcpy(writeTo, readFrom, end - readFrom + 1);
 	} else {
 		unsigned int size = len; // compute size needed for result
 		while ((foundAt = strstr(readFrom, find.buffer)) != NULL) {
