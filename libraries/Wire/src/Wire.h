@@ -26,6 +26,13 @@
 #include <inttypes.h>
 #include "Stream.h"
 
+// I2C standard speeds
+#define I2C_LOW_SPEED       (10000)   // 10kHz
+#define I2C_STD_SPEED       (100000)  // 100kHz
+#define I2C_FAST_SPEED      (400000)  // 400kHz
+#define I2C_FAST_PLUS_SPEED (1000000) // 1MHz
+#define I2C_HIGH_SPEED      (3400000) // 3.4MHz
+
 #define BUFFER_LENGTH 32
 
 // WIRE_HAS_END means Wire has end()
@@ -75,6 +82,12 @@ class TwoWire : public Stream
     virtual void flush(void);
     void onReceive( void (*)(int) );
     void onRequest( void (*)(void) );
+    /* Register manipulation functions */
+    uint8_t registerRead(uint8_t addr, uint8_t reg, const bool blocking = true);
+    void registerWrite(uint8_t addr, uint8_t reg, uint8_t val);
+    bool registerWriteVerify(uint8_t addr, uint8_t reg, uint8_t val);
+    void registerBlockRead(uint8_t addr, uint8_t reg, uint8_t *data, size_t len, const bool blocking = true);
+    void registerBlockWrite(uint8_t addr, uint8_t reg, uint8_t *data, size_t len);
 
     inline size_t write(unsigned long n) { return write((uint8_t)n); }
     inline size_t write(long n) { return write((uint8_t)n); }
