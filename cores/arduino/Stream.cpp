@@ -160,7 +160,7 @@ float Stream::parseFloat(LookaheadMode lookahead, char ignore)
 {
   bool isNegative = false;
   bool isFraction = false;
-  long value = 0;
+  float value = 0;
   int c;
   float fraction = 1.0;
 
