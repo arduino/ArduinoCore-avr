@@ -26,7 +26,15 @@
 #include <inttypes.h>
 #include "Stream.h"
 
-#define BUFFER_LENGTH 32
+// Size of the twi transmit buffer in bytes
+#ifndef ARDUINO_WIRE_TX_BUFFER_LENGTH
+#define ARDUINO_WIRE_TX_BUFFER_LENGTH 32
+#endif
+
+// Size of the twi receive buffer in bytes
+#ifndef ARDUINO_WIRE_RX_BUFFER_LENGTH
+#define ARDUINO_WIRE_RX_BUFFER_LENGTH 32
+#endif
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1

@@ -32,12 +32,12 @@ extern "C" {
 
 // Initialize Class Variables //////////////////////////////////////////////////
 
-uint8_t TwoWire::rxBuffer[BUFFER_LENGTH];
+uint8_t TwoWire::rxBuffer[ARDUINO_WIRE_RX_BUFFER_LENGTH];
 uint8_t TwoWire::rxBufferIndex = 0;
 uint8_t TwoWire::rxBufferLength = 0;
 
 uint8_t TwoWire::txAddress = 0;
-uint8_t TwoWire::txBuffer[BUFFER_LENGTH];
+uint8_t TwoWire::txBuffer[ARDUINO_WIRE_TX_BUFFER_LENGTH];
 uint8_t TwoWire::txBufferIndex = 0;
 uint8_t TwoWire::txBufferLength = 0;
 
@@ -154,8 +154,8 @@ uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddres
   }
 
   // clamp to buffer length
-  if(quantity > BUFFER_LENGTH){
-    quantity = BUFFER_LENGTH;
+  if(quantity > ARDUINO_WIRE_RX_BUFFER_LENGTH){
+    quantity = ARDUINO_WIRE_RX_BUFFER_LENGTH;
   }
   // perform blocking read into buffer
   uint8_t read = twi_readFrom(address, rxBuffer, quantity, sendStop);
@@ -242,7 +242,7 @@ size_t TwoWire::write(uint8_t data)
   if(transmitting){
   // in master transmitter mode
     // don't bother if buffer is full
-    if(txBufferLength >= BUFFER_LENGTH){
+    if(txBufferLength >= ARDUINO_WIRE_TX_BUFFER_LENGTH){
       setWriteError();
       return 0;
     }
