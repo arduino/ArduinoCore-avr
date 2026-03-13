@@ -39,6 +39,7 @@
 ISR(USART2_RX_vect)
 {
   Serial2._rx_complete_irq();
+  Serial2.onReceiveService();
 }
 
 ISR(USART2_UDRE_vect)
