@@ -27,18 +27,26 @@
 #include "Printable.h"
 
 #define DEC 10
-#define HEX 16
+#define HEX  0x0010
+#define HEX2 0x0210
+#define HEX4 0x0410
+#define HEX8 0x0810
 #define OCT 8
 #ifdef BIN // Prevent warnings if BIN is previously defined in "iotnx4.h" or similar
 #undef BIN
 #endif
-#define BIN 2
+#define BIN   0x0002
+#define BIN2  0x0202
+#define BIN4  0x0402
+#define BIN8  0x0802
+#define BIN16 0x1002
+#define BIN32 0x2002
 
 class Print
 {
   private:
     int write_error;
-    size_t printNumber(unsigned long, uint8_t);
+    size_t printNumber(unsigned long, uint16_t);
     size_t printFloat(double, uint8_t);
   protected:
     void setWriteError(int err = 1) { write_error = err; }

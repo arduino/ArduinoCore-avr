@@ -200,22 +200,36 @@ size_t Print::println(const Printable& x)
 
 // Private Methods /////////////////////////////////////////////////////////////
 
-size_t Print::printNumber(unsigned long n, uint8_t base)
+size_t Print::printNumber(unsigned long n, uint16_t base)
 {
   char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
   char *str = &buf[sizeof(buf) - 1];
 
   *str = '\0';
 
+  uint8_t minDigits = 1;
+  uint8_t maxDigits = sizeof(buf) - 1;
+  if (base > 0xFF)
+  {
+    minDigits = base >> 8;
+    base = base & 0xFF;
+  }
+  if (minDigits > maxDigits) minDigits = maxDigits;
+
   // prevent crash if called with base == 1
   if (base < 2) base = 10;
 
+  uint8_t usedDigits = 0;
   do {
     char c = n % base;
     n /= base;
 
     *--str = c < 10 ? c + '0' : c + 'A' - 10;
+    usedDigits++;
   } while(n);
+  while (usedDigits++ < minDigits) {
+    *--str = '0';
+  }
 
   return write(str);
 }
