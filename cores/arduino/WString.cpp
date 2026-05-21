@@ -334,14 +334,16 @@ unsigned char String::concat(unsigned long num)
 
 unsigned char String::concat(float num)
 {
-	char buf[20];
+	static size_t const FLOAT_BUF_SIZE = (FLT_MAX_10_EXP + 1) + 2 /* FIXED DECIMAL PLACES */ + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
+	char buf[FLOAT_BUF_SIZE];
 	char* string = dtostrf(num, 4, 2, buf);
 	return concat(string, strlen(string));
 }
 
 unsigned char String::concat(double num)
 {
-	char buf[20];
+	static size_t const DOUBLE_BUF_SIZE = (DBL_MAX_10_EXP + 1) + 2 /* FIXED DECIMAL PLACES */ + 1 /* '-' */ + 1 /* '.' */ + 1 /* '\0' */;
+	char buf[DOUBLE_BUF_SIZE];
 	char* string = dtostrf(num, 4, 2, buf);
 	return concat(string, strlen(string));
 }
