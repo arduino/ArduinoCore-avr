@@ -4,18 +4,17 @@
 #
 # For more info:
 # https://arduino.github.io/arduino-cli/latest/platform-specification/
-# https://felias-fogg.github.io/PyAvrOCD/
 
-name=Arduino AVR Boards
-version=1.8.7
+name=Arduino AVR Boards (Debug enabled)
+version=1.9.0-pre2
 
 # AVR compile variables
 # ---------------------
 
 # Optimization flags for debugging
-compiler.optimization_flags=-Os -DNDEBUG
-compiler.optimization_flags.release=-Os -DNDEBUG
-compiler.optimization_flags.debug=-Og -ggdb3 -DDEBUG
+compiler.optimization_flags=-Os-ggdb3  -DNDEBUG -flto
+compiler.optimization_flags.release=-Os -ggdb3 -DNDEBUG -flto
+compiler.optimization_flags.debug=-Og -ggdb3 -DDEBUG -fno-lto
 
 # Warnings
 compiler.warning_flags=-w
@@ -27,13 +26,13 @@ compiler.warning_flags.all=-Wall -Wextra
 # Default "compiler.path" is correct, change only if you want to override the initial value
 compiler.path={runtime.tools.avr-gcc.path}/bin/
 compiler.c.cmd=avr-gcc
-compiler.c.flags=-c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD -flto -fno-fat-lto-objects
-compiler.c.elf.flags={compiler.warning_flags} {compiler.optimization_flags} -g -flto -fuse-linker-plugin -Wl,--gc-sections
+compiler.c.flags=-c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -MMD  -fno-fat-lto-objects
+compiler.c.elf.flags={compiler.warning_flags} {compiler.optimization_flags} -fuse-linker-plugin -Wl,--gc-sections
 compiler.c.elf.cmd=avr-gcc
-compiler.S.flags=-c -g -x assembler-with-cpp -flto -MMD
+compiler.S.flags=-c {compiler.optimization_flags}  -x assembler-with-cpp -MMD
 compiler.cpp.cmd=avr-g++
-compiler.cpp.flags=-c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD -flto
-compiler.ar.cmd={ltoarcmd}
+compiler.cpp.flags=-c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -Wno-error=narrowing -MMD
+compiler.ar.cmd=avr-gcc-ar
 compiler.ar.flags=rcs
 compiler.objcopy.cmd=avr-objcopy
 compiler.objcopy.eep.flags=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
@@ -163,14 +162,16 @@ debug.cortex-debug.custom.overrideGDBServerStartedRegex=Listening on port \d+ fo
 debug.cortex-debug.custom.objdumpPath={runtime.tools.avr-gcc.path}/bin/avr-objdump
 debug.cortex-debug.custom.serverArgs.0=-s
 debug.cortex-debug.custom.serverArgs.1=nop
-debug.cortex-debug.custom.serverArgs.2=-d
+debug.cortex-debug.custom.serverArgs.2=--device
 debug.cortex-debug.custom.serverArgs.3={build.mcu}
-debug.cortex-debug.custom.serverArgs.4=-F
-debug.cortex-debug.custom.serverArgs.5={build.f_cpu}
-debug.cortex-debug.custom.serverArgs.6=-m
-debug.cortex-debug.custom.serverArgs.7=all
-debug.cortex-debug.custom.serverArgs.8=-P
-debug.cortex-debug.custom.serverArgs.9=2000
+debug.cortex-debug.custom.serverArgs.4=--manage
+debug.cortex-debug.custom.serverArgs.5=all
+debug.cortex-debug.custom.serverArgs.6=--F_CPU
+debug.cortex-debug.custom.serverArgs.7={build.f_cpu}
+debug.cortex-debug.custom.serverArgs.8=--elf-file
+debug.cortex-debug.custom.serverArgs.9={debug.executable}
+debug.cortex-debug.custom.serverArgs.10=--prog-clock
+debug.cortex-debug.custom.serverArgs.11=2000
 debug.cortex-debug.custom.preLaunchCommands.0=monitor debugwire enable
 debug.cortex-debug.custom.runToEntryPoint=main
 debug.svd_file={debug.toolchain.path}/pyavrocd-util/svd/{build.mcu}.svd
