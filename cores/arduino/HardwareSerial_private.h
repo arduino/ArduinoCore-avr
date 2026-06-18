@@ -19,6 +19,8 @@
   Modified 23 November 2006 by David A. Mellis
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
+  Modified 2 November 2015 by SlashDev
+  Modified 23 November 2019 by Georg Icking-Konert
 */
 
 #include "wiring_private.h"
@@ -92,7 +94,8 @@ HardwareSerial::HardwareSerial(
     _ucsra(ucsra), _ucsrb(ucsrb), _ucsrc(ucsrc),
     _udr(udr),
     _rx_buffer_head(0), _rx_buffer_tail(0),
-    _tx_buffer_head(0), _tx_buffer_tail(0)
+    _tx_buffer_head(0), _tx_buffer_tail(0),
+    _isrRx(NULL), _isrTx(dummyTxFct), _rxArg(NULL)
 {
 }
 
@@ -100,24 +103,41 @@ HardwareSerial::HardwareSerial(
 
 void HardwareSerial::_rx_complete_irq(void)
 {
-  if (bit_is_clear(*_ucsra, UPE0)) {
-    // No Parity error, read byte and store it in the buffer if there is
-    // room
-    unsigned char c = *_udr;
-    rx_buffer_index_t i = (unsigned int)(_rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
+  // user receive function was attached -> call it with data, status byte and optional argument pointer 
+  if (_isrRx) {
+    unsigned char status = *_ucsra;
+    unsigned char data = *_udr;
+    _isrRx( data, status, _rxArg );
+  }
 
-    // if we should be storing the received character into the location
-    // just before the tail (meaning that the head would advance to the
-    // current location of the tail), we're about to overflow the buffer
-    // and so we don't write the character or advance the head.
-    if (i != _rx_buffer_tail) {
-      _rx_buffer[_rx_buffer_head] = c;
-      _rx_buffer_head = i;
-    }
-  } else {
-    // Parity error, read byte but discard it
-    *_udr;
-  };
+  // default: save data in ring buffer
+  else {  
+    if (bit_is_clear(*_ucsra, UPE0)) {
+      unsigned char c = *_udr;
+      // No Parity error, read byte and store it in the buffer if there is
+      // room
+      rx_buffer_index_t i = (unsigned int)(_rx_buffer_head + 1) % SERIAL_RX_BUFFER_SIZE;
+
+      // if we should be storing the received character into the location
+      // just before the tail (meaning that the head would advance to the
+      // current location of the tail), we're about to overflow the buffer
+      // and so we don't write the character or advance the head.
+      if (i != _rx_buffer_tail) {
+        _rx_buffer[_rx_buffer_head] = c;
+        _rx_buffer_head = i;
+      }
+    } 
+    else {
+      // Parity error, read byte but discard it
+      *_udr;
+    };
+  }
+}
+
+void HardwareSerial::_tx_complete_irq(void)
+{
+  // user send function was attached -> call it
+  _isrTx();
 }
 
 #endif // whole file

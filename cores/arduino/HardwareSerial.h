@@ -19,6 +19,8 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 2 November 2015 by SlashDev
+  Modified 23 November 2019 by Georg Icking-Konert
 */
 
 #ifndef HardwareSerial_h
@@ -90,6 +92,9 @@ typedef uint8_t rx_buffer_index_t;
 #define SERIAL_7O2 0x3C
 #define SERIAL_8O2 0x3E
 
+// dummy custom function for TxC interrupt. Is faster than check if(fct==NULL) 
+void dummyTxFct(void);
+
 class HardwareSerial : public Stream
 {
   protected:
@@ -112,6 +117,13 @@ class HardwareSerial : public Stream
     // instruction.
     unsigned char _rx_buffer[SERIAL_RX_BUFFER_SIZE];
     unsigned char _tx_buffer[SERIAL_TX_BUFFER_SIZE];
+    
+    // custom handlers for RX and TXC interrupts 
+    typedef void (* isrRx_t)( uint8_t data, uint8_t status, void* args );
+    typedef void (* isrTx_t)( void );
+    isrRx_t  _isrRx;
+    isrTx_t  _isrTx;
+    void*    _rxArg;
 
   public:
     inline HardwareSerial(
@@ -137,6 +149,18 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+    inline void _tx_complete_irq(void);
+
+    // attach custom handlers for RX and TXC interrupts 
+    void attachInterrupt_Receive( isrRx_t fn, void *args = NULL );
+    void detachInterrupt_Receive( void ) { attachInterrupt_Receive( (isrRx_t) NULL ); };
+    void attachInterrupt_Send( isrTx_t fn );
+    void detachInterrupt_Send( void );
+
+  private:
+
+    HardwareSerial( const HardwareSerial & );
+    HardwareSerial & operator =( const HardwareSerial &);
 };
 
 #if defined(UBRRH) || defined(UBRR0H)
