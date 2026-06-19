@@ -62,6 +62,7 @@ public:
 	bool configured();
 
 	void attach();
+	// IDE CANNOT UPLOAD OVER USB WHILE DETACHED
 	void detach();	// Serial port goes down too...
 	void poll();
 	bool wakeupHost(); // returns false, when wakeup cannot be processed
