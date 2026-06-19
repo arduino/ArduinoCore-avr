@@ -88,6 +88,7 @@ const DeviceDescriptor USB_DeviceDescriptorIAD =
 volatile u8 _usbConfiguration = 0;
 volatile u8 _usbCurrentStatus = 0; // meaning of bits see usb_20.pdf, Figure 9-4. Information Returned by a GetStatus() Request to a Device
 volatile u8 _usbSuspendState = 0; // copy of UDINT to check SUSPI and WAKEUPI bits
+volatile u8 _usbZlpPending[USB_ENDPOINTS] = {0};
 
 static inline void WaitIN(void)
 {
@@ -323,10 +324,18 @@ int USB_Send(u8 ep, const void* d, int len)
 				sendZlp = false;
 			} else if (!ReadWriteAllowed()) { // ...release if buffer is full...
 				ReleaseTX();
-				if (len == 0) sendZlp = true;
+				if (len == 0) {
+					if (ep & TRANSFER_RELEASE) {
+						sendZlp = true;
+					} else {
+						_usbZlpPending[ep & 7] = 1;
+					}
+				}
 			} else if ((len == 0) && (ep & TRANSFER_RELEASE)) { // ...or if forced with TRANSFER_RELEASE
-				// XXX: TRANSFER_RELEASE is never used can be removed?
 				ReleaseTX();
+				_usbZlpPending[ep & 7] = 0;
+			} else {
+				_usbZlpPending[ep & 7] = 0;
 			}
 		}
 	}
@@ -662,9 +671,27 @@ ISR(USB_COM_vect)
 
 void USB_Flush(u8 ep)
 {
-	SetEP(ep);
-	if (FifoByteCount())
-		ReleaseTX();
+	bool int_enabled = SREG & 0x80;
+	bool repeat;
+	do {
+		repeat = false;
+		{
+			LockEP lock(ep);
+			if (FifoByteCount() || _usbZlpPending[ep & 7]) {
+				if (USB_SendSpace(ep) > 0) {
+					ReleaseTX();
+					_usbZlpPending[ep & 7] = 0;
+				} else {
+					if (int_enabled) {
+						repeat = true;
+					}
+				}
+			}
+		}
+		if (repeat) {
+			delay(1);
+		}
+	} while (repeat);
 }
 
 static inline void USB_ClockDisable()
@@ -827,6 +854,7 @@ void USBDevice_::attach()
 	_usbConfiguration = 0;
 	_usbCurrentStatus = 0;
 	_usbSuspendState = 0;
+	memset((void *)_usbZlpPending, 0, sizeof(_usbZlpPending));
 	USB_ClockEnable();
 
 	UDINT &= ~((1<<WAKEUPI) | (1<<SUSPI)); // clear already pending WAKEUP / SUSPEND requests
