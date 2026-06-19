@@ -103,11 +103,301 @@ void analogWrite(uint8_t pin, int val)
 	pinMode(pin, OUTPUT);
 	if (val == 0)
 	{
-		digitalWrite(pin, LOW);
+		//for val==0 check if the pwm has been set to inversion mode 
+		//and use digitalWrite accordingly
+		switch(digitalPinToTimer(pin))
+		{
+			// XXX fix needed for atmega8
+			#if defined(TCCR0) && defined(COM00) && !defined(__AVR_ATmega8__)
+			case TIMER0A:
+				if(TCCR0 & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR0A) && defined(COM0A1)
+			case TIMER0A:
+				if(TCCR0A & (1<<6))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR0A) && defined(COM0B1)
+			case TIMER0B:
+				if(TCCR0A & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR1A) && defined(COM1A1)
+			case TIMER1A:
+				if(TCCR1A & (1<<6))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR1A) && defined(COM1B1)
+			case TIMER1B:
+				if(TCCR1A & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR1A) && defined(COM1C1)
+			case TIMER1C:
+				if(TCCR1A & (1<<2))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR2) && defined(COM21)
+			case TIMER2:
+				if(TCCR2 & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR2A) && defined(COM2A1)
+			case TIMER2A:
+				if(TCCR2A & (1<<6))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR2A) && defined(COM2B1)
+			case TIMER2B:
+				if(TCCR2A & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR3A) && defined(COM3A1)
+			case TIMER3A:
+				if(TCCR3A & (1<<6))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR3A) && defined(COM3B1)
+			case TIMER3B:
+				if(TCCR3A & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR3A) && defined(COM3C1)
+			case TIMER3C:
+				if(TCCR3A & (1<<2))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+			#endif
+
+			#if defined(TCCR4A)
+			case TIMER4A:
+				if(TCCR4A & (1<<6))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+			
+			#if defined(TCCR4A) && defined(COM4B1)
+			case TIMER4B:
+				if(TCCR4A & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR4A) && defined(COM4C1)
+			case TIMER4C:
+				if(TCCR4A & (1<<2))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+				
+			#if defined(TCCR4C) && defined(COM4D1)
+			case TIMER4D:				
+				if(TCCR4C & (1<<2))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+							
+			#if defined(TCCR5A) && defined(COM5A1)
+			case TIMER5A:
+				if(TCCR5A & (1<<6))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR5A) && defined(COM5B1)
+			case TIMER5B:
+				if(TCCR5A & (1<<4))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			#if defined(TCCR5A) && defined(COM5C1)
+			case TIMER5C: 
+				if(TCCR5A & (1<<2))digitalWrite(pin,HIGH);
+				else digitalWrite(pin,LOW);
+				break;
+			#endif
+
+			case NOT_ON_TIMER:
+			default:
+				if (val < 128) {
+					digitalWrite(pin, LOW);
+				} else {
+					digitalWrite(pin, HIGH);
+				}
+		}
 	}
 	else if (val == 255)
 	{
-		digitalWrite(pin, HIGH);
+		//for val==255 check if the pwm has been set to inversion mode and 
+		//use digitalWrite accordingly
+		switch(digitalPinToTimer(pin))
+		{
+			// XXX fix needed for atmega8
+			#if defined(TCCR0) && defined(COM00) && !defined(__AVR_ATmega8__)
+			case TIMER0A:
+				if(TCCR0 & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR0A) && defined(COM0A1)
+			case TIMER0A:
+				if(TCCR0A & (1<<6))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR0A) && defined(COM0B1)
+			case TIMER0B:
+				if(TCCR0A & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR1A) && defined(COM1A1)
+			case TIMER1A:
+				if(TCCR1A & (1<<6))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR1A) && defined(COM1B1)
+			case TIMER1B:
+				if(TCCR1A & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR1A) && defined(COM1C1)
+			case TIMER1C:
+				if(TCCR1A & (1<<2))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR2) && defined(COM21)
+			case TIMER2:
+				if(TCCR2 & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR2A) && defined(COM2A1)
+			case TIMER2A:
+				if(TCCR2A & (1<<6))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR2A) && defined(COM2B1)
+			case TIMER2B:
+				if(TCCR2A & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR3A) && defined(COM3A1)
+			case TIMER3A:
+				if(TCCR3A & (1<<6))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR3A) && defined(COM3B1)
+			case TIMER3B:
+				if(TCCR3A & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR3A) && defined(COM3C1)
+			case TIMER3C:
+				if(TCCR3A & (1<<2))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+			#endif
+
+			#if defined(TCCR4A)
+			case TIMER4A:
+				if(TCCR4A & (1<<6))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+			
+			#if defined(TCCR4A) && defined(COM4B1)
+			case TIMER4B:
+				if(TCCR4A & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR4A) && defined(COM4C1)
+			case TIMER4C:
+				if(TCCR4A & (1<<2))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+				
+			#if defined(TCCR4C) && defined(COM4D1)
+			case TIMER4D:				
+				if(TCCR4C & (1<<2))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+							
+			#if defined(TCCR5A) && defined(COM5A1)
+			case TIMER5A:
+				if(TCCR5A & (1<<6))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR5A) && defined(COM5B1)
+			case TIMER5B:
+				if(TCCR5A & (1<<4))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			#if defined(TCCR5A) && defined(COM5C1)
+			case TIMER5C: 
+				if(TCCR5A & (1<<2))digitalWrite(pin,LOW);
+				else digitalWrite(pin,HIGH);
+				break;
+			#endif
+
+			case NOT_ON_TIMER:
+			default:
+				if (val < 128) {
+					digitalWrite(pin, LOW);
+				} else {
+					digitalWrite(pin, HIGH);
+				}
+		}
 	}
 	else
 	{
