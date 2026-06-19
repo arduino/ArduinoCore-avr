@@ -32,12 +32,15 @@ Version Modified By Date     Comments
 0008    S Kanemoto  12/06/22 Fixed for Leonardo by @maris_HY
 0009    J Reucker   15/04/10 Issue #292 Fixed problems with ATmega8 (thanks to Pete62)
 0010    jipp        15/04/13 added additional define check #2923
+0011    Constant T  29/12/2024 added function melody()
 *************************************************/
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "Arduino.h"
 #include "pins_arduino.h"
+
+
 
 #if defined(__AVR_ATmega8__) || defined(__AVR_ATmega128__)
 #define TCCR2A TCCR2
@@ -476,7 +479,47 @@ void disableTimer(uint8_t _timer)
   }
 }
 
+int melody(int pin, int notes[], int noteSize, int durations[], int durationSize)
+{
+    static int currentNoteIndex = 0;
+    static unsigned long noteStartTime = 0;
+    static bool isPlaying = false;
 
+    while((noteSize != durationSize) || (noteSize < durationSize) || (noteSize > durationSize))
+    {
+        return -1;
+    }
+
+    if (!isPlaying)
+    {
+        isPlaying = true;
+        currentNoteIndex = 0;
+        noteStartTime = millis();
+        tone(pin, notes[currentNoteIndex]);
+    }
+    else
+    {
+        unsigned long currentTime = millis();
+        if (currentTime - noteStartTime >= durations[currentNoteIndex])
+        {
+            noTone(pin);
+            currentNoteIndex++;
+            if (currentNoteIndex < noteSize)
+            {
+                tone(pin, notes[currentNoteIndex]);
+                noteStartTime = currentTime;
+            }
+            else
+            {
+                isPlaying = false;
+                currentNoteIndex = 0; 
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
 void noTone(uint8_t _pin)
 {
   int8_t _timer = -1;
