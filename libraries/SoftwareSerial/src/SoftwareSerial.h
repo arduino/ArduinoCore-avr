@@ -103,7 +103,7 @@ public:
   virtual int read();
   virtual int available();
   virtual void flush();
-  operator bool() { return true; }
+  explicit constexpr operator bool() { return true; }
   
   using Print::write;
 
