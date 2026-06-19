@@ -1,6 +1,7 @@
 # See: https://arduino.github.io/arduino-cli/latest/platform-specification/
 
 menu.cpu=Processor
+menu.jtag=JTAG pins
 
 ##############################################################
 
@@ -35,6 +36,12 @@ yun.upload.speed=57600
 yun.upload.disable_flushing=true
 yun.upload.use_1200bps_touch=true
 yun.upload.wait_for_upload_port=true
+
+# JTAG pins
+yun.menu.jtag.disabled=JTAG disabled
+yun.menu.jtag.disabled.bootloader.high_fuses=0xd8
+yun.menu.jtag.enabled=JTAG enabled
+yun.menu.jtag.enabled.bootloader.high_fuses=0x98
 
 yun.bootloader.tool=avrdude
 yun.bootloader.tool.default=avrdude
@@ -289,6 +296,12 @@ mega.upload.tool.default=avrdude
 mega.upload.tool.network=arduino_ota
 mega.upload.maximum_data_size=8192
 
+# JTAG pins
+mega.menu.jtag.disabled=JTAG disabled
+mega.menu.jtag.disabled.bootloader.high_fuses_part=d
+mega.menu.jtag.enabled=JTAG enabled
+mega.menu.jtag.enabled.bootloader.high_fuses_part=9
+
 mega.bootloader.tool=avrdude
 mega.bootloader.tool.default=avrdude
 mega.bootloader.low_fuses=0xFF
@@ -361,6 +374,12 @@ megaADK.upload.maximum_size=253952
 megaADK.upload.maximum_data_size=8192
 megaADK.upload.speed=115200
 
+# JTAG pins
+megaADK.menu.jtag.disabled=JTAG disabled
+megaADK.menu.jtag.disabled.bootloader.high_fuses=0xd8
+megaADK.menu.jtag.enabled=JTAG enabled
+megaADK.menu.jtag.enabled.bootloader.high_fuses=0x98
+
 megaADK.bootloader.tool=avrdude
 megaADK.bootloader.tool.default=avrdude
 megaADK.bootloader.low_fuses=0xFF
@@ -408,6 +427,12 @@ leonardo.upload.disable_flushing=true
 leonardo.upload.use_1200bps_touch=true
 leonardo.upload.wait_for_upload_port=true
 
+# JTAG pins
+leonardo.menu.jtag.disabled=JTAG disabled
+leonardo.menu.jtag.disabled.bootloader.high_fuses=0xd8
+leonardo.menu.jtag.enabled=JTAG enabled
+leonardo.menu.jtag.enabled.bootloader.high_fuses=0x98
+
 leonardo.bootloader.tool=avrdude
 leonardo.bootloader.tool.default=avrdude
 leonardo.bootloader.low_fuses=0xff
@@ -450,6 +475,12 @@ leonardoeth.upload.speed=57600
 leonardoeth.upload.disable_flushing=true
 leonardoeth.upload.use_1200bps_touch=true
 leonardoeth.upload.wait_for_upload_port=true
+
+# JTAG pins
+leonardoeth.menu.jtag.disabled=JTAG disabled
+leonardoeth.menu.jtag.disabled.bootloader.high_fuses=0xd8
+leonardoeth.menu.jtag.enabled=JTAG enabled
+leonardoeth.menu.jtag.enabled.bootloader.high_fuses=0x98
 
 leonardoeth.bootloader.tool=avrdude
 leonardoeth.bootloader.tool.default=avrdude
@@ -511,6 +542,12 @@ micro.upload.disable_flushing=true
 micro.upload.use_1200bps_touch=true
 micro.upload.wait_for_upload_port=true
 
+# JTAG pins
+micro.menu.jtag.disabled=JTAG disabled
+micro.menu.jtag.disabled.bootloader.high_fuses=0xd8
+micro.menu.jtag.enabled=JTAG enabled
+micro.menu.jtag.enabled.bootloader.high_fuses=0x98
+
 micro.bootloader.tool=avrdude
 micro.bootloader.tool.default=avrdude
 micro.bootloader.low_fuses=0xff
@@ -561,6 +598,12 @@ esplora.upload.speed=57600
 esplora.upload.disable_flushing=true
 esplora.upload.use_1200bps_touch=true
 esplora.upload.wait_for_upload_port=true
+
+# JTAG pins
+esplora.menu.jtag.disabled=JTAG disabled
+esplora.menu.jtag.disabled.bootloader.high_fuses=0xd8
+esplora.menu.jtag.enabled=JTAG enabled
+esplora.menu.jtag.enabled.bootloader.high_fuses=0x98
 
 esplora.bootloader.tool=avrdude
 esplora.bootloader.tool.default=avrdude
@@ -761,6 +804,12 @@ LilyPadUSB.upload.disable_flushing=true
 LilyPadUSB.upload.use_1200bps_touch=true
 LilyPadUSB.upload.wait_for_upload_port=true
 
+# JTAG pins
+LilyPadUSB.menu.jtag.disabled=JTAG disabled
+LilyPadUSB.menu.jtag.disabled.bootloader.high_fuses=0xd8
+LilyPadUSB.menu.jtag.enabled=JTAG enabled
+LilyPadUSB.menu.jtag.enabled.bootloader.high_fuses=0x98
+
 LilyPadUSB.bootloader.tool=avrdude
 LilyPadUSB.bootloader.tool.default=avrdude
 LilyPadUSB.bootloader.low_fuses=0xff
@@ -844,8 +893,8 @@ pro.upload.protocol=arduino
 
 pro.bootloader.tool=avrdude
 pro.bootloader.tool.default=avrdude
-pro.bootloader.unlock_bits=0x3F
-pro.bootloader.lock_bits=0x0F
+pro.bootloader.unlock_bits=0xFF
+pro.bootloader.lock_bits=0xCF
 
 pro.build.board=AVR_PRO
 pro.build.core=arduino
@@ -929,8 +978,8 @@ atmegang.upload.speed=19200
 
 atmegang.bootloader.tool=avrdude
 atmegang.bootloader.tool.default=avrdude
-atmegang.bootloader.unlock_bits=0x3F
-atmegang.bootloader.lock_bits=0x0F
+atmegang.bootloader.unlock_bits=0xFF
+atmegang.bootloader.lock_bits=0xCF
 
 atmegang.build.mcu=atmegang
 atmegang.build.f_cpu=16000000L
@@ -998,6 +1047,12 @@ robotControl.upload.disable_flushing=true
 robotControl.upload.use_1200bps_touch=true
 robotControl.upload.wait_for_upload_port=true
 
+# JTAG pins
+robotControl.menu.jtag.disabled=JTAG disabled
+robotControl.menu.jtag.disabled.bootloader.high_fuses=0xd8
+robotControl.menu.jtag.enabled=JTAG enabled
+robotControl.menu.jtag.enabled.bootloader.high_fuses=0x98
+
 robotControl.bootloader.tool=avrdude
 robotControl.bootloader.tool.default=avrdude
 robotControl.bootloader.low_fuses=0xff
@@ -1048,6 +1103,12 @@ robotMotor.upload.speed=57600
 robotMotor.upload.disable_flushing=true
 robotMotor.upload.use_1200bps_touch=true
 robotMotor.upload.wait_for_upload_port=true
+
+# JTAG pins
+robotMotor.menu.jtag.disabled=JTAG disabled
+robotMotor.menu.jtag.disabled.bootloader.high_fuses=0xd8
+robotMotor.menu.jtag.enabled=JTAG enabled
+robotMotor.menu.jtag.enabled.bootloader.high_fuses=0x98
 
 robotMotor.bootloader.tool=avrdude
 robotMotor.bootloader.tool.default=avrdude
@@ -1135,6 +1196,13 @@ circuitplay32u4cat.upload_port.0.vid=0x239A
 circuitplay32u4cat.upload_port.0.pid=0x8011
 circuitplay32u4cat.upload_port.1.board=circuitplay32u4cat
 
+# JTAG pins
+circuitplay32u4cat.menu.jtag.disabled=JTAG disabled
+circuitplay32u4cat.menu.jtag.disabled.bootloader.high_fuses=0xd8
+circuitplay32u4cat.menu.jtag.enabled=JTAG enabled
+circuitplay32u4cat.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+
 ##############################################################
 
 yunmini.name=Arduino Yún Mini
@@ -1160,6 +1228,13 @@ yunmini.upload.speed=57600
 yunmini.upload.disable_flushing=true
 yunmini.upload.use_1200bps_touch=true
 yunmini.upload.wait_for_upload_port=true
+
+# JTAG pins
+yunmini.menu.jtag.disabled=JTAG disabled
+yunmini.menu.jtag.disabled.bootloader.high_fuses=0xd8
+yunmini.menu.jtag.enabled=JTAG enabled
+yunmini.menu.jtag.enabled.bootloader.high_fuses=0x98
+
 
 yunmini.bootloader.tool=avrdude
 yunmini.bootloader.tool.default=avrdude
@@ -1206,6 +1281,13 @@ chiwawa.upload.disable_flushing=true
 chiwawa.upload.use_1200bps_touch=true
 chiwawa.upload.wait_for_upload_port=true
 
+# JTAG pins
+chiwawa.menu.jtag.disabled=JTAG disabled
+chiwawa.menu.jtag.disabled.bootloader.high_fuses=0xd8
+chiwawa.menu.jtag.enabled=JTAG enabled
+chiwawa.menu.jtag.enabled.bootloader.high_fuses=0x98
+
+
 chiwawa.bootloader.tool=avrdude
 chiwawa.bootloader.tool.default=avrdude
 chiwawa.bootloader.low_fuses=0xff
@@ -1250,6 +1332,12 @@ one.upload.speed=57600
 one.upload.disable_flushing=true
 one.upload.use_1200bps_touch=true
 one.upload.wait_for_upload_port=true
+
+# JTAG pins
+one.menu.jtag.disabled=JTAG disabled
+one.menu.jtag.disabled.bootloader.high_fuses=0xd8
+one.menu.jtag.enabled=JTAG enabled
+one.menu.jtag.enabled.bootloader.high_fuses=0x98
 
 one.bootloader.tool=avrdude
 one.bootloader.tool.default=avrdude
