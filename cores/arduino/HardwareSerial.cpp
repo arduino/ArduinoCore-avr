@@ -177,6 +177,11 @@ int HardwareSerial::peek(void)
   }
 }
 
+int HardwareSerial::peekLast(void)
+{
+  return _rx_buffer_head==_rx_buffer_tail ? -1 : _rx_buffer[(SERIAL_RX_BUFFER_SIZE+_rx_buffer_tail-1)%SERIAL_RX_BUFFER_SIZE];
+}
+
 int HardwareSerial::read(void)
 {
   // if the head isn't ahead of the tail, we don't have any characters
