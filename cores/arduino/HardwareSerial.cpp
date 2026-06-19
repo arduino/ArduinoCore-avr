@@ -77,12 +77,24 @@ void serialEventRun(void)
 #endif
 }
 
-// macro to guard critical sections when needed for large TX buffer sizes
+// Macro to guard critical sections for large transmit buffer sizes
+// Reads from the transmit buffer tail pointer and writes to either head or tail pointer
+// should be atomic in this case
 #if (SERIAL_TX_BUFFER_SIZE>256)
 #define TX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 #else
 #define TX_BUFFER_ATOMIC
 #endif
+
+// Macro to guard critical sections for large receive buffer sizes
+// Reads from the receive buffer head pointer and writes to either head or tail pointer
+// should be atomic in this case
+#if (SERIAL_RX_BUFFER_SIZE>256)
+#define RX_BUFFER_ATOMIC ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+#else
+#define RX_BUFFER_ATOMIC
+#endif
+
 
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
@@ -160,17 +172,27 @@ void HardwareSerial::end()
   cbi(*_ucsrb, UDRIE0);
   
   // clear any received data
+  RX_BUFFER_ATOMIC {
   _rx_buffer_head = _rx_buffer_tail;
+  }
 }
 
 int HardwareSerial::available(void)
 {
-  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + _rx_buffer_head - _rx_buffer_tail)) % SERIAL_RX_BUFFER_SIZE;
+  rx_buffer_index_t head;
+  RX_BUFFER_ATOMIC {
+    head = _rx_buffer_head;
+  }
+  return ((unsigned int)(SERIAL_RX_BUFFER_SIZE + head - _rx_buffer_tail)) % SERIAL_RX_BUFFER_SIZE;
 }
 
 int HardwareSerial::peek(void)
 {
-  if (_rx_buffer_head == _rx_buffer_tail) {
+  rx_buffer_index_t head;
+  RX_BUFFER_ATOMIC {
+    head = _rx_buffer_head;
+  }
+  if (head == _rx_buffer_tail) {
     return -1;
   } else {
     return _rx_buffer[_rx_buffer_tail];
@@ -179,12 +201,18 @@ int HardwareSerial::peek(void)
 
 int HardwareSerial::read(void)
 {
+  rx_buffer_index_t head;
+  RX_BUFFER_ATOMIC {
+    head = _rx_buffer_head;
+  }
   // if the head isn't ahead of the tail, we don't have any characters
-  if (_rx_buffer_head == _rx_buffer_tail) {
+  if (head == _rx_buffer_tail) {
     return -1;
   } else {
     unsigned char c = _rx_buffer[_rx_buffer_tail];
-    _rx_buffer_tail = (rx_buffer_index_t)(_rx_buffer_tail + 1) % SERIAL_RX_BUFFER_SIZE;
+	RX_BUFFER_ATOMIC {
+      _rx_buffer_tail = (rx_buffer_index_t)(_rx_buffer_tail + 1) % SERIAL_RX_BUFFER_SIZE;
+    }
     return c;
   }
 }
