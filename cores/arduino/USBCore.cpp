@@ -65,6 +65,9 @@ const u8 STRING_PRODUCT[] PROGMEM = USB_PRODUCT;
 
 const u8 STRING_MANUFACTURER[] PROGMEM = USB_MANUFACTURER;
 
+#ifndef USB_SEND_TIMEOUT
+#define USB_SEND_TIMEOUT 250
+#endif
 
 #define DEVICE_CLASS 0x02
 
@@ -277,7 +280,7 @@ int USB_Send(u8 ep, const void* d, int len)
 
 	int r = len;
 	const u8* data = (const u8*)d;
-	u8 timeout = 250;		// 250ms timeout on send? TODO
+	u8 timeout = USB_SEND_TIMEOUT; // Timeout on send? TODO
 	bool sendZlp = false;
 
 	while (len || sendZlp)
