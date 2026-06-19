@@ -278,4 +278,22 @@ size_t HardwareSerial::write(uint8_t c)
   return 1;
 }
 
+// behind the scenes function that is called when data is received
+void HardwareSerial::onReceiveService()
+{
+  // don't bother if user hasn't registered a callback
+  if(!user_onReceive){
+    return;
+  }
+
+  // alert user program
+  user_onReceive();
+}
+
+// sets function called on slave write
+void HardwareSerial::onReceive( void (*function)(void) )
+{
+  user_onReceive = function;
+}
+
 #endif // whole file
