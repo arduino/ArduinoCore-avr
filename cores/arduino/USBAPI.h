@@ -196,6 +196,7 @@ bool	CDC_Setup(USBSetup& setup);
 int USB_SendControl(uint8_t flags, const void* d, int len);
 int USB_RecvControl(void* d, int len);
 int USB_RecvControlLong(void* d, int len);
+bool USB_SendStringDescriptor(const u8*, u8, uint8_t);
 
 uint8_t	USB_Available(uint8_t ep);
 uint8_t USB_SendSpace(uint8_t ep);
