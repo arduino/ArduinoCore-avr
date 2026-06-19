@@ -55,6 +55,8 @@ TwoWire::TwoWire()
 
 void TwoWire::begin(void)
 {
+  if (began) return;
+
   rxBufferIndex = 0;
   rxBufferLength = 0;
 

@@ -34,6 +34,8 @@
 class TwoWire : public Stream
 {
   private:
+    bool began = false;
+
     static uint8_t rxBuffer[];
     static uint8_t rxBufferIndex;
     static uint8_t rxBufferLength;
