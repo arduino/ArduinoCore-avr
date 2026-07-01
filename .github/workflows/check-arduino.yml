@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Arduino Lint
-        uses: arduino/arduino-lint-action@v2
+        uses: arduino/arduino-lint-action@v3
         with:
           compliance: specification
           # Always use this setting for official repositories. Remove for 3rd party projects.
