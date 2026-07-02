@@ -32,6 +32,7 @@ Version Modified By Date     Comments
 0008    S Kanemoto  12/06/22 Fixed for Leonardo by @maris_HY
 0009    J Reucker   15/04/10 Issue #292 Fixed problems with ATmega8 (thanks to Pete62)
 0010    jipp        15/04/13 added additional define check #2923
+0011    J Elias     24/12/19 Enabled all timers except timer 0 to make more pins available
 *************************************************/
 
 #include <avr/interrupt.h>
@@ -90,36 +91,43 @@ volatile uint8_t timer5_pin_mask;
 
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 
-#define AVAILABLE_TONE_PINS 1
+#define AVAILABLE_TONE_PINS 5
 #define USE_TIMER2
+#define USE_TIMER3
+#define USE_TIMER4
+#define USE_TIMER5
+#define USE_TIMER1
 
-const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2 /*, 3, 4, 5, 1, 0 */ };
-static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255, 255, 255, 255, 255 */ };
+const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2, 3, 4, 5, 1 /*, 0 */ };
+static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255, 255, 255, 255, 255 /*, 255 */ };
 
 #elif defined(__AVR_ATmega8__)
 
-#define AVAILABLE_TONE_PINS 1
+#define AVAILABLE_TONE_PINS 2
 #define USE_TIMER2
+#define USE_TIMER1
 
-const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2 /*, 1 */ };
-static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255 */ };
+const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2, 1 };
+static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255, 255 };
 
 #elif defined(__AVR_ATmega32U4__)
  
-#define AVAILABLE_TONE_PINS 1
+#define AVAILABLE_TONE_PINS 2
 #define USE_TIMER3
+#define USE_TIMER1
  
-const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 3 /*, 1 */ };
-static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255 */ };
+const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 3, 1 };
+static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255, 255 };
  
 #else
 
-#define AVAILABLE_TONE_PINS 1
+#define AVAILABLE_TONE_PINS 2
 #define USE_TIMER2
+#define USE_TIMER1
 
 // Leave timer 0 to last.
-const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2 /*, 1, 0 */ };
-static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255, 255 */ };
+const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2, 1 /*, 0 */ };
+static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255, 255 /*, 255 */ };
 
 #endif
 
@@ -293,7 +301,7 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
             }
           }
         }
-      }
+      }   
 
 #if defined(TCCR0B)
       if (_timer == 0)
@@ -420,9 +428,8 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 }
 
 
-// XXX: this function only works properly for timer 2 (the only one we use
-// currently).  for the others, it should end the tone, but won't restore
-// proper PWM functionality for the timer.
+// Disable the timer and restore proper PWM function.
+// (All timers except timer 0 are set as in init function - wiring.c)
 void disableTimer(uint8_t _timer)
 {
   switch (_timer)
@@ -435,11 +442,34 @@ void disableTimer(uint8_t _timer)
       #endif
       break;
 
-#if defined(TIMSK1) && defined(OCIE1A)
     case 1:
-      bitWrite(TIMSK1, OCIE1A, 0);
+      #if defined(TIMSK1) && defined(OCIE1A)
+        bitWrite(TIMSK1, OCIE1A, 0); // disable interrupt
+      #endif
+
+      #if defined(TCCR1B) && defined(CS11) && defined(CS10)
+        TCCR1B = 0; // Reset Register
+        // set timer 1 prescale factor to 64
+        bitWrite(TCCR1B, CS11, 1);
+      #if F_CPU >= 8000000L
+        bitWrite(TCCR1B, CS10, 1);
+      #endif
+      #elif defined(TCCR1) && defined(CS11) && defined(CS10)
+        TCCR1 = 0; // Reset Register
+        bitWrite(TCCR1, CS11, 1);
+      #if F_CPU >= 8000000L
+        bitWrite(TCCR1, CS10, 1);
+      #endif
+      #endif
+        // put timer 1 in 8-bit phase correct pwm mode
+      #if defined(TCCR1A) && defined(WGM10)
+        TCCR1A = 0; // Reset Register
+        bitWrite(TCCR1A, WGM10, 1);
+      #endif
+      #if defined(OCR3A)
+        OCR1A = 0;
+      #endif
       break;
-#endif
 
     case 2:
       #if defined(TIMSK2) && defined(OCIE2A)
@@ -456,23 +486,66 @@ void disableTimer(uint8_t _timer)
       #endif
       break;
 
-#if defined(TIMSK3) && defined(OCIE3A)
     case 3:
-      bitWrite(TIMSK3, OCIE3A, 0);
+      #if defined(TIMSK3) && defined(OCIE3A)
+        bitWrite(TIMSK3, OCIE3A, 0);    // disable interrupt
+      #endif
+      #if defined(TCCR3B) && defined(WGM32) && defined(CS30)
+        TCCR3A = 0; // Reset Register
+        TCCR3B = 0; // Reset register
+        bitWrite(TCCR3B, CS31, 1);      // set timer 3 prescale factor to 64
+        bitWrite(TCCR3B, CS30, 1); 
+        bitWrite(TCCR3A, WGM30, 1);     // put timer 3 in 8-bit phase correct pwm mode
+      #endif
+      #if defined(OCR3A)
+        OCR3A = 0;
+      #endif
       break;
-#endif
 
-#if defined(TIMSK4) && defined(OCIE4A)
     case 4:
-      bitWrite(TIMSK4, OCIE4A, 0);
+      #if defined(TIMSK4) && defined(OCIE4A)
+        bitWrite(TIMSK4, OCIE4A, 0);    // disable interrupt
+      #endif
+      #if defined(TCCR4A) && defined(TCCR4B) && defined(TCCR4D) /* beginning of timer4 block for 32U4 and similar */
+        TCCR4A = 0; // Reset register
+        TCCR4B = 0; // Reset register
+        TCCR4C = 0; // Reset register
+        TCCR4D = 0; // Reset register
+        bitWrite(TCCR4B, CS42, 1);		  // set timer4 prescale factor to 64
+        bitWrite(TCCR4B, CS41, 1); 
+        bitWrite(TCCR4B, CS40, 1); 
+        bitWrite(TCCR4D, WGM40, 1); 		// put timer 4 in phase- and frequency-correct PWM mode	
+        bitWrite(TCCR4A, PWM4A, 1);   	// enable PWM mode for comparator OCR4A
+        bitWrite(TCCR4C, PWM4D, 1);     // enable PWM mode for comparator OCR4D
+	  #endif
+      /* beginning of timer4 block for ATMEGA1280 and ATMEGA2560 */
+      #if defined(TCCR4B) && defined(CS41) && defined(WGM40)
+        TCCR4A = 0; // Reset register
+        TCCR4B = 0; // Reset register
+        bitWrite(TCCR4B, CS41, 1);      // set timer 4 prescale factor to 64
+        bitWrite(TCCR4B, CS40, 1); 
+        bitWrite(TCCR4A, WGM40, 1);     // put timer 4 in 8-bit phase correct pwm mode
+      #endif
+      #if defined(OCR4A)
+        OCR4A = 0;
+      #endif
       break;
-#endif
 
-#if defined(TIMSK5) && defined(OCIE5A)
     case 5:
-      bitWrite(TIMSK5, OCIE5A, 0);
+      #if defined(TIMSK5) && defined(OCIE5A)
+        bitWrite(TIMSK5, OCIE5A, 0); // disable interrupt
+      #endif
+      #if defined(TCCR5B) && defined(WGM52) && defined(CS50)
+        TCCR5A = 0;
+        TCCR5B = 0;
+        bitWrite(TCCR5B, CS51, 1);      // set timer 5 prescale factor to 64
+        bitWrite(TCCR5B, CS50, 1); 
+        bitWrite(TCCR5A, WGM50, 1);     // put timer 5 in 8-bit phase correct pwm mode
+      #endif
+      #if defined(OCR5A)
+        OCR5A = 0;
+      #endif
       break;
-#endif
   }
 }
 
