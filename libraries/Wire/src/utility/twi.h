@@ -34,6 +34,14 @@
   #define TWI_BUFFER_LENGTH 32
   #endif
 
+  #ifndef TWI_DEFAULT_TIMEOUT
+  #define TWI_DEFAULT_TIMEOUT 0
+  #endif
+
+  #ifndef TWI_DEFAULT_RESET_ON_TIMEOUT
+  #define TWI_DEFAULT_RESET_ON_TIMEOUT 0
+  #endif
+
   #define TWI_READY 0
   #define TWI_MRX   1
   #define TWI_MTX   2
