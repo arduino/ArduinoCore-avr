@@ -137,6 +137,8 @@ class HardwareSerial : public Stream
     // Interrupt handlers - Not intended to be called externally
     inline void _rx_complete_irq(void);
     void _tx_udr_empty_irq(void);
+    void (*EventEndTransmit)();
+    void (*EventReceive)();
 };
 
 #if defined(UBRRH) || defined(UBRR0H)

@@ -114,6 +114,7 @@ void HardwareSerial::_rx_complete_irq(void)
       _rx_buffer[_rx_buffer_head] = c;
       _rx_buffer_head = i;
     }
+    if (this->EventReceive) this->EventReceive ();
   } else {
     // Parity error, read byte but discard it
     *_udr;
