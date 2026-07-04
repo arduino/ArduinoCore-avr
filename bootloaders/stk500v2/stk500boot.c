@@ -523,10 +523,6 @@ uint32_t count = 0;
 	return UART_DATA_REG;
 }
 
-//*	for watch dog timer startup
-void (*app_start)(void) = 0x0000;
-
-
 //*****************************************************************************
 int main(void)
 {
@@ -572,7 +568,11 @@ int main(void)
 	// check if WDT generated the reset, if so, go straight to app
 	if (mcuStatusReg & _BV(WDRF))
 	{
-		app_start();
+		asm volatile(
+			"clr	r30		\n\t"
+			"clr	r31		\n\t"
+			"ijmp	\n\t"
+		);
 	}
 	//************************************************************************
 #endif
