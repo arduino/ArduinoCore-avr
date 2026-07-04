@@ -52,6 +52,7 @@ public:
     // Overloaded cast operator to allow IPAddress objects to be used where a pointer
     // to a four-byte uint8_t array is expected
     operator uint32_t() const { return _address.dword; };
+    bool operator==(const uint32_t& addr) const { return _address.dword == addr; };
     bool operator==(const IPAddress& addr) const { return _address.dword == addr._address.dword; };
     bool operator==(const uint8_t* addr) const;
 
@@ -73,6 +74,11 @@ public:
     friend class DNSClient;
 };
 
-const IPAddress INADDR_NONE(0,0,0,0);
+// Note well, it's still an unfortunate variable name as INADDR_NONE is defined
+// as ((in_addr_t) 0xffffffff) on Linux, *BSD and lwIP. Two definitions might
+// collide in unexpected ways.  It's kept as zero to preserve compatibility
+// with previous versions of the library defining INADDR_NONE as `0.0.0.0`
+// and not as `255.255.255.255`.
+static const uint32_t INADDR_NONE(0);
 
 #endif
