@@ -20,6 +20,8 @@
   Modified 28 September 2010 by Mark Sproul
   Modified 14 August 2012 by Alarus
   Modified 3 December 2013 by Matthijs Kooijman
+  Modified 2 November 2015 by SlashDev
+  Modified 23 November 2019 by Georg Icking-Konert
 */
 
 #include <stdlib.h>
@@ -84,6 +86,9 @@ void serialEventRun(void)
 #define TX_BUFFER_ATOMIC
 #endif
 
+// dummy custom function for TxC interrupt. Is faster than check if(fct==NULL) 
+void dummyTxFct(void) { /* dummy */}
+
 // Actual interrupt handlers //////////////////////////////////////////////////////////////
 
 void HardwareSerial::_tx_udr_empty_irq(void)
@@ -147,6 +152,7 @@ void HardwareSerial::begin(unsigned long baud, byte config)
   sbi(*_ucsrb, TXEN0);
   sbi(*_ucsrb, RXCIE0);
   cbi(*_ucsrb, UDRIE0);
+  //cbi(*_ucsrb, TXCIE0);
 }
 
 void HardwareSerial::end()
@@ -158,6 +164,7 @@ void HardwareSerial::end()
   cbi(*_ucsrb, TXEN0);
   cbi(*_ucsrb, RXCIE0);
   cbi(*_ucsrb, UDRIE0);
+  cbi(*_ucsrb, TXCIE0);
   
   // clear any received data
   _rx_buffer_head = _rx_buffer_tail;
@@ -276,6 +283,32 @@ size_t HardwareSerial::write(uint8_t c)
   }
   
   return 1;
+}
+
+void HardwareSerial::attachInterrupt_Receive( isrRx_t fn, void* args )
+{
+  uint8_t oldSREG = SREG;
+  cli();
+  _isrRx = fn;
+  _rxArg = args;
+  SREG = oldSREG;
+}
+
+void HardwareSerial::attachInterrupt_Send( isrTx_t fn )
+{
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    _isrTx = fn;             // set custom function
+    sbi(*_ucsra, TXC0);      // clear TXC status
+    sbi(*_ucsrb, TXCIE0);    // activate TXC interrupt
+  }
+}
+
+void HardwareSerial::detachInterrupt_Send()
+{
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+    _isrTx = dummyTxFct;     // restore dummy function
+    cbi(*_ucsrb, TXCIE0);    // deactivate TXC interrupt
+  }
 }
 
 #endif // whole file
