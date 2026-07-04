@@ -64,6 +64,8 @@ void TwoWire::begin(void)
   twi_init();
   twi_attachSlaveTxEvent(onRequestService); // default callback must exist
   twi_attachSlaveRxEvent(onReceiveService); // default callback must exist
+
+  twi_setTimeoutInMicros(WIRE_DEFAULT_TIMEOUT, WIRE_DEFAULT_RESET_WITH_TIMEOUT);
 }
 
 void TwoWire::begin(uint8_t address)
