@@ -43,6 +43,7 @@ uint8_t TwoWire::txBufferLength = 0;
 
 uint8_t TwoWire::transmitting = 0;
 void (*TwoWire::user_onRequest)(void);
+void (*TwoWire::user_onRequestMore)(void);
 void (*TwoWire::user_onReceive)(int);
 
 // Constructors ////////////////////////////////////////////////////////////////
@@ -63,6 +64,7 @@ void TwoWire::begin(void)
 
   twi_init();
   twi_attachSlaveTxEvent(onRequestService); // default callback must exist
+  twi_attachSlaveTxMoreEvent(onRequestMoreService); // default callback must exist
   twi_attachSlaveRxEvent(onReceiveService); // default callback must exist
 }
 
@@ -360,6 +362,17 @@ void TwoWire::onRequestService(void)
   user_onRequest();
 }
 
+// behind the scenes function that is called when more data is requested
+void TwoWire::onRequestMoreService(void)
+{
+  // don't bother if user hasn't registered a callback
+  if(!user_onRequestMore){
+    return;
+  }
+  // alert user program
+  user_onRequestMore();
+}
+
 // sets function called on slave write
 void TwoWire::onReceive( void (*function)(int) )
 {
@@ -370,6 +383,12 @@ void TwoWire::onReceive( void (*function)(int) )
 void TwoWire::onRequest( void (*function)(void) )
 {
   user_onRequest = function;
+}
+
+// sets function called on slave read
+void TwoWire::onRequestMore( void (*function)(void) )
+{
+  user_onRequestMore = function;
 }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
