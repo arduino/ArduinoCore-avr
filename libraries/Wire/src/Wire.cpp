@@ -372,7 +372,11 @@ void TwoWire::onRequest( void (*function)(void) )
   user_onRequest = function;
 }
 
+bool TwoWire::isBusy(void)
+{
+  return twi_isSollicited();
+}
+
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 TwoWire Wire = TwoWire();
-

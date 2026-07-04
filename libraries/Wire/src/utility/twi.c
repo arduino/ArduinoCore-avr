@@ -500,6 +500,10 @@ bool twi_manageTimeoutFlag(bool clear_flag){
   return(flag);
 }
 
+bool twi_isSollicited(void){
+  return twi_state == TWI_SRX || twi_state == TWI_STX;
+}
+
 ISR(TWI_vect)
 {
   switch(TW_STATUS){
