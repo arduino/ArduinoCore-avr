@@ -123,6 +123,7 @@ class HardwareSerial : public Stream
     void end();
     virtual int available(void);
     virtual int peek(void);
+    virtual int peekLast(void);
     virtual int read(void);
     virtual int availableForWrite(void);
     virtual void flush(void);
