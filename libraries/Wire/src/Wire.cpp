@@ -265,16 +265,20 @@ size_t TwoWire::write(uint8_t data)
 size_t TwoWire::write(const uint8_t *data, size_t quantity)
 {
   if(transmitting){
-  // in master transmitter mode
+    // in master transmitter mode
+    uint8_t bytesSent = 0;
+    // number of bytes successfully added to the buffer
     for(size_t i = 0; i < quantity; ++i){
-      write(data[i]);
-    }
+      if (write(data[i]) == 1)  // if a byte was successfully added to the buffer
+        bytesSent++;
+      }
+    return bytesSent;
   }else{
   // in slave send mode
     // reply to master
     twi_transmit(data, quantity);
+    return quantity;
   }
-  return quantity;
 }
 
 // must be called in:
