@@ -51,6 +51,7 @@ class SoftwareSerial : public Stream
 {
 private:
   // per object data
+  uint8_t _singleWirePin;
   uint8_t _receivePin;
   uint8_t _receiveBitMask;
   volatile uint8_t *_receivePortRegister;
@@ -79,6 +80,8 @@ private:
   uint8_t rx_pin_read();
   void setTX(uint8_t transmitPin);
   void setRX(uint8_t receivePin);
+  void setupTXPin(uint8_t transmitPin);
+  void setupRXPin(uint8_t receivePin);
   inline void setRxIntMsk(bool enable) __attribute__((__always_inline__));
 
   // Return num - sub, or 1 if the result would be < 1
