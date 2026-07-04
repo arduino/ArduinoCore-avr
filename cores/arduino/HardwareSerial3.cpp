@@ -39,6 +39,7 @@
 ISR(USART3_RX_vect)
 {
   Serial3._rx_complete_irq();
+  Serial3.onReceiveService();
 }
 
 ISR(USART3_UDRE_vect)
