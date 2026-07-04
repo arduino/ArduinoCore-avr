@@ -35,7 +35,23 @@
 //     -std=c++0x
 
 class __FlashStringHelper;
-#define F(string_literal) (reinterpret_cast<const __FlashStringHelper *>(PSTR(string_literal)))
+#define F(string_literal)                                         \
+(__extension__({                                                  \
+    __FlashStringHelper * ptr;                                    \
+    __asm__ __volatile__                                          \
+    (                                                             \
+        ".pushsection .progmem.data, \"SM\", @progbits, 1" "\n\t" \
+        "0: .string " #string_literal                      "\n\t" \
+        ".popsection"                                      "\n\t" \
+    );                                                            \
+    __asm__ __volatile__                                          \
+    (                                                             \
+        "ldi %A0, lo8(0b)"                                 "\n\t" \
+        "ldi %B0, hi8(0b)"                                 "\n\t" \
+        : "=d" (ptr)                                              \
+    );                                                            \
+    ptr;                                                          \
+}))
 
 // An inherited class for holding the result of a concatenation.  These
 // result objects are assumed to be writable by subsequent concatenations.
