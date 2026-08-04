@@ -221,7 +221,10 @@ size_t Stream::readBytesUntil(char terminator, char *buffer, size_t length)
   size_t index = 0;
   while (index < length) {
     int c = timedRead();
-    if (c < 0 || c == terminator) break;
+    // Compare against the terminator as unsigned char: on AVR char is signed,
+    // so a terminator byte >= 0x80 would otherwise sign-extend to a negative
+    // int and never match a valid read byte returned by timedRead().
+    if (c < 0 || c == (unsigned char)terminator) break;
     *buffer++ = (char)c;
     index++;
   }
@@ -244,7 +247,9 @@ String Stream::readStringUntil(char terminator)
 {
   String ret;
   int c = timedRead();
-  while (c >= 0 && c != terminator)
+  // See readBytesUntil() above: compare as unsigned char to correctly match
+  // terminator bytes >= 0x80 on platforms where char is signed.
+  while (c >= 0 && c != (unsigned char)terminator)
   {
     ret += (char)c;
     c = timedRead();
@@ -267,7 +272,9 @@ int Stream::findMulti( struct Stream::MultiTarget *targets, int tCount) {
 
     for (struct MultiTarget *t = targets; t < targets+tCount; ++t) {
       // the simple case is if we match, deal with that first.
-      if (c == t->str[t->index]) {
+      // Compare as unsigned char: char is signed on AVR, so target bytes
+      // >= 0x80 would otherwise sign-extend and never match c.
+      if (c == (unsigned char)t->str[t->index]) {
         if (++t->index == t->len)
           return t - targets;
         else
@@ -285,7 +292,7 @@ int Stream::findMulti( struct Stream::MultiTarget *targets, int tCount) {
       do {
         --t->index;
         // first check if current char works against the new current index
-        if (c != t->str[t->index])
+        if (c != (unsigned char)t->str[t->index])
           continue;
 
         // if it's the only char then we're good, nothing more to check
