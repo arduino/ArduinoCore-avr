@@ -4,7 +4,7 @@ title: Contact
 
 <section class="card">
   <h2>Get in touch</h2>
-  <p class="kicker">Questions, feedback, or contributions — send a short message and I’ll reply.</p>
+  <p class="kicker">Questions, feedback, or contributions — send a short message and I’ll get back to you.</p>
 
   <form id="contact-form" class="contact-form card" method="POST" action="https://formspree.io/f/xjybknwp">
     <label for="name">Name</label>
@@ -30,7 +30,7 @@ title: Contact
   <p>GitHub: <a href="https://github.com/darianvergotine2026">darianvergotine2026</a></p>
 
   <h3>Contributing</h3>
-  <p>Open an issue or pull request to suggest content or fixes. Include screenshots or sample files when relevant.</p>
+  <p>Open an issue or pull request to suggest content, corrections, or improvements. Include screenshots or sample files where relevant.</p>
 </section>
 
 <script src="/assets/js/contact.js" defer></script>
