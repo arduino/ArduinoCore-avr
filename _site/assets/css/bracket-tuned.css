@@ -1,0 +1,105 @@
+/* BRACKET — tuned styles: improved typography, layout, responsive grid, and dark mode */
+:root{
+  --bg: #ffffff;
+  --panel: #ffffff;
+  --muted: #6b7280;
+  --text: #0f172a;
+  --accent: #0ea5a4;
+  --accent-2: #0369a1;
+  --card-border: #e6e9ef;
+  --radius: 10px;
+  --gap: 1rem;
+  --max-width: 1100px;
+}
+
+/* Dark mode variables */
+:root.dark{
+  --bg: #0b1220;
+  --panel: #071024;
+  --muted: #94a3b8;
+  --text: #e6eef6;
+  --accent: #0fb5a9;
+  --accent-2: #38bdf8;
+  --card-border: #102030;
+}
+
+html,body{height:100%}
+body{font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg) url('/assets/images/bg-light.svg') repeat; background-size:200px; background-attachment:fixed; color:var(--text); margin:0; -webkit-font-smoothing:antialiased; position:relative; overflow-x:hidden}
+:root.dark body{background:var(--bg) url('/assets/images/bg-dark.svg') repeat; background-size:200px; background-attachment:fixed}
+
+/* Large subtle gradient overlay above the tiled pattern, kept below content */
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  transform: translate3d(0, var(--parallax-y, 0), 0);
+  will-change: transform;
+  background:
+    radial-gradient(800px circle at 10% 12%, rgba(14,165,164,0.06), transparent 18%),
+    radial-gradient(900px circle at 88% 78%, rgba(3,105,161,0.04), transparent 22%),
+    linear-gradient(120deg, rgba(255,255,255,0.02), rgba(14,165,164,0.01));
+}
+:root.dark body::before{
+  background:
+    radial-gradient(800px circle at 10% 12%, rgba(15,185,185,0.06), transparent 18%),
+    radial-gradient(900px circle at 88% 78%, rgba(56,189,248,0.04), transparent 22%),
+    linear-gradient(120deg, rgba(0,0,0,0.12), rgba(3,105,161,0.02));
+}
+
+.container{max-width:var(--max-width);margin:2rem auto;padding:1.25rem;position:relative;z-index:1}
+
+.site-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}
+.brand{display:flex;align-items:center;gap:0.75rem}
+.brand h1{font-size:1.25rem;margin:0}
+.brand .tagline{margin:0;color:var(--muted);font-size:0.9rem}
+.site-logo{width:48px;height:48px;display:block;color:var(--accent);border-radius:8px;transition:transform .28s cubic-bezier(.2,.9,.25,1),color .2s ease,filter .2s ease;transform-origin:center center}
+.site-logo:hover{transform:translateY(-3px) rotate(-6deg) scale(1.08);color:var(--accent-2);filter:drop-shadow(0 6px 16px rgba(3,105,161,0.12))}
+.site-logo:active{transform:translateY(-1px) rotate(-2deg) scale(1.03)}
+/* Subtle animated accent on focus for keyboard users */
+.site-logo:focus{outline:3px solid color-mix(in srgb, var(--accent) 28%, transparent);outline-offset:4px}
+
+
+.site-nav{display:flex;gap:0.75rem;align-items:center}
+.site-nav a{color:var(--text);text-decoration:none;padding:0.35rem 0.5rem;border-radius:6px;transition:background .12s}
+.site-nav a:hover{background:rgba(14,165,164,0.08)}
+
+.header-actions{display:flex;align-items:center;gap:0.5rem}
+#theme-toggle{background:transparent;border:1px solid var(--card-border);border-radius:8px;padding:0.35rem 0.6rem;cursor:pointer}
+#theme-toggle:hover{background:rgba(0,0,0,0.04)}
+
+main{min-height:60vh}
+.card{background:var(--panel);border:1px solid var(--card-border);border-radius:var(--radius);padding:1rem;margin:1rem 0;box-shadow:0 6px 18px rgba(8,15,25,0.03)}
+
+/* Grid for listing pages */
+.list-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:var(--gap)}
+.list-grid .card{margin:0;padding:1rem}
+.card h2{margin-top:0}
+
+/* Footer */
+.site-footer .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.footer-nav a{color:var(--muted);text-decoration:none;margin-left:0.75rem}
+
+/* Responsive adjustments */
+@media (max-width:800px){
+  .site-header{flex-direction:column;align-items:flex-start}
+  .site-nav{flex-wrap:wrap}
+  .site-footer .footer-inner{flex-direction:column;align-items:flex-start}
+}
+
+/* Small helpers */
+.kicker{font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem}
+.btn{display:inline-block;background:var(--accent);color:#fff;padding:0.45rem 0.75rem;border-radius:8px;text-decoration:none;border:none}
+
+/* Contact form */
+.contact-form{display:block;max-width:760px}
+.contact-form label{display:block;margin-top:0.75rem;font-weight:600}
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea{width:100%;padding:0.6rem;border-radius:8px;border:1px solid var(--card-border);background:transparent;margin-top:0.35rem;color:var(--text)}
+.contact-form textarea{resize:vertical}
+.form-actions{margin-top:0.75rem}
+
+/* Accessible focus */
+:focus{outline:3px solid color-mix(in srgb, var(--accent) 30%, transparent);outline-offset:2px}

@@ -1,0 +1,31 @@
+title: BRACKET
+email: you@example.com
+description: >-
+  Student projects, notes, and curated study resources.
+baseurl: ""
+url: ""
+markdown: kramdown
+permalink: pretty
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: default
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: default
+
+collections:
+  projects:
+    output: true
+    permalink: /projects/:path/
+  notes:
+    output: true
+    permalink: /notes/:path/
+  resources:
+    output: true
+    permalink: /resources/:path/

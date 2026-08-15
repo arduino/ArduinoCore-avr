@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title | default: site.title }}</title>
+    <meta name="description" content="{{ site.description }}">
+    <!-- Optional: better system font stack and fallback -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ '/assets/css/bracket.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/bracket-tuned.css' | relative_url }}">
+  </head>
+  <body class="theme-system">
+    <div class="container">
+      <header class="site-header">
+        <div class="brand">
+                  <img src="{{ '/assets/images/logo.svg' | relative_url }}" alt="{{ site.title }} logo" class="site-logo" width="48" height="48">
+                  <div>
+                    <h1>{{ site.title }}</h1>
+                    <p class="tagline">Student projects & notes</p>
+                  </div>
+                </div>
+
+        <nav class="site-nav" aria-label="Main navigation">
+          <a href="{{ '/' | relative_url }}">Home</a>
+          <a href="{{ '/projects/' | relative_url }}">Projects</a>
+          <a href="{{ '/notes/' | relative_url }}">Notes</a>
+          <a href="{{ '/resources/' | relative_url }}">Resources</a>
+          <a href="{{ '/about/' | relative_url }}">About</a>
+          <a href="{{ '/contact/' | relative_url }}">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <button id="theme-toggle" aria-label="Toggle color theme" title="Toggle theme">🌙</button>
+        </div>
+      </header>
+
+      <main>
+        {{ content }}
+      </main>
+
+      <footer class="site-footer card">
+        <div class="footer-inner">
+          <small>© {{ 'now' | date: '%Y' }} {{ site.title }} — MIT licensed</small>
+          <nav class="footer-nav" aria-label="Footer navigation">
+            <a href="{{ '/about/' | relative_url }}">About</a>
+            <a href="{{ '/contact/' | relative_url }}">Contact</a>
+          </nav>
+        </div>
+      </footer>
+    </div>
+
+    <script src="{{ '/assets/js/theme.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/parallax.js' | relative_url }}" defer></script>
+  </body>
+</html>

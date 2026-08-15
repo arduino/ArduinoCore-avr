@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Arduino Gemma Bootloader</title>
+    <meta name="description" content="Student projects, notes, and curated study resources.">
+    <!-- Optional: better system font stack and fallback -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/bracket.css">
+    <link rel="stylesheet" href="/assets/css/bracket-tuned.css">
+  </head>
+  <body class="theme-system">
+    <div class="container">
+      <header class="site-header">
+        <div class="brand">
+                  <img src="/assets/images/logo.svg" alt="BRACKET logo" class="site-logo" width="48" height="48">
+                  <div>
+                    <h1>BRACKET</h1>
+                    <p class="tagline">Student projects & notes</p>
+                  </div>
+                </div>
+
+        <nav class="site-nav" aria-label="Main navigation">
+          <a href="/">Home</a>
+          <a href="/projects/">Projects</a>
+          <a href="/notes/">Notes</a>
+          <a href="/resources/">Resources</a>
+          <a href="/about/">About</a>
+          <a href="/contact/">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <button id="theme-toggle" aria-label="Toggle color theme" title="Toggle theme">🌙</button>
+        </div>
+      </header>
+
+      <main>
+        <h1 id="arduino-gemma-bootloader">Arduino Gemma Bootloader</h1>
+
+<p>The Arduino Gemma Bootloader is based on the Adafruit Trinket/Gemma Bootloader. In the Arduino Gemma bootloader the USB VID&amp;PID, the Manufacturer name and the Device name parameters are changed.</p>
+
+<p>The source code of the bootloader of the version used at the compile time can be found at the following link: https://github.com/adafruit/Adafruit-Trinket-Gemma-Bootloader/tree/3bc1bb561273535d4d493518a233a3a1fccf6b76</p>
+
+<p>The <em>‘usbconfig.h’</em> and the <em>‘usbconfig.patch’</em> files are provided if you want to recompile the bootloader.
+You only need to replace the original <em>‘usbconfig.h’</em> file with this one or patch it with the provided patch file.</p>
+
+<p><strong>Please note: you cannot use the Arduino USB VID/PID for your own non-Gemma products or projects. Purchase a USB VID for yourself at</strong>  http://www.usb.org/developers/vendor/</p>
+
+
+      </main>
+
+      <footer class="site-footer card">
+        <div class="footer-inner">
+          <small>© 2026 BRACKET — MIT licensed</small>
+          <nav class="footer-nav" aria-label="Footer navigation">
+            <a href="/about/">About</a>
+            <a href="/contact/">Contact</a>
+          </nav>
+        </div>
+      </footer>
+    </div>
+
+    <script src="/assets/js/theme.js"></script>
+    <script src="/assets/js/parallax.js" defer></script>
+  </body>
+</html>

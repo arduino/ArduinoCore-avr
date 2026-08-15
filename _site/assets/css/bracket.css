@@ -1,0 +1,15 @@
+/* BRACKET — minimal starter CSS */
+:root{
+  --bg:#ffffff;
+  --text:#0f172a;
+  --muted:#6b7280;
+  --accent:#0ea5a4;
+  --max-width:900px;
+}
+body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;line-height:1.6;color:var(--text);background:var(--bg);margin:0;padding:0}
+.container{max-width:var(--max-width);margin:2rem auto;padding:1rem}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+h1{font-size:1.6rem;margin:0}
+nav a{color:var(--accent);text-decoration:none;margin-left:1rem}
+.card{border:1px solid #e6e9ef;border-radius:8px;padding:1rem;margin:1rem 0;background:#fff}
+@media (max-width:600px){.container{padding:0.5rem}h1{font-size:1.2rem}}

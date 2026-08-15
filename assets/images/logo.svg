@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="BRACKET logo">
+  <title>BRACKET logo</title>
+  <rect width="64" height="64" rx="12" fill="none"/>
+  <g stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- left bracket -->
+    <path d="M22 16 L14 24 L22 32" />
+    <!-- right bracket -->
+    <path d="M42 16 L50 24 L42 32" />
+    <!-- center dash -->
+    <path d="M28 24 L36 24" stroke-linecap="round" />
+  </g>
+</svg>
