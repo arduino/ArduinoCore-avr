@@ -7,11 +7,11 @@ title: Home
 Welcome to BRACKET — a clean, student-focused site providing access to past projects, organized lecture notes, and curated study resources.
 
 ## Quick links
-- [Projects](/projects/)
-- [Notes](/notes/)
-- [Resources](/resources/)
-- [About](/about/)
-- [Contact](/contact/)
+- [Projects]({{ '/projects/' | relative_url }})
+- [Notes]({{ '/notes/' | relative_url }})
+- [Resources]({{ '/resources/' | relative_url }})
+- [About]({{ '/about/' | relative_url }})
+- [Contact]({{ '/contact/' | relative_url }})
 
 ## Contributing
 1. Fork the repo.

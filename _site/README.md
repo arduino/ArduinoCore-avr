@@ -2,12 +2,13 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](#license) [![Website status](https://img.shields.io/badge/status-ready-blue.svg)](#)
 
-Welcome to BRACKET — a clean, student-focused site providing access to past projects, organized notes, and curated study resources. This repository contains the website source and content for students and instructors.
+BRACKET is a clean, student-focused website for exploring past projects, lecture notes, and curated study resources. It gives learners an easy way to discover useful examples, revisit key ideas, and build on the work of earlier students.
 
 ---
 
 ## Table of contents
 - About
+- Live site
 - Quick links
 - Content structure
 - How to use
@@ -20,52 +21,52 @@ Welcome to BRACKET — a clean, student-focused site providing access to past pr
 ---
 
 ## About
-BRACKET hosts previous student projects, lecture notes, and helpful resources. The site is intentionally minimal and mobile-friendly so learners can find examples and explanations quickly.
+BRACKET collects student projects, notes, and learning resources in one place. The site is intentionally minimal and mobile-friendly so that students can find examples and explanations quickly and without distraction.
 
-## Quick links (replace placeholders with real URLs)
-- Home: / or /index.html
+## Live site
+https://darianvergotine2026.github.io/bracket-site-xyz/
+
+## Quick links
+- Home: /
 - Projects: /projects/
 - Notes: /notes/
 - Resources: /resources/
 - About: /about/
 - Contact: /contact/
 
-Live site (example): https://your-site.example.com/
-
-## Content structure (recommended)
+## Content structure
 - projects/
   - project-slug/
     - index.md — overview and links
-    - code/ — source or links to repos
+    - code/ — source or references to repos
     - demo/ — screenshots or live demo
 - notes/
   - topic-slug/
     - index.md — summary
     - lecture-1.md, lecture-2.md
-- resources/ — templates, slides, datasets
+- resources/ — templates, slides, datasets, and references
 
 Naming conventions: use kebab-case for filenames and include short descriptions and tags for search.
 
 ## How to use
-Students: browse Projects for examples, Notes for summaries, and Resources for downloads.
-Instructors: link assignments to examples and contribute reference implementations.
+Students can browse Projects for examples, Notes for summaries, and Resources for downloads. Instructors can link assignments to relevant examples and contribute reference implementations or teaching materials.
 
 ## Contributing
 1. Fork the repository.
-2. Add or edit content under /projects/ or /notes/.
-3. Open a pull request with a clear description and any screenshots.
+2. Add or edit content under /projects/, /notes/, or /resources/.
+3. Open a pull request with a clear description and any screenshots or supporting files.
 
 Guidelines:
 - Mark solutions clearly to respect academic integrity.
 - Provide concise descriptions and tags.
 - Add a license for uploaded code if different from the repo license.
 
-## Deployment (GitHub Pages)
-1. Push to GitHub.
-2. In repository Settings → Pages, select the branch and folder (e.g., gh-pages or main:/docs).
+## Deployment
+1. Push the site content to GitHub.
+2. In repository settings, enable GitHub Pages and select the branch or folder for publishing.
 3. Optionally configure a custom domain and enable HTTPS.
 
-Static site generators: Jekyll, Hugo, or MkDocs are supported for templating and search.
+This project is built as a static site using Jekyll, which keeps the setup simple and fast for hosting on GitHub Pages.
 
 ## Accessibility & design
 - Mobile-first responsive layout
@@ -79,9 +80,11 @@ Suggested palette: white background, dark slate text, teal accent.
 This project is licensed under the MIT License. See LICENSE.md for details.
 
 ## Contact
-Owner: Your Name — you@example.com
-GitHub: https://github.com/your-username
+Owner: Darian Vergotine
+- Email: darianvergotine2204@proton.me
+- Alternative email: vergotine1804@gmail.com
+- GitHub: https://github.com/darianvergotine2026
 
 ---
 
-Thank you for using BRACKET. Suggestions or feature requests welcome via issues and pull requests.
+Thank you for using BRACKET. Suggestions, questions, and feature requests are welcome via issues and pull requests.

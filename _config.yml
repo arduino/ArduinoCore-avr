@@ -2,8 +2,8 @@ title: BRACKET
 email: you@example.com
 description: >-
   Student projects, notes, and curated study resources.
-baseurl: ""
-url: ""
+url: "https://darianvergotine2026.github.io"
+baseurl: "/bracket-site-xyz"
 markdown: kramdown
 permalink: pretty
 
