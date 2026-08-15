@@ -20,3 +20,7 @@ jobs:
 
       - name: Spell check
         uses: codespell-project/actions-codespell@master
+        with:
+          # Only scan the repository source files you maintain to avoid third-party/compiled noise
+          # Adjust the list if you keep other content directories under source control
+          args: "--check-filenames projects notes resources about.md contact.md index.md README.md assets/**/*.css assets/**/*.js _layouts _includes"
