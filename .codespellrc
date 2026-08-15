@@ -5,4 +5,4 @@ ignore-words-list = clearin,clen,hart,pullrequest,shiftin,waitin
 builtin = clear
 check-filenames =
 check-hidden =
-skip = ./.git,./firmwares/arduinoISP,./firmwares/wifishield,./bootloaders
+skip = ./.git,./_site,./firmwares,./bootloaders
