@@ -79,8 +79,8 @@ Suggested palette: white background, dark slate text, teal accent.
 This project is licensed under the MIT License. See LICENSE.md for details.
 
 ## Contact
-Owner: Your Name — you@example.com
-GitHub: https://github.com/your-username
+Owner: Darian Vergotine — darianvergotine2204@proton.me / vergotine1804@gmail.com
+GitHub: https://github.com/darianvergotine2026
 
 ---
 
