@@ -266,9 +266,18 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
 {
   if(transmitting){
   // in master transmitter mode
+    // mirror Print::write(buf, size)'s convention: stop (and report the
+    // truncated count) as soon as a per-byte write() fails, e.g. because
+    // txBuffer is full -- write(uint8_t) already returns 0 in that case,
+    // but this loop was previously discarding that return value and
+    // always reporting the full requested quantity as sent, even when
+    // only the first BUFFER_LENGTH bytes actually made it into txBuffer.
+    size_t sent = 0;
     for(size_t i = 0; i < quantity; ++i){
-      write(data[i]);
+      if(!write(data[i])) break;
+      ++sent;
     }
+    return sent;
   }else{
   // in slave send mode
     // reply to master
