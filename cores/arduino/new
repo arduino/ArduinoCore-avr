@@ -42,11 +42,11 @@ namespace std {
 [[gnu::weak]] void * operator new(std::size_t size);
 [[gnu::weak]] void * operator new[](std::size_t size);
 
-[[gnu::weak]] void * operator new(std::size_t size, const std::nothrow_t tag) noexcept;
-[[gnu::weak]] void * operator new[](std::size_t size, const std::nothrow_t& tag) noexcept;
+[[gnu::weak]] void * operator new(std::size_t size, [[maybe_unused]] const std::nothrow_t tag) noexcept;
+[[gnu::weak]] void * operator new[](std::size_t size, [[maybe_unused]] const std::nothrow_t& tag) noexcept;
 
-void * operator new(std::size_t size, void *place) noexcept;
-void * operator new[](std::size_t size, void *place) noexcept;
+void * operator new([[maybe_unused]] std::size_t size, void *place) noexcept;
+void * operator new[]([[maybe_unused]] std::size_t size, void *place) noexcept;
 
 [[gnu::weak]] void operator delete(void * ptr) noexcept;
 [[gnu::weak]] void operator delete[](void * ptr) noexcept;
@@ -56,8 +56,8 @@ void * operator new[](std::size_t size, void *place) noexcept;
 [[gnu::weak]] void operator delete[](void * ptr, std::size_t size) noexcept;
 #endif // __cplusplus >= 201402L
 
-[[gnu::weak]] void operator delete(void* ptr, const std::nothrow_t& tag) noexcept;
-[[gnu::weak]] void operator delete[](void* ptr, const std::nothrow_t& tag) noexcept;
+[[gnu::weak]] void operator delete(void* ptr, [[maybe_unused]] const std::nothrow_t& tag) noexcept;
+[[gnu::weak]] void operator delete[](void* ptr, [[maybe_unused]] const std::nothrow_t& tag) noexcept;
 
 void operator delete(void* ptr, void* place) noexcept;
 void operator delete[](void* ptr, void* place) noexcept;
