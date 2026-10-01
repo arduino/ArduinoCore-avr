@@ -267,7 +267,7 @@ int Stream::findMulti( struct Stream::MultiTarget *targets, int tCount) {
 
     for (struct MultiTarget *t = targets; t < targets+tCount; ++t) {
       // the simple case is if we match, deal with that first.
-      if (c == t->str[t->index]) {
+      if (c == static_cast<unsigned char>(t->str[t->index])) {
         if (++t->index == t->len)
           return t - targets;
         else
@@ -285,7 +285,7 @@ int Stream::findMulti( struct Stream::MultiTarget *targets, int tCount) {
       do {
         --t->index;
         // first check if current char works against the new current index
-        if (c != t->str[t->index])
+        if (c != static_cast<unsigned char>(t->str[t->index]))
           continue;
 
         // if it's the only char then we're good, nothing more to check
